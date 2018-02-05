@@ -13,11 +13,15 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
+        <ListView
+            android:id="@+id/song_list"
+            android:layout_width="match_parent"
+            android:layout_height="380dp"></ListView>
+
         <Button
             android:id="@+id/button_favdisneu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="400sp"
             android:text="+/-"
             tools:layout_editor_absoluteX="251dp"
             tools:layout_editor_absoluteY="369dp" />

@@ -6,16 +6,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private MediaPlayer mediaPlayer;
     private static final int MEDIA_RES_ID = R.raw.jazz_in_paris;
+    private ArrayList<Song> songsList;
+    private ListView songsView;
 
     public void loadMedia(int resourceId) {
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
         }
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
 
         AssetFileDescriptor assetFileDescriptor = this.getResources().openRawResourceFd(resourceId);
         try {
@@ -34,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.release();
+    }
+
+    public void getSongsList() {
+        // TODO, FIXME
+        songsList.add(new Song(1, "Jazz in Paris", "Human", "Jazzy"));
+    }
 
 
     @Override
@@ -41,7 +63,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadMedia(MEDIA_RES_ID); // load jazz in paris
+        songsView = (ListView) findViewById(R.id.song_list);
+        songsList = new ArrayList<Song>();
+        getSongsList();
+        loadMedia(MEDIA_RES_ID); // load jazz in paris REMOVE LATER
+
+        // could sort alphabetically for the songs
+
+
+        SongListAdapter songAdapt = new SongListAdapter(this, songsList);
+        songsView.setAdapter(songAdapt);
 
         // toggle between play and pause
         Button playButton = (Button) findViewById(R.id.button_play);
