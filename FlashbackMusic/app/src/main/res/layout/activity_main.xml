@@ -6,59 +6,51 @@
     android:layout_height="match_parent"
     tools:context="com.android.flashbackmusic.MainActivity">
 
-    <LinearLayout
+    <ListView
+        android:id="@+id/song_list"
+        android:layout_width="match_parent"
+        android:layout_height="380dp"></ListView>
+
+    <Button
+        android:id="@+id/button_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="44dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1"
+        android:background="@drawable/reset_80"
+        app:layout_constraintLeft_toLeftOf="@id/song_list"
+        app:layout_constraintTop_toBottomOf="@id/button_favdisneu" />
+
+    <Button
+        android:id="@+id/button_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="168dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/play_80"
+        app:layout_constraintLeft_toRightOf="@id/button_skip"
+        app:layout_constraintTop_toBottomOf="@id/button_favdisneu" />
+
+    <Button
+        android:id="@+id/button_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="52dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1"
+        android:background="@drawable/skip_80"
+        app:layout_constraintLeft_toRightOf="@id/button_play"
+        app:layout_constraintTop_toBottomOf="@id/button_favdisneu" />
+
+    <Button
+        android:id="@+id/button_favdisneu"
         android:layout_width="368dp"
-        android:layout_height="495dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
-
-        <ListView
-            android:id="@+id/song_list"
-            android:layout_width="match_parent"
-            android:layout_height="380dp"></ListView>
-
-        <Button
-            android:id="@+id/button_favdisneu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="+/-"
-            tools:layout_editor_absoluteX="251dp"
-            tools:layout_editor_absoluteY="369dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button_reset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Reset"
-                tools:layout_editor_absoluteX="35dp"
-                tools:layout_editor_absoluteY="435dp" />
-
-            <Button
-                android:id="@+id/button_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Play/Pause"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                tools:layout_editor_absoluteY="435dp" />
-
-            <Button
-                android:id="@+id/button_skip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Skip"
-                tools:layout_editor_absoluteX="251dp"
-                tools:layout_editor_absoluteY="435dp" />
-
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="+/-"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@id/song_list"
+        app:layout_constraintTop_toBottomOf="@id/song_list"
+        tools:layout_editor_absoluteY="380dp" />
 
 </android.support.constraint.ConstraintLayout>
