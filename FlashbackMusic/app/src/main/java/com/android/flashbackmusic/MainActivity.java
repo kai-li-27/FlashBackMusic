@@ -130,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         SongListAdapter songAdapt = new SongListAdapter(this, songsList);
         songsView.setAdapter(songAdapt);
 
+        /*
         // toggle between play and pause
         Button playButton = (Button) findViewById(R.id.button_play);
         playButton.setOnClickListener (
@@ -141,9 +142,9 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             mediaPlayer.pause();
                         }*/
-
+                /*
                     }
-                });
+                }); */ /*
 
         Button resetButton = (Button) findViewById(R.id.button_reset);
         resetButton.setOnClickListener (
@@ -152,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) { /*
                         mediaPlayer.reset();
                         loadMedia(MEDIA_RES_ID);*/
-                    }
-                });
+                    /*}
+                }); */
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
