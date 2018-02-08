@@ -6,6 +6,42 @@
     android:layout_height="match_parent"
     tools:context="com.android.flashbackmusic.IndividualSong">
 
+    <TextView
+        android:id="@+id/curr_song_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uninitialized Song Name"
+        android:textSize="32sp"
+        app:layout_constraintTop_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/curr_song_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uninitialized Song Artist"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_title"/>
+
+    <TextView
+        android:id="@+id/curr_song_album"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uninitialized Album Name"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_artist"/>
+
+    <TextView
+        android:id="@+id/curr_song_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uninitialized Song Location"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_album"/>
+
+    <TextView
+        android:id="@+id/curr_song_datetime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Uninitialized Song Date and Time"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_location"/>
+
     <Button
         android:id="@+id/button_reset"
         android:layout_width="wrap_content"
