@@ -13,19 +13,24 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     // private MediaPlayer mediaPlayer;
     private static final int MEDIA_RES_ID = R.raw.jazz_in_paris;
     private ArrayList<Song> songsList;
+    //private ArrayList<Album> albumsList;
     private ListView songsView;
     private SongsService songsServ;
     private Intent playIntent;
@@ -86,25 +91,75 @@ public class MainActivity extends AppCompatActivity {
         // mediaPlayer.release();
     }
 
+    /**
+     * This methods scan the folder and populate the songlist, and also update their info in database
+     */
     public void getSongsList() {
+
+        System.out.println("I am called \n\n\n\n\n");
         ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
+        Uri musicUri = Uri.parse("android.resource://com.android.flashbackmusic/" + R.raw.beautiful_pain );
+        //Uri musicUri = android.provider.MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
+        //Uri musicUri = android.provider.MediaStore.Audio.Media.;
+
+        //Uri.parse("android.resource://com.my.package/drawable/icon");
+
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
         if (musicCursor != null && musicCursor.moveToFirst()) {
             int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+            int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
             // TODO grabbing album title
             do {
                 long currId = musicCursor.getLong(idColumn);
                 String currTitle = musicCursor.getString(titleColumn);
                 String currArtist = musicCursor.getString(artistColumn);
+                String currAlbum = musicCursor.getString(albumColumn);
                 // TODO same for album title
-                songsList.add(new Song(currId, currTitle, currArtist, "beep")); // FIXME album input
+                songsList.add(new Song(currId, currTitle, currArtist, currAlbum)); // FIXME album input
             } while (musicCursor.moveToNext());
         }
+
+        for (Song song : songsList) {
+            System.out.println(song.getTitle());
+        }
+
+        //getAlbumList();
     }
+
+    /*
+    public void getAlbumList() { // TODO test it after implemented song list.
+        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+        for ( Song song : songsList) {
+            if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
+                Album album = new Album;
+                album.artist = song.getArtist();
+                album.title = song.getAlbum();
+                album.songsList.add(song);
+                albumsMap.put(song.getAlbum()+song.getArtist(), album);
+            } else {
+                Album album = albumsMap.get(song.getAlbum() + song.getArtist());
+                album.songsList.add(song);
+            }
+        }
+
+        albumsList = new ArrayList<Album>(albumsMap.values());
+        java.util.Collections.sort(albumsList, new AlbumComparator());
+
+    }
+    */
+
+    /*
+    class AlbumComparator implements Comparator<Album> {
+        @Override
+        public int compare(Album a, Album b) {
+            return a.title.compareToIgnoreCase(b.title);
+        }
+    }
+    */
 
 
     @Override
