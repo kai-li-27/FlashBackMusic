@@ -61,6 +61,8 @@ public class IndividualSong extends AppCompatActivity {
 
 
         Button skip = (Button) findViewById(R.id.button_skip);
+        //TODO figure out what o do when it skips, probably iterate through
+        // TOdo the song list
         skip.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
