@@ -1,5 +1,6 @@
 # cse-110-team-project-team-10
 
+```
 Song {
       // Use getters and setters for these
     private String title;
@@ -13,10 +14,10 @@ Song {
                      // I can remove it.
                      
     public void rotatePreference(); // increment then % by 3
-    
 }
+```
 
-
+```
 /* I know this is a weird name but you will interact with the database through this interface
  */
 SongDao {
@@ -37,8 +38,9 @@ SongDao {
 
     public void deleteSong(Song song);
 }
+```
 
-
+```
 How to use SongDao:
   Have the following as private fields in your class:
       private SongDao songDao;
@@ -55,9 +57,11 @@ How to use SongDao:
   To query or update:
       long lasttime = songDao.query(whatever is in the header);
       songDao.update(song);
+```
 
-
+```
 MainActivity {
     ArrayList<Song> songsList; // you need to somehow have a reference to this in the songService I think.
                                // Just assmue that this list contains all the songs
 }
+```
