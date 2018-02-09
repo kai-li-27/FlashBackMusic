@@ -1,20 +1,45 @@
 package com.android.flashbackmusic;
 
 import android.content.res.AssetFileDescriptor;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
 import org.w3c.dom.Text;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class IndividualSong extends AppCompatActivity {
 
     private SongsService songsService = new SongsService();
     private MediaPlayer player = songsService.getMediaPlayer();
     private Song currentSong = songsService.getSong(songsService.getSongIndex());
+    private Uri uri;
+    private Date date;
+    //Todo location variable
+    private SongDao songDao;
+    private SongDatabase Db;
+    private LocationManager locationManager;
+
+
+    //TODO put these in the XML FILe
+    //TODO <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    //TODO <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+
+    private final LocationListener mLocationListener = new LocationListener(){
+        @Override
+        public void onLocationChanged(Location location) {
+
+        }
+    };
     //private Button plus;
     //private static final int beautiful_pain = R.raw.beautiful_pain;
     //private static final int unstoppable = R.raw.unstoppable;
@@ -30,13 +55,28 @@ public class IndividualSong extends AppCompatActivity {
         songsService.onCreate();
         changeText();
 
-        //Todo update song's Lasttime to current time
+        //update song's Lasttime to current time
+        date = Calendar.getInstance().getTime();
+        currentSong.setLastTime(date);
         // Todo update song's lastLocation to current location
-        //update these things in the database as well
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, );
+        currentSong.setLastLocation();
 
+
+
+
+        // TOdo update these things in the database as well
+        // long lasttime = sondDao.query(whatever is in the header);
+        // songDao.update(currentSong);
 
 
         //TODO LoadMedia with the thing that was taken from the database, given a tag in main activity
+
+
+
+
+
 
         Button plus = (Button) findViewById(R.id.button_favdisneu);
         plus.setOnClickListener(
