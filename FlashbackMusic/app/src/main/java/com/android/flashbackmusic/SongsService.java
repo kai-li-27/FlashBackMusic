@@ -104,4 +104,14 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             return SongsService.this;
         }
     }
+
+    //gets the song index
+    public int getSongIndex(){return songIndex;}
+
+    //gets me the song to play
+    public Song getSong(int songIndex){return songs.get(songIndex);}
+
+    public MediaPlayer getMediaPlayer(){return this.player;}
+
+
 }
