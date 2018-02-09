@@ -48,10 +48,9 @@ How to use SongDao:
       
   //Note!! we haven't tested this part yet, wait for us, just get familiar to it now.
   You have to call this method before you can use songDao: 
-      public void createDb() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        Db = Room.databaseBuilder(context, SongDatabase.class, "database.filename").build();
-        songDao = Db.songDao();
+      public void createDb() {        
+          Db = SongDatabase.getSongDatabase(getApplicationContext());
+          songDao = Db.songDao();
       }
       
   To query or update:
