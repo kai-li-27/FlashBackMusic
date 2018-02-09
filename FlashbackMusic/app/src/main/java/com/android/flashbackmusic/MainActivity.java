@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.Manifest;
+import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private SongsService songsServ;
     private Intent playIntent;
     private boolean isMusicBound = false;
+
+
+    private SongDao songDao;
+    private SongDatabase Db;
 
     /*
     public void loadMedia(int resourceId) {
@@ -96,36 +103,50 @@ public class MainActivity extends AppCompatActivity {
      */
     public void getSongsList() {
 
-        System.out.println("I am called \n\n\n\n\n");
-        ContentResolver musicResolver = getContentResolver();
+        Db = SongDatabase.getSongDatabase(getApplicationContext()); //TODO move thse 2 lines to somewhere more appropriate
+        songDao = Db.songDao();
 
-        Uri musicUri = Uri.parse("android.resource://com.android.flashbackmusic/" + R.raw.beautiful_pain );
-        //Uri musicUri = android.provider.MediaStore.Audio.Media.INTERNAL_CONTENT_URI;
-        //Uri musicUri = android.provider.MediaStore.Audio.Media.;
+        Field[] filesName = R.raw.class.getFields();
+        int count = 0;
 
-        //Uri.parse("android.resource://com.my.package/drawable/icon");
+        for (int i = 0; i < filesName.length; i++) {
+            int resourceId = getResources().getIdentifier(filesName[i].getName(), "raw", getPackageName());
+            Uri musicUri = Uri.parse("android.resource://" + getPackageName() + "/" + Integer.toString(resourceId)  );
 
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+            try {
+                MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                metaRetriever.setDataSource(getApplicationContext(), musicUri);
+                String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
-            int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            // TODO grabbing album title
-            do {
-                long currId = musicCursor.getLong(idColumn);
-                String currTitle = musicCursor.getString(titleColumn);
-                String currArtist = musicCursor.getString(artistColumn);
-                String currAlbum = musicCursor.getString(albumColumn);
-                // TODO same for album title
-                songsList.add(new Song(currId, currTitle, currArtist, currAlbum)); // FIXME album input
-            } while (musicCursor.moveToNext());
-        }
+                if (artist == null) {
+                    artist = "";
+                }
+                if (title == null) {
+                    title = "";
+                }
+                if (album == null) {
+                    album = "";
+                }
+
+                Song song = new Song(i, title, artist, album);
+                songsList.add(song);
+                if (songDao.isIntheDB(title, artist, album) == null) {
+                    songDao.insertSong(song);
+                    count++;
+                }
+            } catch (Exception e) {} // According to song
+            //TODO make songlist a pair which also contains the uri or datastream or resources of the actual file.
+
+       }
+
 
         for (Song song : songsList) {
-            System.out.println(song.getTitle());
+            System.out.println(song.getTitle() + " -- " + song.getAlbum() + " -- " + song.getArtist());
         }
+
+        System.out.println(Integer.toString(count) + " songs added");
 
         //getAlbumList();
     }
