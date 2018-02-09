@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -38,31 +37,29 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void writeUserAndReadInList() throws Exception {
-        Song song = new Song(0,"titleName", "artistName", "AlbumName");
+    public void DataBaseOperationsTest() throws Exception {
+        Song song = new Song(0,"titleName", "artistName", "albumName");
         songDao.insertSong(song);
 
-        Song song1 = songDao.isIntheDB("titleName", "artistName", "AlbumName");
+        Song song1 = songDao.isIntheDB("titleName", "artistName", "albumName");
         assertEquals("titleName", song1.getTitle());
+        assertEquals("artistName", song1.getArtist());
+        assertEquals("albumName", song1.getAlbum());
+        assertEquals( 0, song1.getPreference());
+        assertEquals( 0, song1.getLastTime());
+        assertEquals( 0, songDao.queryPreference("titleName", "artistName", "albumName"));
+        assertEquals( 0, songDao.queryLastTime("titleName", "artistName", "albumName"));
 
-
-        song.setLastLocation(6);
-        System.out.println(song.getLastLocation());
+        song.setLastTime(6);
         songDao.updateSong(song);
-        Song song2 = songDao.isIntheDB("titleName", "artistName", "AlbumName");
-
-
-        System.out.println("TITLE:   "+song2.getTitle());
-        System.out.println("ARTIST:  "+song2.getArtist());
-        System.out.println("ALBUM:   "+song2.getAlbum());
-        System.out.println("LASTLOC:   "+song2.getLastLocation());
-
-        assertEquals(6, song2.getLastLocation());
-
+        Song song2 = songDao.isIntheDB("titleName", "artistName", "albumName");
+        assertEquals(6, song2.getLastTime());
+        assertEquals( 6, songDao.queryLastTime("titleName", "artistName", "albumName"));
 
         songDao.deleteSong(song);
-        song1 = songDao.isIntheDB("as", "artistName", "AlbumName");
+        song1 = songDao.isIntheDB("as", "artistName", "albumName");
         assertTrue(null == song1);
-
     }
+
+
 }
