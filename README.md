@@ -46,12 +46,10 @@ How to use SongDao:
       private SongDao songDao;
       private SongDatabase Db;
       
-  //Note!! we haven't tested this part yet, wait for us, just get familiar to it now.
-  You have to call this method before you can use songDao: 
-      public void createDb() {        
-          Db = SongDatabase.getSongDatabase(getApplicationContext());
-          songDao = Db.songDao();
-      }
+  You have to execute these codes before you can use songDao: 
+      Db = SongDatabase.getSongDatabase(getApplicationContext());
+      songDao = Db.songDao();
+      
       
   To query or update:
       long lasttime = songDao.query(whatever is in the header);
