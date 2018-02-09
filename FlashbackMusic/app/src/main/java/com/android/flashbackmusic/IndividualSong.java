@@ -29,9 +29,7 @@ public class IndividualSong extends AppCompatActivity {
     private LocationManager locationManager;
 
 
-    //TODO put these in the XML FILe
-    //TODO <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    //TODO <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 
 
     private final LocationListener mLocationListener = new LocationListener(){
@@ -47,6 +45,7 @@ public class IndividualSong extends AppCompatActivity {
 
 // handle the case when an individual songs are selected from many options, we will fetch that song
     // from many options in the database and play that song
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +57,7 @@ public class IndividualSong extends AppCompatActivity {
         //update song's Lasttime to current time
         date = Calendar.getInstance().getTime();
         currentSong.setLastTime(date);
+
         // Todo update song's lastLocation to current location
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, );
@@ -110,14 +110,16 @@ public class IndividualSong extends AppCompatActivity {
                 });
 
         // play get stuff from the other activity, loads it from the database and then we playit
-        // TOdo change UI of the play button to a pause button?????????
+        // TOdo change UI of the play button to a pause button
         Button play = (Button) findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
+
                         if(player.isPlaying()) player.pause();
                         else player.start();
+                        //UI Change button and press button
                     }
 
                 });
