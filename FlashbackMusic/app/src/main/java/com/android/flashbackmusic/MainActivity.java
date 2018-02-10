@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.Manifest;
+import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -9,20 +10,25 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean isMusicBound = false;
     SongListAdapter songAdapt;
     AlbumListAdapter albumAdapt;
+
+
+    private SongDao songDao;
+    private SongDatabase Db;
 
     /*
     public void loadMedia(int resourceId) {
@@ -97,25 +107,89 @@ public class MainActivity extends AppCompatActivity {
         // mediaPlayer.release();
     }
 
+    /**
+     * This methods scan the folder and populate the songlist, and also update their info in database
+     */
     public void getSongsList() {
-        ContentResolver musicResolver = getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
-            // TODO grabbing album title
-            do {
-                long currId = musicCursor.getLong(idColumn);
-                String currTitle = musicCursor.getString(titleColumn);
-                String currArtist = musicCursor.getString(artistColumn);
-                // TODO same for album title
-                songsList.add(new Song(currId, currTitle, currArtist, "beep")); // FIXME album input
-            } while (musicCursor.moveToNext());
+        Db = SongDatabase.getSongDatabase(getApplicationContext()); //TODO move thse 2 lines to somewhere more appropriate
+        songDao = Db.songDao();
+
+        Field[] filesName = R.raw.class.getFields();
+        int count = 0;
+
+        for (int i = 0; i < filesName.length; i++) {
+            int resourceId = getResources().getIdentifier(filesName[i].getName(), "raw", getPackageName());
+            Uri musicUri = Uri.parse("android.resource://" + getPackageName() + "/" + Integer.toString(resourceId)  );
+
+            try {
+                MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                metaRetriever.setDataSource(getApplicationContext(), musicUri);
+                String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+                if (artist == null) {
+                    artist = "";
+                }
+                if (title == null) {
+                    title = "";
+                }
+                if (album == null) {
+                    album = "";
+                }
+
+                Song song = new Song(i, title, artist, album);
+                songsList.add(song);
+                if (songDao.isIntheDB(title, artist, album) == null) {
+                    songDao.insertSong(song);
+                    count++;
+                }
+            } catch (Exception e) {} // According to song
+            //TODO make songlist a pair which also contains the uri or datastream or resources of the actual file.
+
+       }
+
+
+        for (Song song : songsList) {
+            System.out.println(song.getTitle() + " -- " + song.getAlbum() + " -- " + song.getArtist());
+        }
+
+        System.out.println(Integer.toString(count) + " songs added");
+
+        //getAlbumList();
+    }
+
+    /*
+    public void getAlbumList() { // TODO test it after implemented song list.
+        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+        for ( Song song : songsList) {
+            if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
+                Album album = new Album;
+                album.artist = song.getArtist();
+                album.title = song.getAlbum();
+                album.songsList.add(song);
+                albumsMap.put(song.getAlbum()+song.getArtist(), album);
+            } else {
+                Album album = albumsMap.get(song.getAlbum() + song.getArtist());
+                album.songsList.add(song);
+            }
+        }
+
+        albumsList = new ArrayList<Album>(albumsMap.values());
+        java.util.Collections.sort(albumsList, new AlbumComparator());
+
+    }
+    */
+
+    /*
+    class AlbumComparator implements Comparator<Album> {
+        @Override
+        public int compare(Album a, Album b) {
+            return a.title.compareToIgnoreCase(b.title);
         }
     }
+    */
 
 
 
@@ -125,12 +199,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                 return;
             }
         }
+        */
 
         // FIXME for after MVP: get the last state instead of default songs list
         songsView = (ListView) findViewById(R.id.song_list);
