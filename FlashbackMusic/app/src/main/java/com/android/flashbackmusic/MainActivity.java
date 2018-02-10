@@ -15,6 +15,8 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
     // private MediaPlayer mediaPlayer;
     private static final int MEDIA_RES_ID = R.raw.jazz_in_paris;
     private ArrayList<Song> songsList;
-    //private ArrayList<Album> albumsList;
+    private ArrayList<Album> albumsList;
     private ListView songsView;
     private SongsService songsServ;
     private Intent playIntent;
     private boolean isMusicBound = false;
+    SongListAdapter songAdapt;
+    AlbumListAdapter albumAdapt;
 
 
     private SongDao songDao;
@@ -65,9 +69,14 @@ public class MainActivity extends AppCompatActivity {
         }
     } */
 
+    // method that is called once a song is clicked
     public void chosenSong(View view) {
-        songsServ.setSong(Integer.parseInt(view.getTag().toString()));
-        songsServ.playSong();
+        // songsServ.setSong(Integer.parseInt(view.getTag().toString()));
+         //songsServ.playSong();
+        Intent intent = new Intent(this, IndividualSong.class);
+        intent.putExtra(Intent.EXTRA_TEXT,view.getTag().toString());
+        startActivity(intent);
+
     }
 
     @Override
@@ -183,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
     */
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,48 +202,56 @@ public class MainActivity extends AppCompatActivity {
         /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},1);
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                 return;
             }
         }
         */
 
+        // FIXME for after MVP: get the last state instead of default songs list
         songsView = (ListView) findViewById(R.id.song_list);
         songsList = new ArrayList<Song>();
+        albumsList = new ArrayList<Album>();
         getSongsList();
+        // getAlbumsList(); FIXME, add me in after Kai and Eddy are done
+
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.topTabs);
+        //TabItem songTab = (TabItem) findViewById(R.id.song_tab);
+        //TabItem albumTab = (TabItem) findViewById(R.id.album_tab);
+
         // loadMedia(MEDIA_RES_ID); // load jazz in paris REMOVE LATER
 
         // could sort alphabetically for the songs
 
-
-        SongListAdapter songAdapt = new SongListAdapter(this, songsList);
+        songAdapt = new SongListAdapter(this, songsList);
+        // albumAdapt = new AlbumListAdapter(this, albumsList);
         songsView.setAdapter(songAdapt);
 
-        /*
-        // toggle between play and pause
-        Button playButton = (Button) findViewById(R.id.button_play);
-        playButton.setOnClickListener (
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) { /*
-                        if (!mediaPlayer.isPlaying()) {
-                            mediaPlayer.start();
-                        } else {
-                            mediaPlayer.pause();
-                        }*/
-                /*
-                    }
-                }); */ /*
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                String theTab = tab.getText().toString();
+                if (theTab.equalsIgnoreCase("songs")) {
+                    songsView.setAdapter(songAdapt);
+                }
+                if (theTab.equalsIgnoreCase("albums")) {
+                    songsView.setAdapter(songAdapt); // FIXME-- will be albumAdapt later
+                }
+            }
 
-        Button resetButton = (Button) findViewById(R.id.button_reset);
-        resetButton.setOnClickListener (
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) { /*
-                        mediaPlayer.reset();
-                        loadMedia(MEDIA_RES_ID);*/
-                    /*}
-                }); */
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
