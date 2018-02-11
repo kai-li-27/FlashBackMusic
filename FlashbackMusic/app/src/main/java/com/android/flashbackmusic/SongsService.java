@@ -1,19 +1,19 @@
 package com.android.flashbackmusic;
 
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.view.View;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -22,10 +22,17 @@ import java.util.ArrayList;
 
 public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
+    private Song currentSong;
     private MediaPlayer player;
-    private ArrayList<Song> songs;
-    private int songIndex;
+    private ArrayList<Song> songsList;
+    private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
+    private LocationManager locationManager;
+    private IndividualSong currentIndividualSong;
+    private SongDao songDao;
+    private Location currlocation;
+
+
 
     @Nullable
     @Override
@@ -36,13 +43,21 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public boolean onUnbind(Intent intent) {
         player.stop();
-        player.release();
         return false;
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
+            currentIndex++;
+        } else {
+            currentIndex = 0;
+        }
+        loadMedia();
+        if (currentIndividualSong != null) { //In case the app is at main screen now
+            currentIndividualSong.changeText();
+        }
+        //TODO tell the individualsong to update info
     }
 
     @Override
@@ -56,39 +71,67 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         mp.start();
     }
 
-    public void setList(ArrayList<Song> inSongs) {
-        songs = inSongs;
-    }
-
+    @Override
     public void onCreate() {
         super.onCreate();
-        songIndex = 0;
-        player = new MediaPlayer();
+        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext()); // Load database
+        //update song's Lasttime to current time
+        // date = Calendar.getInstance().getTime();
+        //currentSong.setLastTime(date.getTime());
 
+        // Todo update song's lastLocation to current location
+        locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+        } catch (SecurityException e){}
+        songDao = Db.songDao();
+        currentIndex = 0;
+        player = new MediaPlayer();
         initializeMusicPlayer();
     }
 
-    public void setSong(int songPos) {
-        songIndex = songPos;
+
+    public void setList(ArrayList<Song> inSongs) {
+        songsList = inSongs;
     }
 
-    public void playSong() {
-        player.reset();
-        Song songToPlay = songs.get(songIndex);
-        long currSongId = songToPlay.getId();
-
-        // FIXME
-        Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currSongId);
+    /**
+     * This method is intened to be only used by within the class
+     */
+    private void loadMedia() {
         try {
-            player.setDataSource(getApplicationContext(), trackUri);
-        } catch (Exception e) {
-            Log.e("SONGS SERVICE", "Error setting the data source", e);
-        }
+            player.reset();
+            currentSong = songsList.get(currentIndex);
+            currentSong.setLastLocation(currlocation);
+            player.setDataSource(getApplicationContext(), currentSong.uri);
+            player.prepare();
 
-        player.prepareAsync();
+        } catch (IOException e) {
+            System.out.println("************************");
+            System.out.println("Failed loading song!!!!!");
+            System.out.println("************************");
+        }
     }
 
-    public void initializeMusicPlayer() {
+    public void loadMedia(int index) {
+        try {
+            currentIndex = index;
+            currentSong = songsList.get(index);
+            if (currlocation != null) {
+                currentSong.setLastLocation(currlocation);
+            }
+            player.reset();
+            player.setDataSource(getApplicationContext(), songsList.get(currentIndex).uri);
+            player.prepare();
+        } catch (IOException e) {
+            System.out.println("************************");
+            System.out.println("Failed loading song!!!!!");
+            System.out.println("************************");
+        }
+    }
+
+
+    private void initializeMusicPlayer() {
         // let the music keep playing if it's already playing if it sleeps
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -105,13 +148,50 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public void skip() {
+        currentIndex++;
+        loadMedia();
+    }
+
+    // Get a reference to IndivudalSong to update song on completion
+    public void setCurrentIndividualSong(IndividualSong individualSong){
+        currentIndividualSong = individualSong;
+    }
+
     //gets the song index
-    public int getSongIndex(){return songIndex;}
+    public int getSongIndex(){
+        return currentIndex;
+    }
 
-    //gets me the song to play
-    public Song getSong(int songIndex){return songs.get(songIndex);}
+    public Song getCurrentSong(){
+        return currentSong;
+    }
 
-    public MediaPlayer getMediaPlayer(){return this.player;}
+    public MediaPlayer getMediaPlayer(){
+        return player;
+    }
 
+    private final LocationListener mLocationListener = new LocationListener(){
+        @Override
+        public void onLocationChanged(Location location) {
+            System.out.println("I am called !!!!!!!!!");
+            currlocation = location;
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
 
 }
