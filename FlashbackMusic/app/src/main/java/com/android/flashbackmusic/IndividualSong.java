@@ -5,6 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +16,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 public class IndividualSong extends AppCompatActivity {
 
@@ -140,11 +145,28 @@ public class IndividualSong extends AppCompatActivity {
 
         //curr_song_location
         TextView loc = (TextView)findViewById(R.id.curr_song_location);
-        loc.setText(currentSong.getLastLocation().toString());
+        loc.setText(getAddressFromLocation(currentSong.getLastLocation()));
 
         //curr_song_datetime
         TextView time = (TextView)findViewById(R.id.curr_song_datetime);
         time.setText(currentSong.getLastTime().toString());
+    }
+
+    private String getAddressFromLocation(Location location) {
+        Geocoder geocoder = new Geocoder(this);
+        try {
+            List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addressList != null && addressList.size() > 0) {
+                // Help here to get only the street name
+                Address address = addressList.get(0);
+                String street = address.getThoroughfare();
+                return street;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Location Unavaliable";
+        }
+        return "Location Unabliable";
     }
 
     private ServiceConnection musicConnection = new ServiceConnection(){

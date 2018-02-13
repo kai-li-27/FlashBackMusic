@@ -28,7 +28,7 @@ public class Song {
     private long lastTimeLong;
     private int preference = NEUTRAL;
     private double lastLongitude;
-    private double lastAltitude;
+    private double lastLatitude;
 
     @Ignore
     public Uri uri;
@@ -83,9 +83,9 @@ public class Song {
 
     public Location getLastLocation() {
         lastLongitude = songDao.queryLastLongitude(title,artist,album);
-        lastAltitude = songDao.queryLastAltitude(title,artist,album);
+        lastLatitude = songDao.queryLastLatitude(title,artist,album);
         lastLocation.setLongitude(lastLongitude);
-        lastLocation.setAltitude(lastLongitude);
+        lastLocation.setLatitude(lastLatitude);
         return lastLocation;
     }
 
@@ -99,8 +99,8 @@ public class Song {
         return lastLongitude;
     }
 
-    public double getLastAltitude() {
-        return lastAltitude;
+    public double getLastLatitude() {
+        return lastLatitude;
     }
 
     public void setTitle(String title) { this.title = title;}
@@ -111,7 +111,7 @@ public class Song {
         if (location != null) {
             lastLocation = location;
             lastLongitude = location.getLongitude();
-            lastAltitude = location.getAltitude();
+            lastLatitude = location.getLatitude();
             songDao.updateSong(this);
         }
     }
@@ -142,8 +142,9 @@ public class Song {
     public void setLastLongitude(double lastLongitude) {
     }
 
-    public void setLastAltitude(double lastAltitude) {
+    public void setLastLatitude(double lastLatitude) {
     }
+
     // location method
 
 
