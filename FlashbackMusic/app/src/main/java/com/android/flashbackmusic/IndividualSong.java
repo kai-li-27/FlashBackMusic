@@ -82,7 +82,7 @@ public class IndividualSong extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        player.reset();
+                        songsService.reset();
                     }
 
                 });

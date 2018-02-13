@@ -24,8 +24,8 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<Song> songsList = new ArrayList<Song>();
-    private ArrayList<Song> subsetOfSongsList = new ArrayList<Song>();
+    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
+    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
     private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
     private SongsService songsService;
     private ArrayList<Album> albumsList;
@@ -87,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Iteration 2: get the last state instead of default songs list
         songsView = (ListView) findViewById(R.id.song_list);
-        songsList = new ArrayList<Song>();
+        listOfAllSongs = new ArrayList<Song>();
+        currentPlayList = new ArrayList<Song>();
         albumsList = new ArrayList<Album>();
         getSongsList();
         getAlbumList();
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         //TabItem songTab = (TabItem) findViewById(R.id.song_tab);
         //TabItem albumTab = (TabItem) findViewById(R.id.album_tab);
 
-        songAdapt = new SongListAdapter(this, songsList);
+        songAdapt = new SongListAdapter(this, listOfAllSongs);
         albumAdapt = new AlbumListAdapter(this, albumsList);
         songsView.setAdapter(songAdapt);
 
@@ -131,19 +132,26 @@ public class MainActivity extends AppCompatActivity {
     // method that is called once a song is clicked
     public void chosenSong(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
-        intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song
-        didChooseAlbum = false;
+        intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
+        if (didChooseAlbum) {
+            currentPlayList.clear();
+            for (Song i : listOfAllSongs) {
+                currentPlayList.add(i);
+            }
+            didChooseAlbum = false;
+        }
         startActivity(intent);
     }
 
     public void chosenAlbum(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
-        String albumName = ((TextView) findViewById(R.id.album_title)).getText().toString();
-        String albumArtist = ((TextView) findViewById(R.id.album_artist)).getText().toString();
-        currAlbum = albumsMap.get(albumName + albumArtist);
-        Log.d("Selected album: ", currAlbum.getName());
+        currAlbum = albumsList.get((int)view.getTag());
         didChooseAlbum = true;
-        intent.putExtra(Intent.EXTRA_INDEX, (int)view.getTag());
+        currentPlayList.clear();
+        for (Song i : currAlbum.getSongsInAlbum()) {
+            currentPlayList.add(i);
+        }
+        intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song
         startActivity(intent);
     }
 
@@ -156,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             if (didChooseAlbum) {
                 songsService.setList(currAlbum.getSongsInAlbum());
             } else {
-                songsService.setList(songsList);
+                songsService.setList(currentPlayList);
             }
             isMusicBound = true;
         }
@@ -199,7 +207,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Song song = new Song(i, title, artist, album, songDao);
                 song.uri = musicUri;
-                songsList.add(song);
+                listOfAllSongs.add(song);
+                currentPlayList.add(song);
                 if (songDao.isIntheDB(title, artist, album) == null) {
                     songDao.insertSong(song);
                 }
@@ -210,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void getAlbumList() { // TODO test it after implemented song list.
 
-        for ( Song song : songsList) {
+        for ( Song song : listOfAllSongs) {
             if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
                 Album album = new Album(song.getAlbum(), song.getArtist());
                 album.getSongsInAlbum().add(song);
