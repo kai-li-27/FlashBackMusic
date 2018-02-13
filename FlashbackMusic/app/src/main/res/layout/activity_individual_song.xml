@@ -92,7 +92,7 @@
         android:layout_weight="1"
         android:background="@drawable/flashback_skip_inactive"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_favdisneu" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
         android:id="@+id/button_favdisneu"
@@ -100,7 +100,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/flashback_plus_inactive"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/song_list"
+        app:layout_constraintBottom_toTopOf="@id/button_skip"
         tools:layout_editor_absoluteY="350dp" />
 
 
