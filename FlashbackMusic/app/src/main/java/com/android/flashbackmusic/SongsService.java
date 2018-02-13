@@ -32,6 +32,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private SongDao songDao;
     private Location currlocation;
     private boolean reseted = false;
+    private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
 
 
 
@@ -85,9 +86,13 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         //currentSong.setLastTime(date.getTime());
 
         // Todo update song's lastLocation to current location
+
+
+
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+            failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
         songDao = Db.songDao();
         currentIndex = 0;
@@ -104,6 +109,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * This method is intened to be only used by within the class
      */
     private void loadMedia() {
+        if (failedToGetLoactionPermission) {
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+                failedToGetLoactionPermission = false;
+            } catch (SecurityException e) {}
+        }
         try {
             player.reset();
             currentSong = songsList.get(currentIndex);
@@ -119,6 +130,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void loadMedia(int index) {
+        if (failedToGetLoactionPermission) {
+            try {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+                failedToGetLoactionPermission = false;
+            } catch (SecurityException e) {}
+        }
         try {
             currentIndex = index;
             currentSong = songsList.get(index);

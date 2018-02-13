@@ -16,8 +16,8 @@ public interface SongDao {
     @Query ("Select lastLongitude FROM song where title = :title AND album = :album AND artist = :artist")
     public double queryLastLongitude(String title, String artist, String album);
 
-    @Query ("Select lastAltitude FROM song where title = :title AND album = :album AND artist = :artist")
-    public double queryLastAltitude(String title, String artist, String album);
+    @Query ("Select lastLatitude FROM song where title = :title AND album = :album AND artist = :artist")
+    public double queryLastLatitude(String title, String artist, String album);
 
     @Query("Select lastTimeLong FROM song where title = :title AND album = :album AND artist = :artist")
     public long queryLastTime(String title, String artist, String album);
