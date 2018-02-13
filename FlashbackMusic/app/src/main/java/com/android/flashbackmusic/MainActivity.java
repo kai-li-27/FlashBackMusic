@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         //TabItem albumTab = (TabItem) findViewById(R.id.album_tab);
 
         songAdapt = new SongListAdapter(this, songsList);
-        // albumAdapt = new AlbumListAdapter(this, albumsList);
+        albumAdapt = new AlbumListAdapter(this, albumsList);
         songsView.setAdapter(songAdapt);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     songsView.setAdapter(songAdapt);
                 }
                 if (theTab.equalsIgnoreCase("albums")) {
-                    songsView.setAdapter(songAdapt); // FIXME-- will be albumAdapt later
+                    songsView.setAdapter(albumAdapt); // FIXME-- will be albumAdapt later
                 }
             }
 
@@ -125,6 +125,12 @@ public class MainActivity extends AppCompatActivity {
     public void chosenSong(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song
+        startActivity(intent);
+    }
+
+    public void chosenAlbum(View view) {
+        Intent intent = new Intent(this, IndividualSong.class);
+        intent.putExtra(Intent.EXTRA_INDEX, (int)view.getTag());
         startActivity(intent);
     }
 
