@@ -10,8 +10,11 @@ import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import com.android.flashbackmusic.SongsService.MusicBinder;
 
 import java.lang.reflect.Field;
@@ -22,10 +25,14 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Song> songsList = new ArrayList<Song>();
+    private ArrayList<Song> subsetOfSongsList = new ArrayList<Song>();
+    private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
     private SongsService songsService;
     private ArrayList<Album> albumsList;
     private ListView songsView;
     private Intent playIntent;
+    private boolean didChooseAlbum = false;
+    Album currAlbum;
     private boolean isMusicBound = false;
     SongListAdapter songAdapt;
     AlbumListAdapter albumAdapt;
@@ -78,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         }
         */
 
-        // FIXME for after MVP: get the last state instead of default songs list
+        // TODO Iteration 2: get the last state instead of default songs list
         songsView = (ListView) findViewById(R.id.song_list);
         songsList = new ArrayList<Song>();
         albumsList = new ArrayList<Album>();
@@ -91,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         //TabItem albumTab = (TabItem) findViewById(R.id.album_tab);
 
         songAdapt = new SongListAdapter(this, songsList);
-        // albumAdapt = new AlbumListAdapter(this, albumsList);
+        albumAdapt = new AlbumListAdapter(this, albumsList);
         songsView.setAdapter(songAdapt);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -102,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                     songsView.setAdapter(songAdapt);
                 }
                 if (theTab.equalsIgnoreCase("albums")) {
-                    songsView.setAdapter(songAdapt); // FIXME-- will be albumAdapt later
+                    songsView.setAdapter(albumAdapt);
                 }
             }
 
@@ -125,6 +132,18 @@ public class MainActivity extends AppCompatActivity {
     public void chosenSong(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song
+        didChooseAlbum = false;
+        startActivity(intent);
+    }
+
+    public void chosenAlbum(View view) {
+        Intent intent = new Intent(this, IndividualSong.class);
+        String albumName = ((TextView) findViewById(R.id.album_title)).getText().toString();
+        String albumArtist = ((TextView) findViewById(R.id.album_artist)).getText().toString();
+        currAlbum = albumsMap.get(albumName + albumArtist);
+        Log.d("Selected album: ", currAlbum.getName());
+        didChooseAlbum = true;
+        intent.putExtra(Intent.EXTRA_INDEX, (int)view.getTag());
         startActivity(intent);
     }
 
@@ -134,7 +153,11 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             songsService = binder.getService();
-            songsService.setList(songsList);
+            if (didChooseAlbum) {
+                songsService.setList(currAlbum.getSongsInAlbum());
+            } else {
+                songsService.setList(songsList);
+            }
             isMusicBound = true;
         }
 
@@ -186,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getAlbumList() { // TODO test it after implemented song list.
-        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+
         for ( Song song : songsList) {
             if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
                 Album album = new Album(song.getAlbum(), song.getArtist());
