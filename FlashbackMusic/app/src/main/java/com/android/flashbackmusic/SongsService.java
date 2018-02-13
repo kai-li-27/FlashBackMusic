@@ -31,6 +31,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private IndividualSong currentIndividualSong;
     private SongDao songDao;
     private Location currlocation;
+    private boolean reseted = false;
 
 
 
@@ -68,7 +69,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     // starts playing the music
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
+        if (!reseted) {
+            mp.start();
+        } else {
+            reseted = false;
+        }
     }
 
     @Override
@@ -130,6 +135,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public void reset() {
+        loadMedia(); //This will start playing the song
+        reseted = true;
+    }
+
 
     private void initializeMusicPlayer() {
         // let the music keep playing if it's already playing if it sleeps
@@ -149,7 +159,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void skip() {
-        currentIndex++;
+        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
+            currentIndex++;
+        } else {
+            currentIndex = 0;
+        }
         loadMedia();
     }
 
