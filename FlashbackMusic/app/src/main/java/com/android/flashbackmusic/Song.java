@@ -195,7 +195,7 @@ public class Song {
 
     }
 
-    private int timeRange(int hour) {
+    public int timeRange(int hour) {
         if (hour >= 5 && hour < 11) { //Morning
             return 0;
         } else if (hour >= 11 && hour < 5) {
