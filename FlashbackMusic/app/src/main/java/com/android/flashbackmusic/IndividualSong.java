@@ -6,6 +6,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaPlayer;
@@ -42,15 +44,6 @@ public class IndividualSong extends AppCompatActivity {
             startService(playIntent);
         }
 
-
-
-
-        // TOdo update these things in the database as well
-        // long lasttime = sondDao.query(whatever is in the header);
-        // songDao.update(currentSong);
-
-
-        //TODO LoadMedia with the thing that was taken from the database, given a tag in main activity
         Button goBack = (Button) findViewById(R.id.button_back);
 
         goBack.setOnClickListener( new View.OnClickListener() {
@@ -87,9 +80,8 @@ public class IndividualSong extends AppCompatActivity {
 
                 });
 
-        // play get stuff from the other activity, loads it from the database and then we playit
         // TOdo change UI of the play button to a pause button
-        final Button play = (Button) findViewById(R.id.button_play);
+        Button play = (Button) findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -118,6 +110,21 @@ public class IndividualSong extends AppCompatActivity {
                     }
 
                 });
+
+        Button flashback = (Button)findViewById(R.id.button_flashback);
+        flashback.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view){
+                        songsService.switchMode();
+                        if (songsService.getFlashBackMode()) {
+                            view.getBackground().setColorFilter(Color.parseColor("#00ff00"), PorterDuff.Mode.DARKEN); //TODO this is only for testing, change it
+                        } else {
+                            view.getBackground().setColorFilter(Color.parseColor("#000000"), PorterDuff.Mode.DARKEN); //TODO this is only for testing, change it
+                        }
+                    }
+                }
+        );
 
 
     }
@@ -154,6 +161,8 @@ public class IndividualSong extends AppCompatActivity {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
                         addressName = address.getThoroughfare();
+                    } else {
+                        addressName = "Location Unavaliable";
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -172,9 +181,13 @@ public class IndividualSong extends AppCompatActivity {
 
         //curr_song_datetime
         TextView time = (TextView)findViewById(R.id.curr_song_datetime);
-        time.setText(DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
-                     + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
-                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
+        if (currentSong.getLastTime() == null) {
+            time.setText("Time Unavailable");
+        } else {
+            time.setText(DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
+                    + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
+                    + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
+        }
     }
 
 

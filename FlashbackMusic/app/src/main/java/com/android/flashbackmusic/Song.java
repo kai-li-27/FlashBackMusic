@@ -36,8 +36,6 @@ public class Song {
     @Ignore
     private Location lastLocation = new Location("");
     @Ignore
-    private long Id;
-    @Ignore
     private Date lastTime;
     @Ignore
     private SongDao songDao;
@@ -51,15 +49,15 @@ public class Song {
     private boolean isSameTimeOfDay;
     @Ignore
     private double algorithmValue;
+    @Ignore
     private boolean played = false;
 
 
 
-    public Song(long Id, String title, String artist, String album, SongDao songDao) {
+    public Song(String title, String artist, String album, SongDao songDao) {
         this.title = title;
         this.artist = artist;
         this.album = album;
-        this.Id = Id;
         this.songDao = songDao;
     }
 
@@ -84,24 +82,22 @@ public class Song {
 
     public Date getLastTime() {
         lastTimeLong = songDao.queryLastTime(title,artist,album);
-        lastTime = new Date(lastTimeLong);
+        if (lastTimeLong != 0) { // which means that the song was played before
+            lastTime = new Date(lastTimeLong);
+        }
         return lastTime;
     }
 
     public int getPreference() {
-        preference = songDao.queryPreference(title,artist,album);
         return preference;
     }
 
     public Location getLastLocation() {
-        lastLongitude = songDao.queryLastLongitude(title,artist,album);
-        lastLatitude = songDao.queryLastLatitude(title,artist,album);
-        lastLocation.setLongitude(lastLongitude);
-        lastLocation.setLatitude(lastLatitude);
+        lastLocation.setLatitude(songDao.queryLastLatitude(title,artist, album)); //TODO moved to the somewhere
+        lastLocation.setLongitude(songDao.queryLastLongitude(title,artist, album));
         return lastLocation;
     }
 
-    public long getId() {return Id;}
 
     public long getLastTimeLong() {
         return lastTimeLong;
@@ -150,11 +146,11 @@ public class Song {
         }
     }
 
-    public void setId(int Id) {this.Id = Id;}
-
     public void setPreference(int preference) {
         this.preference = preference;
-        songDao.updateSong(this);
+        if (songDao != null){
+            songDao.updateSong(this);
+        }
     }
 
     public void rotatePreference() {
@@ -176,26 +172,32 @@ public class Song {
     }
 
     public void updateDistance(Location here) {
+        getLastLocation();
         distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
     }
 
     public void updateTimeDifference(Date now) {
-        if (now.getDay() == lastTime.getDay()) { //Todo 5 mintues before midnight
-            isSameDay = true;
+        getLastTime();
+        if (lastTime == null) {
+            played = true;
         } else {
-            isSameDay = false;
-        }
+            if (now.getDay() == lastTime.getDay()) { //Todo 5 mintues before midnight
+                isSameDay = true;
+            } else {
+                isSameDay = false;
+            }
 
-        long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
-        timeDifference = difMiliseconds / 1000 / 60 % (24*60);
+            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
+            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
 
 
-    // location method
+            // location method
 
-        if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
-            isSameTimeOfDay = true;
-        } else {
-            isSameTimeOfDay = false;
+            if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
+                isSameTimeOfDay = true;
+            } else {
+                isSameTimeOfDay = false;
+            }
         }
     }
 

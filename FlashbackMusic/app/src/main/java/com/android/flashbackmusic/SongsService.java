@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,15 +31,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private Comparator<Song>  comparator = new SongCompare();
     private MediaPlayer player;
     private ArrayList<Song> listOfAllSongs;
-
-    private ArrayList<Song> songsList;
-    private PriorityQueue<Song> flashBackPlayList = new PriorityQueue<Song>(0, comparator);
+    private PriorityQueue<Song> flashBackPlayList = new PriorityQueue<Song>(comparator);
     private ArrayList<Song> currentPlayList;
     private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
     private LocationManager locationManager;
     private IndividualSong currentIndividualSong;
-    private SongDao songDao;
     private Location currlocation;
     private boolean flashBackMode = false;
     private boolean reseted = false; //The reset button was pressed
@@ -70,7 +69,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             for (Song i : listOfAllSongs) {
                 i.updateDistance(currlocation);
                 i.updateTimeDifference(new Date(System.currentTimeMillis()));
-                // TODO calculate
+                algorithm();
             }
         }
         loadMedia();
@@ -98,10 +97,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
 
-        // Load database
-        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
-        songDao = Db.songDao();
-
         // Initialize location tracker
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
@@ -115,10 +110,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
+
     public void setList(ArrayList<Song> inSongs) {
         currentPlayList = inSongs;
     }
-    public void setListOfAllSongs(ArrayList inList) {listOfAllSongs = inList;}
+    public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
 
     /**
      * This method is intened to be only used by within the class
@@ -130,6 +126,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
         }
+
+
         if (!flashBackMode) { //Not in flashback mode, update time and location
             try {
                 player.reset();
@@ -146,7 +144,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         } else {
             try {
                 player.reset();
+                if (flashBackPlayList.peek() == null) {
+                    Toast.makeText(SongsService.this, "FlashBack Playlist Is Empty", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 currentSong = flashBackPlayList.peek();
+                currentSong.setPlayed(true);
                 player.setDataSource(getApplicationContext(), currentSong.uri);
                 player.prepare();
             } catch (IOException e) {
@@ -168,19 +171,24 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
         }
+
         try {
+            player.reset();
             currentIndex = index;
             currentSong = currentPlayList.get(index);
-            currentSong.setLastLocation(currlocation);
-            currentSong.setLastTime(new Date(System.currentTimeMillis()));
-            player.reset();
-            player.setDataSource(getApplicationContext(), currentPlayList.get(currentIndex).uri);
+            if (!flashBackMode) {
+                currentSong.setLastLocation(currlocation);
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+            }
+
+            player.setDataSource(getApplicationContext(), currentSong.uri);
             player.prepare();
         } catch (IOException e) {
             System.out.println("************************");
             System.out.println("Failed to load song!!!!!");
             System.out.println("************************");
         }
+
     }
 
     public void reset() {
@@ -207,11 +215,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void skip() {
-        if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
-            currentIndex++;
-        } else {
-            currentIndex = 0;
-        }
+        onCompletion(player);
         loadMedia();
     }
 
@@ -233,9 +237,13 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return player;
     }
 
+    public boolean getFlashBackMode() {
+        return flashBackMode;
+    }
+
     public void switchMode() {
         if (flashBackMode) {
-            flashBackMode = false; //TODO change back to original playlist
+            flashBackMode = false;
         } else {
             flashBackMode = true;
             for ( Song i : listOfAllSongs ) { //Set all the songs to not played
@@ -275,6 +283,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         double distance, timeDiff;
         boolean sameTime, sameDay;
         Song tempSong;
+        flashBackPlayList.clear();
 
         for (int i = 0; i < listOfAllSongs.size(); i++) {
             tempSong = listOfAllSongs.get(i);
@@ -298,13 +307,15 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 dayFactor = 0.0;
             }
 
+            //if ( distance ) //TODO cornor cases for
             result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
 
             tempSong.setAlgorithmValue(result);
 
-            if (result > 0) {
+            if (result > 0 & !tempSong.isPlayed()) {
                 flashBackPlayList.add(tempSong);
             }
+            System.out.println(result);
         }
     }
 
