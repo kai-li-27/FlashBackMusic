@@ -172,11 +172,8 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             songsService = binder.getService();
-            if (didChooseAlbum) {
-                songsService.setList(currAlbum.getSongsInAlbum());
-            } else {
-                songsService.setList(currentPlayList);
-            }
+            songsService.setList(currentPlayList);
+            songsService.setListOfAllSongs(listOfAllSongs);
             isMusicBound = true;
         }
 

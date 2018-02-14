@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 /**
  * Created by Kate on 2/4/2018. Allows the songs to actually play.
@@ -24,7 +25,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     private Song currentSong;
     private MediaPlayer player;
+    private ArrayList<Song> listOfAllSongs;
     private ArrayList<Song> songsList;
+    private PriorityQueue<Song> flashBackPlayList;
     private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
     private LocationManager locationManager;
@@ -104,6 +107,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     public void setList(ArrayList<Song> inSongs) {
         songsList = inSongs;
     }
+    public void setListOfAllSongs(ArrayList inList) {listOfAllSongs = inList;}
 
     /**
      * This method is intened to be only used by within the class
@@ -200,6 +204,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     public MediaPlayer getMediaPlayer(){
         return player;
+    }
+
+    public void switchMode(){
+
     }
 
     private final LocationListener mLocationListener = new LocationListener(){

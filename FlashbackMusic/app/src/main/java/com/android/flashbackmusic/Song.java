@@ -40,7 +40,14 @@ public class Song {
     private Date lastTime;
     @Ignore
     private SongDao songDao;
-    // private Date thing
+    @Ignore
+    private double distance;
+    @Ignore
+    private double timeDifference;
+    @Ignore
+    private boolean isSameDay;
+    @Ignore
+    private boolean isSameTimeOfDay;
 
 
     public Song(long Id, String title, String artist, String album, SongDao songDao) {
@@ -103,6 +110,14 @@ public class Song {
         return lastLatitude;
     }
 
+    public double getDistance() {return distance;}
+
+    public double getTimeDifference() {return timeDifference;}
+
+    public boolean isSameDay() {return  isSameDay;}
+
+    public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
+
     public void setTitle(String title) { this.title = title;}
 
     public void setArtist(String artist) { this.artist = artist;}
@@ -143,6 +158,14 @@ public class Song {
     }
 
     public void setLastLatitude(double lastLatitude) {
+    }
+
+    public void UpdateDistance(Location here) {
+        distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
+    }
+
+    public void UpdateTimeDifference(Date now) {
+
     }
 
     // location method
