@@ -6,6 +6,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -48,6 +49,8 @@ public class Song {
     private boolean isSameDay;
     @Ignore
     private boolean isSameTimeOfDay;
+    @Ignore
+    private boolean played = false;
 
 
     public Song(long Id, String title, String artist, String album, SongDao songDao) {
@@ -118,6 +121,8 @@ public class Song {
 
     public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
 
+    public boolean isPlayed() {return played;}
+
     public void setTitle(String title) { this.title = title;}
 
     public void setArtist(String artist) { this.artist = artist;}
@@ -127,7 +132,9 @@ public class Song {
             lastLocation = location;
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
-            songDao.updateSong(this);
+            if (songDao != null) { // TODO remove this condition. This condition is only for testing
+                songDao.updateSong(this);
+            }
         }
     }
 
@@ -136,7 +143,9 @@ public class Song {
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
-        songDao.updateSong(this);
+        if (songDao != null) { // TODO remove this condition. this condition is only for testing
+            songDao.updateSong(this);
+        }
     }
 
     public void setId(int Id) {this.Id = Id;}
@@ -160,15 +169,40 @@ public class Song {
     public void setLastLatitude(double lastLatitude) {
     }
 
-    public void UpdateDistance(Location here) {
+    public void setPlayed(boolean played) {
+        this.played = played;
+    }
+
+    public void updateDistance(Location here) {
         distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
     }
 
-    public void UpdateTimeDifference(Date now) {
+    public void updateTimeDifference(Date now) {
+        if (now.getDay() == lastTime.getDay()) { //Todo 5 mintues before midnight
+            isSameDay = true;
+        } else {
+            isSameDay = false;
+        }
+
+        long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
+        timeDifference = difMiliseconds / 1000 / 60 % (24*60);
+
+        if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
+            isSameTimeOfDay = true;
+        } else {
+            isSameTimeOfDay = false;
+        }
 
     }
 
-    // location method
-
+    private int timeRange(int hour) {
+        if (hour >= 5 && hour < 11) { //Morning
+            return 0;
+        } else if (hour >= 11 && hour < 5) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
 
 }

@@ -15,6 +15,8 @@ import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.PriorityQueue;
 
 /**
@@ -26,7 +28,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private Song currentSong;
     private MediaPlayer player;
     private ArrayList<Song> listOfAllSongs;
-    private ArrayList<Song> songsList;
+    private ArrayList<Song> currentPlayList;
     private PriorityQueue<Song> flashBackPlayList;
     private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
@@ -34,7 +36,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private IndividualSong currentIndividualSong;
     private SongDao songDao;
     private Location currlocation;
-    private boolean reseted = false;
+    private boolean flashBackMode = false;
+    private boolean reseted = false; //The reset button was pressed
     private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
 
 
@@ -53,16 +56,24 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
-            currentIndex++;
-        } else {
-            currentIndex = 0;
+        if (!flashBackMode) {
+            if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
+                currentIndex++;
+            } else {
+                currentIndex = 0;
+            }
+        }
+        if (flashBackMode) {
+            for (Song i : listOfAllSongs) {
+                i.updateDistance(currlocation);
+                i.updateTimeDifference(new Date(System.currentTimeMillis()));
+                // TODO calculate
+            }
         }
         loadMedia();
         if (currentIndividualSong != null) { //In case the app is at main screen now
             currentIndividualSong.changeText();
         }
-        //TODO tell the individualsong to update info
     }
 
     @Override
@@ -83,21 +94,18 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
-        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext()); // Load database
-        //update song's Lasttime to current time
-        // date = Calendar.getInstance().getTime();
-        //currentSong.setLastTime(date.getTime());
 
-        // Todo update song's lastLocation to current location
+        // Load database
+        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
+        songDao = Db.songDao();
 
-
-
+        // Initialize location tracker
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
-        songDao = Db.songDao();
+
         currentIndex = 0;
         player = new MediaPlayer();
         initializeMusicPlayer();
@@ -105,7 +113,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
 
     public void setList(ArrayList<Song> inSongs) {
-        songsList = inSongs;
+        currentPlayList = inSongs;
     }
     public void setListOfAllSongs(ArrayList inList) {listOfAllSongs = inList;}
 
@@ -113,26 +121,43 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * This method is intened to be only used by within the class
      */
     private void loadMedia() {
-        if (failedToGetLoactionPermission) {
+        if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
         }
-        try {
-            player.reset();
-            currentSong = songsList.get(currentIndex);
-            currentSong.setLastLocation(currlocation);
-            player.setDataSource(getApplicationContext(), currentSong.uri);
-            player.prepare();
-
-        } catch (IOException e) {
-            System.out.println("************************");
-            System.out.println("Failed loading song!!!!!");
-            System.out.println("************************");
+        if (!flashBackMode) { //Not in flashback mode, update time and location
+            try {
+                player.reset();
+                currentSong = currentPlayList.get(currentIndex);
+                currentSong.setLastLocation(currlocation);
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.prepare();
+            } catch (IOException e) {
+                System.out.println("************************");
+                System.out.println("Failed to load song!!!!!");
+                System.out.println("************************");
+            }
+        } else {
+            try {
+                player.reset();
+                currentSong = flashBackPlayList.peek();
+                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.prepare();
+            } catch (IOException e) {
+                System.out.println("************************");
+                System.out.println("Failed to load song!!!!!");
+                System.out.println("************************");
+            }
         }
     }
 
+    /*
+     * Load the song at index of all the songs.
+     * WARNING: This should not be called in flashback mode!!!
+     */
     public void loadMedia(int index) {
         if (failedToGetLoactionPermission) {
             try {
@@ -142,16 +167,16 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
         try {
             currentIndex = index;
-            currentSong = songsList.get(index);
+            currentSong = currentPlayList.get(index);
             if (currlocation != null) {
                 currentSong.setLastLocation(currlocation);
             }
             player.reset();
-            player.setDataSource(getApplicationContext(), songsList.get(currentIndex).uri);
+            player.setDataSource(getApplicationContext(), currentPlayList.get(currentIndex).uri);
             player.prepare();
         } catch (IOException e) {
             System.out.println("************************");
-            System.out.println("Failed loading song!!!!!");
+            System.out.println("Failed to load song!!!!!");
             System.out.println("************************");
         }
     }
@@ -180,7 +205,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void skip() {
-        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
+        if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
             currentIndex++;
         } else {
             currentIndex = 0;
@@ -206,8 +231,15 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return player;
     }
 
-    public void switchMode(){
-
+    public void switchMode() {
+        if (flashBackMode) {
+            flashBackMode = false; //TODO change back to original playlist
+        } else {
+            flashBackMode = true;
+            for ( Song i : listOfAllSongs ) { //Set all the songs to not played
+                i.setPlayed(false);
+            }
+        }
     }
 
     private final LocationListener mLocationListener = new LocationListener(){
