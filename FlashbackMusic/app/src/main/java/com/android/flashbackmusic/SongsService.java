@@ -171,9 +171,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         try {
             currentIndex = index;
             currentSong = currentPlayList.get(index);
-            if (currlocation != null) {
-                currentSong.setLastLocation(currlocation);
-            }
+            currentSong.setLastLocation(currlocation);
+            currentSong.setLastTime(new Date(System.currentTimeMillis()));
             player.reset();
             player.setDataSource(getApplicationContext(), currentPlayList.get(currentIndex).uri);
             player.prepare();
@@ -248,7 +247,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private final LocationListener mLocationListener = new LocationListener(){
         @Override
         public void onLocationChanged(Location location) {
-            System.out.println("I am called !!!!!!!!!");
             currlocation = location;
         }
 
