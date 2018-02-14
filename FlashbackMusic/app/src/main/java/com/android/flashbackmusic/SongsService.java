@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
@@ -24,10 +25,11 @@ import java.util.PriorityQueue;
 public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private Song currentSong;
+    private Comparator<Song>  comparator = new SongCompare();
     private MediaPlayer player;
     private ArrayList<Song> listOfAllSongs;
     private ArrayList<Song> songsList;
-    private PriorityQueue<Song> flashBackPlayList;
+    private PriorityQueue<Song> flashBackPlayList = new PriorityQueue<Song>(0, comparator);
     private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
     private LocationManager locationManager;
@@ -232,5 +234,61 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
         }
     };
+
+
+    private void algorithm () {
+        double distFactor = 1.0;
+        double timeFactor = 1.0;
+        double dayFactor = 1.0;
+        double result = 0.0;
+        double distance, timeDiff;
+        boolean sameTime, sameDay;
+        Song tempSong;
+
+        for (int i = 0; i < listOfAllSongs.size(); i++) {
+            tempSong = listOfAllSongs.get(i);
+            distance = tempSong.getDistance();
+            sameTime = tempSong.isSameTimeOfDay();
+            sameDay = tempSong.isSameDay();
+            timeDiff = tempSong.getTimeDifference();
+            distFactor = 1.0;
+            timeFactor = 1.0;
+            dayFactor = 1.0;
+            result= 0.0;
+
+            // TODO Change back to 1000 later
+            if (distance > 10) {
+                distFactor = 0.0;
+            }
+            if (!sameTime) {
+                timeFactor = 0.0;
+            }
+            if (!sameDay) {
+                dayFactor = 0.0;
+            }
+
+            result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
+
+            tempSong.setAlgorithmValue(result);
+
+            if (result > 0) {
+                flashBackPlayList.add(tempSong);
+            }
+        }
+    }
+
+    private class SongCompare implements Comparator<Song> {
+        public int compare(Song s1, Song s2) {
+            if ( (s1.getAlgorithmValue() - s2.getAlgorithmValue()) == 0 ) {
+                return 0;
+            }
+            else if ((s1.getAlgorithmValue() - s2.getAlgorithmValue()) > 0) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
+    }
 
 }

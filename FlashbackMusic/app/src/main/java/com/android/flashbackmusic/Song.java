@@ -48,6 +48,8 @@ public class Song {
     private boolean isSameDay;
     @Ignore
     private boolean isSameTimeOfDay;
+    @Ignore
+    private double algorithmValue;
 
 
     public Song(long Id, String title, String artist, String album, SongDao songDao) {
@@ -166,6 +168,14 @@ public class Song {
 
     public void UpdateTimeDifference(Date now) {
 
+    }
+
+    public void setAlgorithmValue(double value) {
+        this.algorithmValue = value;
+    }
+
+    public double getAlgorithmValue() {
+        return this.algorithmValue;
     }
 
     // location method
