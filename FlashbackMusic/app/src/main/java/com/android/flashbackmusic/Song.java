@@ -61,12 +61,21 @@ public class Song {
         this.songDao = songDao;
     }
 
-    public Song(){
+    public Song() {
         title = "";
         artist = "";
         album = "";
     }
+    public void initializeLocationAndTime() {
+        preference = songDao.queryPreference(title,artist,album);
+        lastTimeLong = songDao.queryLastTime(title,artist,album);
+        if (lastTimeLong != 0) { // which means that the song was played before
+            lastTime = new Date(lastTimeLong);
 
+            lastLocation.setLatitude(songDao.queryLastLatitude(title,artist, album));
+            lastLocation.setLongitude(songDao.queryLastLongitude(title,artist, album));
+        } // else these two will be null
+    }
 
     public String getTitle() {
         return title;
@@ -81,10 +90,6 @@ public class Song {
     }
 
     public Date getLastTime() {
-        lastTimeLong = songDao.queryLastTime(title,artist,album);
-        if (lastTimeLong != 0) { // which means that the song was played before
-            lastTime = new Date(lastTimeLong);
-        }
         return lastTime;
     }
 
@@ -93,8 +98,6 @@ public class Song {
     }
 
     public Location getLastLocation() {
-        lastLocation.setLatitude(songDao.queryLastLatitude(title,artist, album)); //TODO moved to the somewhere
-        lastLocation.setLongitude(songDao.queryLastLongitude(title,artist, album));
         return lastLocation;
     }
 
@@ -172,12 +175,10 @@ public class Song {
     }
 
     public void updateDistance(Location here) {
-        getLastLocation();
         distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
     }
 
     public void updateTimeDifference(Date now) {
-        getLastTime();
         if (lastTime == null) {
             played = true;
         } else {

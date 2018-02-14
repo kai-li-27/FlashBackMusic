@@ -212,12 +212,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 Song song = new Song(title, artist, album, songDao);
-                song.uri = musicUri;
-                listOfAllSongs.add(song);
-                currentPlayList.add(song);
                 if (songDao.isIntheDB(title, artist, album) == null) {
                     songDao.insertSong(song);
                 }
+                song.initializeLocationAndTime();
+                song.uri = musicUri;
+                listOfAllSongs.add(song);
+                currentPlayList.add(song);
+
             } catch (Exception e) {}
         }
     }
