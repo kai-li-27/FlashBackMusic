@@ -12,9 +12,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.PriorityQueue;
 
 /**
  * Created by Kate on 2/4/2018. Allows the songs to actually play.
@@ -23,15 +28,18 @@ import java.util.ArrayList;
 public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private Song currentSong;
+    private Comparator<Song>  comparator = new SongCompare();
     private MediaPlayer player;
-    private ArrayList<Song> songsList;
+    private ArrayList<Song> listOfAllSongs;
+    private PriorityQueue<Song> flashBackPlayList = new PriorityQueue<Song>(comparator);
+    private ArrayList<Song> currentPlayList;
     private int currentIndex;
     private final IBinder musicBind = new MusicBinder();
     private LocationManager locationManager;
     private IndividualSong currentIndividualSong;
-    private SongDao songDao;
     private Location currlocation;
-    private boolean reseted = false;
+    private boolean flashBackMode = false;
+    private boolean reseted = false; //The reset button was pressed
     private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
 
 
@@ -50,16 +58,24 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
-            currentIndex++;
-        } else {
-            currentIndex = 0;
+        if (!flashBackMode) {
+            if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
+                currentIndex++;
+            } else {
+                currentIndex = 0;
+            }
+        }
+        if (flashBackMode) {
+            for (Song i : listOfAllSongs) {
+                i.updateDistance(currlocation);
+                i.updateTimeDifference(new Date(System.currentTimeMillis()));
+                algorithm();
+            }
         }
         loadMedia();
         if (currentIndividualSong != null) { //In case the app is at main screen now
             currentIndividualSong.changeText();
         }
-        //TODO tell the individualsong to update info
     }
 
     @Override
@@ -80,55 +96,74 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
-        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext()); // Load database
-        //update song's Lasttime to current time
-        // date = Calendar.getInstance().getTime();
-        //currentSong.setLastTime(date.getTime());
 
-        // Todo update song's lastLocation to current location
-
-
-
+        // Initialize location tracker
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
-        songDao = Db.songDao();
+
         currentIndex = 0;
         player = new MediaPlayer();
         initializeMusicPlayer();
     }
 
 
+
     public void setList(ArrayList<Song> inSongs) {
-        songsList = inSongs;
+        currentPlayList = inSongs;
     }
+    public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
 
     /**
      * This method is intened to be only used by within the class
      */
     private void loadMedia() {
-        if (failedToGetLoactionPermission) {
+        if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
         }
-        try {
-            player.reset();
-            currentSong = songsList.get(currentIndex);
-            currentSong.setLastLocation(currlocation);
-            player.setDataSource(getApplicationContext(), currentSong.uri);
-            player.prepare();
 
-        } catch (IOException e) {
-            System.out.println("************************");
-            System.out.println("Failed loading song!!!!!");
-            System.out.println("************************");
+
+        if (!flashBackMode) { //Not in flashback mode, update time and location
+            try {
+                player.reset();
+                currentSong = currentPlayList.get(currentIndex);
+                currentSong.setLastLocation(currlocation);
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.prepare();
+            } catch (IOException e) {
+                System.out.println("************************");
+                System.out.println("Failed to load song!!!!!");
+                System.out.println("************************");
+            }
+        } else {
+            try {
+                player.reset();
+                if (flashBackPlayList.peek() == null) {
+                    Toast.makeText(SongsService.this, "FlashBack Playlist Is Empty", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                currentSong = flashBackPlayList.peek();
+                currentSong.setPlayed(true);
+                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.prepare();
+            } catch (IOException e) {
+                System.out.println("************************");
+                System.out.println("Failed to load song!!!!!");
+                System.out.println("************************");
+            }
         }
     }
 
+    /*
+     * Load the song at index of all the songs.
+     * WARNING: This should not be called in flashback mode!!!
+     */
     public void loadMedia(int index) {
         if (failedToGetLoactionPermission) {
             try {
@@ -136,20 +171,24 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
         }
+
         try {
-            currentIndex = index;
-            currentSong = songsList.get(index);
-            if (currlocation != null) {
-                currentSong.setLastLocation(currlocation);
-            }
             player.reset();
-            player.setDataSource(getApplicationContext(), songsList.get(currentIndex).uri);
+            currentIndex = index;
+            currentSong = currentPlayList.get(index);
+            if (!flashBackMode) {
+                currentSong.setLastLocation(currlocation);
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+            }
+
+            player.setDataSource(getApplicationContext(), currentSong.uri);
             player.prepare();
         } catch (IOException e) {
             System.out.println("************************");
-            System.out.println("Failed loading song!!!!!");
+            System.out.println("Failed to load song!!!!!");
             System.out.println("************************");
         }
+
     }
 
     public void reset() {
@@ -176,11 +215,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void skip() {
-        if (currentIndex < songsList.size() - 1) { //Check if the end of playlist has been reached
-            currentIndex++;
-        } else {
-            currentIndex = 0;
-        }
+        onCompletion(player);
         loadMedia();
     }
 
@@ -202,10 +237,24 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return player;
     }
 
+    public boolean getFlashBackMode() {
+        return flashBackMode;
+    }
+
+    public void switchMode() {
+        if (flashBackMode) {
+            flashBackMode = false;
+        } else {
+            flashBackMode = true;
+            for ( Song i : listOfAllSongs ) { //Set all the songs to not played
+                i.setPlayed(false);
+            }
+        }
+    }
+
     private final LocationListener mLocationListener = new LocationListener(){
         @Override
         public void onLocationChanged(Location location) {
-            System.out.println("I am called !!!!!!!!!");
             currlocation = location;
         }
 
@@ -224,5 +273,64 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
         }
     };
+
+
+    private void algorithm () {
+        double distFactor = 1.0;
+        double timeFactor = 1.0;
+        double dayFactor = 1.0;
+        double result = 0.0;
+        double distance, timeDiff;
+        boolean sameTime, sameDay;
+        Song tempSong;
+        flashBackPlayList.clear();
+
+        for (int i = 0; i < listOfAllSongs.size(); i++) {
+            tempSong = listOfAllSongs.get(i);
+            distance = tempSong.getDistance();
+            sameTime = tempSong.isSameTimeOfDay();
+            sameDay = tempSong.isSameDay();
+            timeDiff = tempSong.getTimeDifference();
+            distFactor = 1.0;
+            timeFactor = 1.0;
+            dayFactor = 1.0;
+            result= 0.0;
+
+            // TODO Change back to 1000 later
+            if (distance > 10) {
+                distFactor = 0.0;
+            }
+            if (!sameTime) {
+                timeFactor = 0.0;
+            }
+            if (!sameDay) {
+                dayFactor = 0.0;
+            }
+
+            //if ( distance ) //TODO cornor cases for
+            result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
+
+            tempSong.setAlgorithmValue(result);
+
+            if (result > 0 & !tempSong.isPlayed()) {
+                flashBackPlayList.add(tempSong);
+            }
+            System.out.println(result);
+        }
+    }
+
+    private class SongCompare implements Comparator<Song> {
+        public int compare(Song s1, Song s2) {
+            if ( (s1.getAlgorithmValue() - s2.getAlgorithmValue()) == 0 ) {
+                return 0;
+            }
+            else if ((s1.getAlgorithmValue() - s2.getAlgorithmValue()) > 0) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
+    }
 
 }
