@@ -13,10 +13,13 @@ import android.location.Geocoder;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -111,6 +114,7 @@ public class IndividualSong extends AppCompatActivity {
 
                 });
 
+        /*
         Button flashback = (Button)findViewById(R.id.button_flashback);
         flashback.setOnClickListener(
                 new View.OnClickListener() {
@@ -124,7 +128,22 @@ public class IndividualSong extends AppCompatActivity {
                         }
                     }
                 }
-        );
+        ); */
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                songsService.switchMode();
+                if (songsService.getFlashBackMode()) {
+                    compoundButton.setChecked(true);
+                    indivSongActivity.setBackgroundColor(Color.parseColor("#00ff00"));
+                } else {
+                    compoundButton.setChecked(false);
+                    indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                }
+            }
+        });
 
 
     }

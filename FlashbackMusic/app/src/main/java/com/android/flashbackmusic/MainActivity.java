@@ -102,6 +102,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 songsService.switchMode();
+                if (songsService.getFlashBackMode()) {
+                    compoundButton.setChecked(true);
+                } else {
+                    compoundButton.setChecked(false);
+                }
             }
         });
 
