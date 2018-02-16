@@ -19,7 +19,7 @@ public class ExampleUnitTest {
 
     @Test
     public void testCalculateTime(){
-        Song song = new Song(0, "", "", "", null);
+        Song song = new Song("", "", "", null);
 
         song.setLastTime(new Date(System.currentTimeMillis()));
         song.updateTimeDifference(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)); //add a day

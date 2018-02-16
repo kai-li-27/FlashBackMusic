@@ -53,18 +53,16 @@ public class IndividualSong extends AppCompatActivity {
             }
         });
 
-        Button plus = (Button) findViewById(R.id.button_favdisneu);
+        final Button plus = (Button) findViewById(R.id.button_favdisneu);
         plus.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        //TODO do something to change the look of the button
-                        // todo do something when button is pressed when it has a certain look
-
                         currentSong = songsService.getCurrentSong();
                         currentSong.rotatePreference();
-                        //TOdo update database
-
+                        //changes look of button
+                        changeDisplay(plus);
+                        //something about changeDisplay is stopping the worker
                     }
                 }
         );
@@ -81,7 +79,7 @@ public class IndividualSong extends AppCompatActivity {
                 });
 
         // TOdo change UI of the play button to a pause button
-        Button play = (Button) findViewById(R.id.button_play);
+        final Button play = (Button) findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -92,7 +90,7 @@ public class IndividualSong extends AppCompatActivity {
                         else {
                             player.start();
                         }
-                        //UI Change button and press button
+                        playPause(play);
                     }
 
                 });
@@ -107,6 +105,7 @@ public class IndividualSong extends AppCompatActivity {
                     public void onClick(View view){
                         songsService.skip();
                         changeText();
+                        changeDisplay(plus);
                     }
 
                 });
@@ -128,6 +127,20 @@ public class IndividualSong extends AppCompatActivity {
 
 
     }
+
+    private void changeDisplay(Button button){
+        currentSong = songsService.getCurrentSong();
+        int[] appearance = new int [3];
+        appearance[0] = R.drawable.flashback_plus_inactive;
+        appearance[1] = R.drawable.flashback_checkmark_inactive;
+        appearance[2] = R.drawable.flashback_minus_inactive;
+        button.setBackgroundResource(appearance[currentSong.getPreference()]);
+    }
+
+    private void playPause(Button button){
+        int playButton = (player.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
+        button.setBackgroundResource(playButton);
+     }
 
 
     @SuppressLint("StaticFieldLeak")
@@ -202,6 +215,7 @@ public class IndividualSong extends AppCompatActivity {
             songsService.loadMedia(index);
             songsService.setCurrentIndividualSong(IndividualSong.this);
             changeText();
+            changeDisplay((Button)findViewById(R.id.button_favdisneu));
         }
 
         @Override
