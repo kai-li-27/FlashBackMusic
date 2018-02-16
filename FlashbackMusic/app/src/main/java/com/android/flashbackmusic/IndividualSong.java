@@ -137,7 +137,7 @@ public class IndividualSong extends AppCompatActivity {
                 songsService.switchMode();
                 if (songsService.getFlashBackMode()) {
                     compoundButton.setChecked(true);
-                    indivSongActivity.setBackgroundColor(Color.parseColor("#00ff00"));
+                    indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
                 } else {
                     compoundButton.setChecked(false);
                     indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
