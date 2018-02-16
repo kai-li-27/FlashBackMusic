@@ -14,7 +14,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.android.flashbackmusic.SongsService.MusicBinder;
 
@@ -93,6 +96,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         */
+
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                songsService.switchMode();
+                if (songsService.getFlashBackMode()) {
+                    compoundButton.setChecked(true);
+                } else {
+                    compoundButton.setChecked(false);
+                }
+            }
+        });
 
         // TODO Iteration 2: get the last state instead of default songs list
         songsView = (ListView) findViewById(R.id.song_list);
