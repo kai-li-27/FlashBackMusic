@@ -38,7 +38,7 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void DataBaseOperationsTest() throws Exception {
-        Song song = new Song(0,"titleName", "artistName", "albumName");
+        Song song = new Song("titleName", "artistName", "albumName",null);
         songDao.insertSong(song);
 
         Song song1 = songDao.isIntheDB("titleName", "artistName", "albumName");
@@ -46,14 +46,14 @@ public class ExampleInstrumentedTest {
         assertEquals("artistName", song1.getArtist());
         assertEquals("albumName", song1.getAlbum());
         assertEquals( 0, song1.getPreference());
-        assertEquals( 0, song1.getLastTime());
+        assertEquals( 0, song1.getLastTimeLong());
         assertEquals( 0, songDao.queryPreference("titleName", "artistName", "albumName"));
         assertEquals( 0, songDao.queryLastTime("titleName", "artistName", "albumName"));
 
-        song.setLastTime(6);
+        song.setLastTimeLong(6);
         songDao.updateSong(song);
         Song song2 = songDao.isIntheDB("titleName", "artistName", "albumName");
-        assertEquals(6, song2.getLastTime());
+        assertEquals(6, song2.getLastTimeLong());
         assertEquals( 6, songDao.queryLastTime("titleName", "artistName", "albumName"));
 
         songDao.deleteSong(song);
