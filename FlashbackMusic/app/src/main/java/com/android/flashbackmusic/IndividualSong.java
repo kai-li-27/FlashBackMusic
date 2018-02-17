@@ -134,17 +134,22 @@ public class IndividualSong extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 songsService.switchMode();
-                if (songsService.getFlashBackMode()) {
-                    compoundButton.setChecked(true);
-                    indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-                } else {
-                    compoundButton.setChecked(false);
-                    indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                }
             }
         });
 
 
+    }
+
+    public void changeBackground() {
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
+        if (songsService.getFlashBackMode()) {
+            mySwitch.setChecked(true);
+            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+        } else {
+            mySwitch.setChecked(false);
+            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        }
     }
 
     private void changeDisplay(Button button){
@@ -192,7 +197,7 @@ public class IndividualSong extends AppCompatActivity {
                     if (addressList != null && addressList.size() > 0) {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
-                        addressName = address.getThoroughfare();
+                        addressName = address.getLocality();
                     } else {
                         addressName = "Location Unavaliable";
                     }

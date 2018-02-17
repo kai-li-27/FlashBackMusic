@@ -5,14 +5,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -43,16 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
     private SongDao songDao;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, SongsService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
-    }
-
     //TODO release the music player
     @Override
     public void onStop() {
@@ -77,6 +71,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Binds with music player
+        if (playIntent == null) {
+            playIntent = new Intent(this, SongsService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+
         // Ask for location permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -88,29 +89,20 @@ public class MainActivity extends AppCompatActivity {
         SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
         songDao = Db.songDao();
 
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                return;
-            }
-        }
-        */
 
         Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 songsService.switchMode();
-                if (songsService.getFlashBackMode()) {
-                    compoundButton.setChecked(true);
-                } else {
-                    compoundButton.setChecked(false);
-                }
             }
         });
 
-        // TODO Iteration 2: get the last state instead of default songs list
+        SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+        if (flashback_state.getBoolean("State",false)){
+            songsService.switchMode();
+        }
+
         songsView = (ListView) findViewById(R.id.song_list);
         listOfAllSongs = new ArrayList<Song>();
         currentPlayList = new ArrayList<Song>();
@@ -188,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
             songsService = binder.getService();
             songsService.setList(currentPlayList);
             songsService.setListOfAllSongs(listOfAllSongs);
+            songsService.setMainActivity(MainActivity.this);
             isMusicBound = true;
         }
 
@@ -258,6 +251,22 @@ public class MainActivity extends AppCompatActivity {
         java.util.Collections.sort(albumsList, new AlbumComparator());
     }
 
+        public void changeBackgroundForFlashback() {
+               if (songsService == null) {
+                        Log.e("changeBackground", "songsServices is null");
+                        return;
+                    }
+                Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+                final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.MainActivity);
+
+                if (songsService.getFlashBackMode()) {
+                        mySwitch.setChecked(true);
+                        indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+                    } else {
+                        mySwitch.setChecked(false);
+                       indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                    }
+            }
 
 
     class AlbumComparator implements Comparator<Album> {
