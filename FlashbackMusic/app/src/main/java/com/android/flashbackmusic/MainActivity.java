@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * This methods scan the folder and populate the songlist, and also update their info in database
      */
-    public void getSongsList() {
+    private void getSongsList() {
         Field[] filesName = R.raw.class.getFields();
 
         for (int i = 0; i < filesName.length; i++) {
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Get a list of all albums of the songs
      */
-    public void getAlbumList() {
+    private void getAlbumList() {
         HashMap<String, Album> albumsMap = new HashMap<String, Album>();
 
 
@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
                 Album album = new Album(song.getAlbum(), song.getArtist());
                 album.getSongsInAlbum().add(song);
-                albumsMap.put(song.getAlbum()+song.getArtist(), album);
+                albumsMap.put(song.getAlbum() + song.getArtist(), album);
             } else {
                 Album album = albumsMap.get(song.getAlbum() + song.getArtist());
                 album.getSongsInAlbum().add(song);

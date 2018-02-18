@@ -139,7 +139,7 @@ public class Song {
             lastLocation = location;
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
-            if (songDao != null) { // TODO remove this condition. This condition is only for testing
+            if (songDao != null) {
                 songDao.updateSong(this);
             }
         }
@@ -154,7 +154,7 @@ public class Song {
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
-        if (songDao != null) { // TODO remove this condition. this condition is only for testing
+        if (songDao != null) {
             songDao.updateSong(this);
         }
     }
@@ -209,23 +209,33 @@ public class Song {
      * @param now
      */
     public void updateTimeDifference(Date now) {
-        if (lastTime == null) {
+        if (lastTime == null) { // If the song was never played, then it would never appear on the list
             played = true;
-        } else {
-            if (now.getDay() == lastTime.getDay()) { //Todo 5 mintues before midnight
+        }
+
+        else {
+            // Get the time difference in minutes
+            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
+            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
+
+            // If two songs are 10 mins apart, then practically they are in the same range
+            if (timeDifference > 10) {
+                if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
+                    isSameTimeOfDay = true;
+                } else {
+                    isSameTimeOfDay = false;
+                }
+            } else {
+                isSameTimeOfDay = true;
+            }
+
+            // Determine if two time are same day of week
+            if (now.getDay() == lastTime.getDay()) {
                 isSameDay = true;
             } else {
                 isSameDay = false;
             }
 
-            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
-            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
-
-            if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
-                isSameTimeOfDay = true;
-            } else {
-                isSameTimeOfDay = false;
-            }
         }
     }
 

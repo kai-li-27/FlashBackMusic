@@ -28,7 +28,6 @@ import java.util.List;
 public class IndividualSong extends AppCompatActivity {
 
     private SongsService songsService;
-    private MediaPlayer player;
     private Song currentSong;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
@@ -74,6 +73,7 @@ public class IndividualSong extends AppCompatActivity {
                     @Override
                     public void onClick(View view){
                         songsService.reset();
+                        playPause();
                     }
                 });
 
@@ -82,12 +82,7 @@ public class IndividualSong extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        if (player.isPlaying()) {
-                            player.pause();
-                        }
-                        else {
-                            player.start();
-                        }
+                        songsService.playPause();
                         playPause();
                     }
                 });
@@ -97,7 +92,7 @@ public class IndividualSong extends AppCompatActivity {
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        songsService.skip();
+                        songsService.playNext();
                         changeText();
                         changeDisplay(plus);
                     }
@@ -142,7 +137,7 @@ public class IndividualSong extends AppCompatActivity {
      */
     public void playPause(){
         Button play = (Button) findViewById(R.id.button_play);
-        int playButton = (!player.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
+        int playButton = (!songsService.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
         play.setBackgroundResource(playButton);
      }
 
@@ -212,12 +207,14 @@ public class IndividualSong extends AppCompatActivity {
     }
 
 
+    /**
+     * Establish connection to songsSerive, and play the chosen song
+     */
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             SongsService.MusicBinder binder = (SongsService.MusicBinder)service;
             songsService = binder.getService();
-            player = songsService.getMediaPlayer();
             Bundle bundle = getIntent().getExtras();
             int index = bundle.getInt(Intent.EXTRA_INDEX);
             songsService.loadMedia(index);

@@ -3,10 +3,12 @@ package com.android.flashbackmusic;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,6 +62,10 @@ public class ExampleInstrumentedTest {
         song1 = songDao.isIntheDB("as", "artistName", "albumName");
         assertTrue(null == song1);
     }
+
+    @Rule
+    public ActivityTestRule<MainActivity> mainactivity = new ActivityTestRule<MainActivity>(MainActivity.class);
+
 
 
 }
