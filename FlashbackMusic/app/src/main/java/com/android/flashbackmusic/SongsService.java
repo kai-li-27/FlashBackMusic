@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -55,7 +56,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public boolean onUnbind(Intent intent) {
-        player.stop();
         return false;
     }
 
@@ -93,6 +93,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             mp.start();
         } else {
             reseted = false;
+        }
+
+        if (currentIndividualSong != null) {
+            currentIndividualSong.playPause(); // In case skip button was pressed when the player in paused
         }
     }
 
@@ -164,12 +168,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    public void onDestroy() {
-        SharedPreferences sharedPreferences = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.putBoolean("State", flashBackMode);
-    }
 
     /*
      * Load the song at index of all the songs.
@@ -235,10 +234,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         currentIndividualSong = individualSong;
     }
 
-    //gets the song index
-    public int getSongIndex(){
-        return currentIndex;
-    }
 
     public Song getCurrentSong(){
         return currentSong;
@@ -260,11 +255,13 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             for ( Song i : listOfAllSongs ) { //Set all the songs to not played
                 i.setPlayed(false);
             }
-        };
-        if (currentIndividualSong != null) {
-            currentIndividualSong.changeBackground();
         }
         mainActivity.changeBackgroundForFlashback();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("State", flashBackMode);
+        editor.apply();
     }
 
     private final LocationListener mLocationListener = new LocationListener(){
@@ -309,7 +306,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             distFactor = 1.0;
             timeFactor = 1.0;
             dayFactor = 1.0;
-            result= 0.0;
 
             // TODO Change back to 1000 later
             if (distance > 1000) {

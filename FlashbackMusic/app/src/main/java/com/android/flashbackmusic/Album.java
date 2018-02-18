@@ -21,10 +21,6 @@ public class Album {
         return songsInAlbum;
     }
 
-    public void setSongsInAlbum(ArrayList<Song> songsInAlbum) {
-        this.songsInAlbum = songsInAlbum;
-    }
-
     public String getName() {
         return name;
     }
@@ -35,9 +31,5 @@ public class Album {
 
     public String getArtist() {
         return artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
     }
 }

@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaPlayer;
@@ -31,24 +30,25 @@ public class IndividualSong extends AppCompatActivity {
     private SongsService songsService;
     private MediaPlayer player;
     private Song currentSong;
-    private Intent playIntent;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
 
+    @Override
+    protected  void onDestroy() {
+        unbindService(musicConnection);
+        super.onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual_song);
 
-        if (playIntent == null) {
-            playIntent = new Intent(this, SongsService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
+        // Binds to the music service
+        Intent intent = new Intent(this, SongsService.class);
+        bindService(intent, musicConnection, Context.BIND_AUTO_CREATE);
 
         Button goBack = (Button) findViewById(R.id.button_back);
-
         goBack.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -65,11 +65,8 @@ public class IndividualSong extends AppCompatActivity {
                         currentSong.rotatePreference();
                         //changes look of button
                         changeDisplay(plus);
-                        //something about changeDisplay is stopping the worker
                     }
-                }
-        );
-
+                });
 
         Button reset = (Button) findViewById(R.id.button_reset);
         reset.setOnClickListener(
@@ -78,11 +75,9 @@ public class IndividualSong extends AppCompatActivity {
                     public void onClick(View view){
                         songsService.reset();
                     }
-
                 });
 
-        // TOdo change UI of the play button to a pause button
-        final Button play = (Button) findViewById(R.id.button_play);
+        Button play = (Button) findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -93,15 +88,11 @@ public class IndividualSong extends AppCompatActivity {
                         else {
                             player.start();
                         }
-                        playPause(play);
+                        playPause();
                     }
-
                 });
 
-
         Button skip = (Button) findViewById(R.id.button_skip);
-        //TODO figure out what to do when it skips, probably iterate through
-        // TOdo the song list
         skip.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
@@ -110,46 +101,27 @@ public class IndividualSong extends AppCompatActivity {
                         changeText();
                         changeDisplay(plus);
                     }
-
                 });
 
-        /*
-        Button flashback = (Button)findViewById(R.id.button_flashback);
-        flashback.setOnClickListener(
-                new View.OnClickListener() {
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
+        mySwitch.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(View view){
-                        songsService.switchMode();
-                        if (songsService.getFlashBackMode()) {
-                            view.getBackground().setColorFilter(Color.parseColor("#00ff00"), PorterDuff.Mode.DARKEN); //TODO this is only for testing, change it
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                        if (checked && !songsService.getFlashBackMode()) {
+                            songsService.switchMode();
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+                        } else if (checked && songsService.getFlashBackMode()) {
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+                        } else if (!checked && songsService.getFlashBackMode()) {
+                            songsService.switchMode();
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
                         } else {
-                            view.getBackground().setColorFilter(Color.parseColor("#000000"), PorterDuff.Mode.DARKEN); //TODO this is only for testing, change it
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
                         }
                     }
-                }
-        ); */
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
-        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                songsService.switchMode();
-            }
-        });
-
-
-    }
-
-    public void changeBackground() {
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
-        if (songsService.getFlashBackMode()) {
-            mySwitch.setChecked(true);
-            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-        } else {
-            mySwitch.setChecked(false);
-            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        }
+                });
     }
 
     private void changeDisplay(Button button){
@@ -161,9 +133,10 @@ public class IndividualSong extends AppCompatActivity {
         button.setBackgroundResource(appearance[currentSong.getPreference()]);
     }
 
-    private void playPause(Button button){
-        int playButton = (player.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
-        button.setBackgroundResource(playButton);
+    public void playPause(){
+        Button play = (Button) findViewById(R.id.button_play);
+        int playButton = (!player.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
+        play.setBackgroundResource(playButton);
      }
 
 
@@ -198,12 +171,15 @@ public class IndividualSong extends AppCompatActivity {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
                         addressName = address.getLocality();
+                        if (addressName == null) { // In case can't get specific address
+                            addressName = address.getThoroughfare();
+                        }
                     } else {
-                        addressName = "Location Unavaliable";
+                        addressName = "Location Unavailable";
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    addressName =  "Location Unavaliable";
+                    addressName =  "Location Unavailable";
                 }
                 return null;
             }
@@ -238,8 +214,14 @@ public class IndividualSong extends AppCompatActivity {
             int index = bundle.getInt(Intent.EXTRA_INDEX);
             songsService.loadMedia(index);
             songsService.setCurrentIndividualSong(IndividualSong.this);
+            // Change the look according to current song
             changeText();
             changeDisplay((Button)findViewById(R.id.button_favdisneu));
+
+            Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+            if (songsService.getFlashBackMode()) {
+                mySwitch.setChecked(true);
+            }
         }
 
         @Override

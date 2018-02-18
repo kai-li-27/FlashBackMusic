@@ -6,7 +6,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -59,6 +58,7 @@ public class Song {
         this.artist = artist;
         this.album = album;
         this.songDao = songDao;
+        initializeLocationAndTime();
     }
 
     public Song() {
@@ -66,7 +66,8 @@ public class Song {
         artist = "";
         album = "";
     }
-    public void initializeLocationAndTime() {
+
+    private void initializeLocationAndTime() {
         preference = songDao.queryPreference(title,artist,album);
         lastTimeLong = songDao.queryLastTime(title,artist,album);
         if (lastTimeLong != 0) { // which means that the song was played before
@@ -175,7 +176,11 @@ public class Song {
     }
 
     public void updateDistance(Location here) {
-        distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
+        if (here == null) { // When distance is unavailable
+            distance = 100000000; // Keep it from being played
+        } else {
+            distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
+        }
     }
 
     public void updateTimeDifference(Date now) {
@@ -190,9 +195,6 @@ public class Song {
 
             long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
             timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
-
-
-            // location method
 
             if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
                 isSameTimeOfDay = true;
