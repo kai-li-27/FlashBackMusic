@@ -17,18 +17,31 @@ public class Album {
         this.artist = artist;
     }
 
+    /**
+     * Gets the list of songs
+     */
     public ArrayList<Song> getSongsInAlbum() {
         return songsInAlbum;
     }
 
+    /**
+     * Gets the name of the album
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name of the album
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the artist of the album
+     */
     public String getArtist() {
         return artist;
     }

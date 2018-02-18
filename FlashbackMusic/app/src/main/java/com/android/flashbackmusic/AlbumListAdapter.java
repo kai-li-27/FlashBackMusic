@@ -23,6 +23,9 @@ public class AlbumListAdapter extends BaseAdapter {
         albumInflater = LayoutInflater.from(c);
     }
 
+    /**
+     * Gets the size of the list of albums
+     */
     @Override
     public int getCount() {
         return albums.size();

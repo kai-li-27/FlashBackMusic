@@ -24,6 +24,9 @@ public class SongListAdapter extends BaseAdapter{
         songInflater = LayoutInflater.from(c);
     }
 
+    /**
+     * Gets the number of songs
+     */
     @Override
     public int getCount() {
         return songs.size();
