@@ -29,22 +29,22 @@ import java.util.PriorityQueue;
 
 public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private Song currentSong;
-    private Comparator<Song>  comparator = new SongCompare();
-    private MediaPlayer player;
     private ArrayList<Song> listOfAllSongs;
-    private PriorityQueue<Song> flashBackPlayList = new PriorityQueue<Song>(comparator);
+    private PriorityQueue<Song> flashBackPlayList;
     private ArrayList<Song> currentPlayList;
-    private int currentIndex;
-    private final IBinder musicBind = new MusicBinder();
-    private LocationManager locationManager;
+
     private IndividualSong currentIndividualSong;
     private MainActivity mainActivity;
+    private Song currentSong;
     private Location currlocation;
+    private int currentIndex;
     private boolean flashBackMode = false;
 
-    private boolean reseted = false; //The reset button was pressed
     private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
+    private LocationManager locationManager;
+    private MediaPlayer player;
+    private final IBinder musicBind = new MusicBinder();
+
 
 
 
@@ -59,45 +59,28 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
+    /**
+     * When a song is done playing, updates its fields, and play next song
+     * @param mp
+     */
     @Override
     public void onCompletion(MediaPlayer mp) {
+        // If not in flashbackmode, updates current playing song's fileds.
         if (!flashBackMode) {
-            if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
-                currentIndex++;
-            } else {
-                currentIndex = 0;
-            }
+            currentSong = currentPlayList.get(currentIndex);
+            currentSong.setLastTime(new Date(System.currentTimeMillis()));
+            currentSong.setLastLocation(currlocation);
         }
-        if (flashBackMode) {
-            for (Song i : listOfAllSongs) {
-                i.updateDistance(currlocation);
-                i.updateTimeDifference(new Date(System.currentTimeMillis()));
-                algorithm();
-            }
-        }
-        loadMedia();
-        if (currentIndividualSong != null) { //In case the app is at main screen now
-            currentIndividualSong.changeText();
-        }
+        playNext();
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         return false;
-    }
-
-    // starts playing the music
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        if (!reseted) {
-            mp.start();
-        } else {
-            reseted = false;
-        }
-
-        if (currentIndividualSong != null) {
-            currentIndividualSong.playPause(); // In case skip button was pressed when the player in paused
-        }
     }
 
     @Override
@@ -111,6 +94,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
 
+        flashBackPlayList = new PriorityQueue<Song>(new SongCompare());
+
         currentIndex = 0;
         player = new MediaPlayer();
         initializeMusicPlayer();
@@ -118,14 +103,36 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
 
 
+
     public void setList(ArrayList<Song> inSongs) {
         currentPlayList = inSongs;
     }
+
     public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
-    public void setMainActivity(MainActivity mainActivity){ this.mainActivity = mainActivity;}
+
+    public void setMainActivity(MainActivity mainActivity) { this.mainActivity = mainActivity;}
+
+    public void setCurrentIndividualSong(IndividualSong individualSong) {
+        currentIndividualSong = individualSong;
+    }
+
+    public boolean isPlaying() {
+        return player.isPlaying();
+    }
+
+    public Song getCurrentSong(){
+        return currentSong;
+    }
+
+    public boolean getFlashBackMode() {
+        return flashBackMode;
+    }
+
+
+
 
     /**
-     * This method is intened to be only used by within the class
+     * Load the current playing song into the player
      */
     private void loadMedia() {
         if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
@@ -136,7 +143,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
 
 
-        if (!flashBackMode) { //Not in flashback mode, update time and location
+        // Not in flashback mode
+        if (!flashBackMode) {
             try {
                 player.reset();
                 currentSong = currentPlayList.get(currentIndex);
@@ -149,7 +157,20 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 System.out.println("Failed to load song!!!!!");
                 System.out.println("************************");
             }
-        } else {
+        }
+
+        // In flashback mode
+        else {
+
+            // calculate the playlist
+            if (flashBackMode) {
+                for (Song i : listOfAllSongs) {
+                    i.updateDistance(currlocation);
+                    i.updateTimeDifference(new Date(System.currentTimeMillis()));
+                }
+                algorithm();
+            }
+
             try {
                 player.reset();
                 if (flashBackPlayList.peek() == null) {
@@ -166,13 +187,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 System.out.println("************************");
             }
         }
+
     }
 
-
-
-    /*
-     * Load the song at index of all the songs.
-     * WARNING: This should not be called in flashback mode!!!
+    /**
+     * Load the song at given index to the player
      */
     public void loadMedia(int index) {
         if (failedToGetLoactionPermission) {
@@ -201,12 +220,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
-    public void reset() {
-        loadMedia(); //This will start playing the song
-        reseted = true;
-    }
-
-
+    /**
+     * Initialize the player to get some functionality
+     */
     private void initializeMusicPlayer() {
         // let the music keep playing if it's already playing if it sleeps
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
@@ -217,36 +233,52 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         player.setOnErrorListener(this);
     }
 
-    // for interaction between the activity and SongsService
-    public class MusicBinder extends Binder {
-        SongsService getService() {
-            return SongsService.this;
+
+
+
+    /**
+     * If the song's playing it, pause it, and vice versa
+     */
+    public void playPause() {
+        if (player.isPlaying()) {
+            player.pause();
+        } else {
+            player.start();
         }
     }
 
-    public void skip() {
-        onCompletion(player);
+    /**
+     * Reset the current playing song, and pause the player
+     */
+    public void reset() {
         loadMedia();
     }
 
-    // Get a reference to IndivudalSong to update song on completion
-    public void setCurrentIndividualSong(IndividualSong individualSong){
-        currentIndividualSong = individualSong;
+    /**
+     * Play the next song, and change its info
+     */
+    public void playNext() {
+
+        if (!flashBackMode) {
+            if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
+                currentIndex++;
+            } else {
+                currentIndex = 0;
+            }
+        }
+
+        loadMedia();
+        player.start();
+
+        if (currentIndividualSong != null) { //In case the app is at main screen now
+            currentIndividualSong.changeText();
+            currentIndividualSong.playPause();
+        }
     }
 
-
-    public Song getCurrentSong(){
-        return currentSong;
-    }
-
-    public MediaPlayer getMediaPlayer(){
-        return player;
-    }
-
-    public boolean getFlashBackMode() {
-        return flashBackMode;
-    }
-
+    /**
+     * Switch flashback mode
+     */
     public void switchMode() {
         if (flashBackMode) {
             flashBackMode = false;
@@ -264,29 +296,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         editor.apply();
     }
 
-    private final LocationListener mLocationListener = new LocationListener(){
-        @Override
-        public void onLocationChanged(Location location) {
-            currlocation = location;
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-
-        }
-    };
 
 
+
+    /**
+     * In flashback mode, calculate the playableness of each song and add the playable song to playlist.
+     */
     private void algorithm () {
         double distFactor = 1.0;
         double timeFactor = 1.0;
@@ -334,9 +349,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             if (result > 0 && !tempSong.isPlayed() && tempSong.getPreference() != Song.DISLIKE) {
                 flashBackPlayList.add(tempSong);
             }
-            System.out.println(result);
         }
     }
+
+
+
 
     private class SongCompare implements Comparator<Song> {
         public int compare(Song s1, Song s2) {
@@ -359,4 +376,31 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    private final LocationListener mLocationListener = new LocationListener(){
+        @Override
+        public void onLocationChanged(Location location) {
+            currlocation = location;
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    };
+
+    public class MusicBinder extends Binder {
+        SongsService getService() {
+            return SongsService.this;
+        }
+    }
 }

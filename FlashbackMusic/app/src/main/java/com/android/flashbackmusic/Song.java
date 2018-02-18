@@ -51,8 +51,6 @@ public class Song {
     @Ignore
     private boolean played = false;
 
-
-
     public Song(String title, String artist, String album, SongDao songDao) {
         this.title = title;
         this.artist = artist;
@@ -67,6 +65,9 @@ public class Song {
         album = "";
     }
 
+    /**
+     * Fetch data from database and update the last time and last location it was played
+     */
     private void initializeLocationAndTime() {
         preference = songDao.queryPreference(title,artist,album);
         lastTimeLong = songDao.queryLastTime(title,artist,album);
@@ -129,12 +130,16 @@ public class Song {
 
     public void setArtist(String artist) { this.artist = artist;}
 
+    /**
+     * Set the location where it was played last, and update the data to database
+     * @param location
+     */
     public void setLastLocation(Location location) {
         if (location != null) {
             lastLocation = location;
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
-            if (songDao != null) { // TODO remove this condition. This condition is only for testing
+            if (songDao != null) {
                 songDao.updateSong(this);
             }
         }
@@ -142,14 +147,22 @@ public class Song {
 
     public void setAlbum(String album) {this.album = album;}
 
+    /**
+     * Set the time where it was played last, and update the data to database
+     * @param lastTime
+     */
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
-        if (songDao != null) { // TODO remove this condition. this condition is only for testing
+        if (songDao != null) {
             songDao.updateSong(this);
         }
     }
 
+    /**
+     * Set user-specified preference of this song, and update the data to database
+     * @param preference
+     */
     public void setPreference(int preference) {
         this.preference = preference;
         if (songDao != null){
@@ -157,6 +170,9 @@ public class Song {
         }
     }
 
+    /**
+     * Rotate the preference as like the rotation of the button, and udpate the data to database
+     */
     public void rotatePreference() {
         preference = (preference + 1) % 3;
         songDao.updateSong(this);
@@ -175,6 +191,10 @@ public class Song {
         this.played = played;
     }
 
+    /**
+     * Calculate the distance between given location to the location where it was played last time
+     * @param here
+     */
     public void updateDistance(Location here) {
         if (here == null) { // When distance is unavailable
             distance = 100000000; // Keep it from being played
@@ -183,24 +203,39 @@ public class Song {
         }
     }
 
+    /**
+     * Given a time, determine if it is in same time range as the last time this song was played,
+     * if it is in the same day of week, and how many minutes are between them.
+     * @param now
+     */
     public void updateTimeDifference(Date now) {
-        if (lastTime == null) {
+        if (lastTime == null) { // If the song was never played, then it would never appear on the list
             played = true;
-        } else {
-            if (now.getDay() == lastTime.getDay()) { //Todo 5 mintues before midnight
+        }
+
+        else {
+            // Get the time difference in minutes
+            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
+            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
+
+            // If two songs are 10 mins apart, then practically they are in the same range
+            if (timeDifference > 10) {
+                if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
+                    isSameTimeOfDay = true;
+                } else {
+                    isSameTimeOfDay = false;
+                }
+            } else {
+                isSameTimeOfDay = true;
+            }
+
+            // Determine if two time are same day of week
+            if (now.getDay() == lastTime.getDay()) {
                 isSameDay = true;
             } else {
                 isSameDay = false;
             }
 
-            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
-            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
-
-            if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
-                isSameTimeOfDay = true;
-            } else {
-                isSameTimeOfDay = false;
-            }
         }
     }
 
@@ -212,6 +247,11 @@ public class Song {
         return this.algorithmValue;
     }
 
+    /**
+     * Given an hour, between 0-23, return its time range.
+     * @param hour
+     * @return
+     */
     public int timeRange(int hour) {
         if (hour >= 5 && hour < 11) { //Morning
             return 0;
