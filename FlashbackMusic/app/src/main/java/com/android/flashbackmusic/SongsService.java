@@ -163,20 +163,22 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         else {
 
             // calculate the playlist
-            if (flashBackMode) {
+            for (Song i : listOfAllSongs) {
+                i.updateDistance(currlocation);
+                i.updateTimeDifference(new Date(System.currentTimeMillis()));
+            }
+            algorithm();
+
+            if (flashBackPlayList.peek() == null) {
+                Toast.makeText(SongsService.this, "FlashBack playlist is empty. Starting over.", Toast.LENGTH_SHORT).show();
                 for (Song i : listOfAllSongs) {
-                    i.updateDistance(currlocation);
-                    i.updateTimeDifference(new Date(System.currentTimeMillis()));
+                    i.setPlayed(false);
                 }
                 algorithm();
             }
 
             try {
                 player.reset();
-                if (flashBackPlayList.peek() == null) {
-                    Toast.makeText(SongsService.this, "FlashBack Playlist Is Empty", Toast.LENGTH_LONG).show();
-                    return;
-                }
                 currentSong = flashBackPlayList.peek();
                 currentSong.setPlayed(true);
                 player.setDataSource(getApplicationContext(), currentSong.uri);
@@ -199,6 +201,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
                 failedToGetLoactionPermission = false;
             } catch (SecurityException e) {}
+        }
+
+        if (flashBackMode) {
+            loadMedia();
+            return;
         }
 
         try {
@@ -322,7 +329,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             timeFactor = 1.0;
             dayFactor = 1.0;
 
-            // TODO Change back to 1000 later
             if (distance > 1000) {
                 distFactor = 0.0;
             }
@@ -341,7 +347,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 timeDiff = 1;
             }
 
-            //if ( distance ) //TODO cornor cases for
             result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
 
             tempSong.setAlgorithmValue(result);
