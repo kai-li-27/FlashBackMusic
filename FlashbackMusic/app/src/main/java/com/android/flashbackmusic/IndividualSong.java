@@ -124,6 +124,10 @@ public class IndividualSong extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Change the icon of +/-/check button
+     * @param button
+     */
     private void changeDisplay(Button button){
         currentSong = songsService.getCurrentSong();
         int[] appearance = new int [3];
@@ -133,6 +137,9 @@ public class IndividualSong extends AppCompatActivity {
         button.setBackgroundResource(appearance[currentSong.getPreference()]);
     }
 
+    /**
+     * Change the icon of play/pause button
+     */
     public void playPause(){
         Button play = (Button) findViewById(R.id.button_play);
         int playButton = (!player.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
@@ -140,6 +147,9 @@ public class IndividualSong extends AppCompatActivity {
      }
 
 
+    /**
+     * Change the text of last time, last location, song title, artist and album
+     */
     @SuppressLint("StaticFieldLeak")
     public void changeText(){
         currentSong = songsService.getCurrentSong();
@@ -156,9 +166,7 @@ public class IndividualSong extends AppCompatActivity {
         TextView album = (TextView)findViewById(R.id.curr_song_album);
         album.setText(currentSong.getAlbum());
 
-        //curr_song_location
-        //TextView loc = (TextView)findViewById(R.id.curr_song_location);
-        //loc.setText(getAddressFromLocation(currentSong.getLastLocation()));
+        //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
             String addressName;
 

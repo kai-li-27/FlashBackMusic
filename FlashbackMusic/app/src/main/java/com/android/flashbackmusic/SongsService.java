@@ -59,6 +59,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
+    /**
+     * When a song is done playing, skip to next one, and change its info shown on the screen
+     * @param mp
+     */
     @Override
     public void onCompletion(MediaPlayer mp) {
         if (!flashBackMode) {
@@ -86,7 +90,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
-    // starts playing the music
+    /**
+     * When a song is done loading, play it
+     * @param mp
+     */
     @Override
     public void onPrepared(MediaPlayer mp) {
         if (!reseted) {
@@ -116,16 +123,16 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         initializeMusicPlayer();
     }
 
-
-
     public void setList(ArrayList<Song> inSongs) {
         currentPlayList = inSongs;
     }
+
     public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
+
     public void setMainActivity(MainActivity mainActivity){ this.mainActivity = mainActivity;}
 
     /**
-     * This method is intened to be only used by within the class
+     * Load the song at current index into the player
      */
     private void loadMedia() {
         if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
@@ -168,11 +175,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-
-
-    /*
-     * Load the song at index of all the songs.
-     * WARNING: This should not be called in flashback mode!!!
+    /**
+     * Load the song at given index to the player
      */
     public void loadMedia(int index) {
         if (failedToGetLoactionPermission) {
@@ -201,11 +205,13 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
+    /**
+     * Reset the current playing song, and pause the player
+     */
     public void reset() {
         loadMedia(); //This will start playing the song
         reseted = true;
     }
-
 
     private void initializeMusicPlayer() {
         // let the music keep playing if it's already playing if it sleeps
@@ -217,23 +223,23 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         player.setOnErrorListener(this);
     }
 
-    // for interaction between the activity and SongsService
     public class MusicBinder extends Binder {
         SongsService getService() {
             return SongsService.this;
         }
     }
 
+    /**
+     * Skip to next song
+     */
     public void skip() {
         onCompletion(player);
         loadMedia();
     }
 
-    // Get a reference to IndivudalSong to update song on completion
     public void setCurrentIndividualSong(IndividualSong individualSong){
         currentIndividualSong = individualSong;
     }
-
 
     public Song getCurrentSong(){
         return currentSong;
@@ -247,6 +253,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return flashBackMode;
     }
 
+    /**
+     * Switch flashback mode and
+     */
     public void switchMode() {
         if (flashBackMode) {
             flashBackMode = false;
@@ -286,7 +295,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         }
     };
 
-
+    /**
+     * In flashback mode, calculate the playableness of each song and add the playable song to playlist.
+     */
     private void algorithm () {
         double distFactor = 1.0;
         double timeFactor = 1.0;

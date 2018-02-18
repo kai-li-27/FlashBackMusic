@@ -51,8 +51,6 @@ public class Song {
     @Ignore
     private boolean played = false;
 
-
-
     public Song(String title, String artist, String album, SongDao songDao) {
         this.title = title;
         this.artist = artist;
@@ -67,6 +65,9 @@ public class Song {
         album = "";
     }
 
+    /**
+     * Fetch data from database and update the last time and last location it was played
+     */
     private void initializeLocationAndTime() {
         preference = songDao.queryPreference(title,artist,album);
         lastTimeLong = songDao.queryLastTime(title,artist,album);
@@ -129,6 +130,10 @@ public class Song {
 
     public void setArtist(String artist) { this.artist = artist;}
 
+    /**
+     * Set the location where it was played last, and update the data to database
+     * @param location
+     */
     public void setLastLocation(Location location) {
         if (location != null) {
             lastLocation = location;
@@ -142,6 +147,10 @@ public class Song {
 
     public void setAlbum(String album) {this.album = album;}
 
+    /**
+     * Set the time where it was played last, and update the data to database
+     * @param lastTime
+     */
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
@@ -150,6 +159,10 @@ public class Song {
         }
     }
 
+    /**
+     * Set user-specified preference of this song, and update the data to database
+     * @param preference
+     */
     public void setPreference(int preference) {
         this.preference = preference;
         if (songDao != null){
@@ -157,6 +170,9 @@ public class Song {
         }
     }
 
+    /**
+     * Rotate the preference as like the rotation of the button, and udpate the data to database
+     */
     public void rotatePreference() {
         preference = (preference + 1) % 3;
         songDao.updateSong(this);
@@ -175,6 +191,10 @@ public class Song {
         this.played = played;
     }
 
+    /**
+     * Calculate the distance between given location to the location where it was played last time
+     * @param here
+     */
     public void updateDistance(Location here) {
         if (here == null) { // When distance is unavailable
             distance = 100000000; // Keep it from being played
@@ -183,6 +203,11 @@ public class Song {
         }
     }
 
+    /**
+     * Given a time, determine if it is in same time range as the last time this song was played,
+     * if it is in the same day of week, and how many minutes are between them.
+     * @param now
+     */
     public void updateTimeDifference(Date now) {
         if (lastTime == null) {
             played = true;
@@ -212,6 +237,11 @@ public class Song {
         return this.algorithmValue;
     }
 
+    /**
+     * Given an hour, between 0-23, return its time range.
+     * @param hour
+     * @return
+     */
     public int timeRange(int hour) {
         if (hour >= 5 && hour < 11) { //Morning
             return 0;

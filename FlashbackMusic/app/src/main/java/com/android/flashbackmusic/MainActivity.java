@@ -46,8 +46,11 @@ public class MainActivity extends AppCompatActivity {
     private SongDao songDao;
     private SongsService songsService;
 
+    /**
+     * Override back button to not kill this activity
+     */
     @Override
-    public void onBackPressed() { //Override back button to not kill this activity
+    public void onBackPressed() {
         moveTaskToBack(true);
     }
 
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
         songDao = Db.songDao();
 
+        // Load all the songs
         listOfAllSongs = new ArrayList<Song>();
         currentPlayList = new ArrayList<Song>();
         albumsList = new ArrayList<Album>();
@@ -98,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Display the songs
         TabLayout tabLayout = (TabLayout) findViewById(R.id.topTabs);
         songAdapt = new SongListAdapter(this, listOfAllSongs);
         albumAdapt = new AlbumListAdapter(this, albumsList);
@@ -128,7 +133,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // method that is called once a song is clicked
+    /**
+     * When a song is clicked, play the song
+     * @param view
+     */
     public void chosenSong(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
@@ -142,6 +150,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * When an album is clicked, set the playlist to that album and play the first song in the album
+     * @param view
+     */
     public void chosenAlbum(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
         Album currAlbum = albumsList.get((int)view.getTag());
@@ -218,7 +230,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Get a list of all albums of the songs
+     */
     public void getAlbumList() {
         HashMap<String, Album> albumsMap = new HashMap<String, Album>();
 
@@ -238,6 +252,9 @@ public class MainActivity extends AppCompatActivity {
         java.util.Collections.sort(albumsList, new AlbumComparator());
     }
 
+    /**
+     * Change the color of background based on on/off of flashback mode
+     */
     public void changeBackgroundForFlashback() {
         if (songsService == null) {
             Log.e("changeBackground", "songsServices is null");
