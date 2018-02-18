@@ -201,6 +201,11 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             } catch (SecurityException e) {}
         }
 
+        if (flashBackMode) {
+            loadMedia();
+            return;
+        }
+
         try {
             player.reset();
             currentIndex = index;
@@ -322,7 +327,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             timeFactor = 1.0;
             dayFactor = 1.0;
 
-            // TODO Change back to 1000 later
             if (distance > 1000) {
                 distFactor = 0.0;
             }
@@ -341,7 +345,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 timeDiff = 1;
             }
 
-            //if ( distance ) //TODO cornor cases for
             result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
 
             tempSong.setAlgorithmValue(result);

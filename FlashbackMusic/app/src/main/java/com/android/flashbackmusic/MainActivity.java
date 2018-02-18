@@ -96,8 +96,13 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if (checked && !songsService.getFlashBackMode()) {
                     songsService.switchMode();
-                } else if (!checked && songsService.getFlashBackMode()) {
-                    songsService.switchMode();
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                } else if (checked && songsService.getFlashBackMode()) {
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
                 }
             }
         });
@@ -179,6 +184,9 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
             if (flashback_state.getBoolean("State",false)) {
                 songsService.switchMode();
+                Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                startActivity(intent);
             }
         }
 

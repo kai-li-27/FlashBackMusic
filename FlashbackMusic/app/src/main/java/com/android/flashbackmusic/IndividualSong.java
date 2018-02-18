@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -31,6 +32,18 @@ public class IndividualSong extends AppCompatActivity {
     private Song currentSong;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
+
+    /**
+     * Override back button behavior to not allow user to go back to mainActivity while in flashback mode
+     */
+    @Override
+    public void onBackPressed() {
+        if (!songsService.getFlashBackMode()) {
+            finish();
+        } else {
+            Toast.makeText(this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     protected  void onDestroy() {
@@ -51,7 +64,11 @@ public class IndividualSong extends AppCompatActivity {
         goBack.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                if (!songsService.getFlashBackMode()) {
+                    finish();
+                } else {
+                    Toast.makeText(IndividualSong.this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
