@@ -2,6 +2,7 @@ package com.android.flashbackmusic;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -37,8 +39,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private final IBinder musicBind = new MusicBinder();
     private LocationManager locationManager;
     private IndividualSong currentIndividualSong;
+    private MainActivity mainActivity;
     private Location currlocation;
     private boolean flashBackMode = false;
+
     private boolean reseted = false; //The reset button was pressed
     private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
 
@@ -52,7 +56,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public boolean onUnbind(Intent intent) {
-        player.stop();
         return false;
     }
 
@@ -91,6 +94,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         } else {
             reseted = false;
         }
+
+        if (currentIndividualSong != null) {
+            currentIndividualSong.playPause(); // In case skip button was pressed when the player in paused
+        }
     }
 
     @Override
@@ -115,6 +122,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         currentPlayList = inSongs;
     }
     public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
+    public void setMainActivity(MainActivity mainActivity){ this.mainActivity = mainActivity;}
 
     /**
      * This method is intened to be only used by within the class
@@ -159,6 +167,8 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             }
         }
     }
+
+
 
     /*
      * Load the song at index of all the songs.
@@ -224,10 +234,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         currentIndividualSong = individualSong;
     }
 
-    //gets the song index
-    public int getSongIndex(){
-        return currentIndex;
-    }
 
     public Song getCurrentSong(){
         return currentSong;
@@ -250,6 +256,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 i.setPlayed(false);
             }
         }
+        mainActivity.changeBackgroundForFlashback();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("State", flashBackMode);
+        editor.apply();
     }
 
     private final LocationListener mLocationListener = new LocationListener(){
@@ -294,10 +306,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             distFactor = 1.0;
             timeFactor = 1.0;
             dayFactor = 1.0;
-            result= 0.0;
 
             // TODO Change back to 1000 later
-            if (distance > 10) {
+            if (distance > 1000) {
                 distFactor = 0.0;
             }
             if (!sameTime) {
@@ -307,12 +318,20 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 dayFactor = 0.0;
             }
 
+            if (distance < 1) {
+                distance = 1;
+            }
+
+            if( timeDiff < 1) {
+                timeDiff = 1;
+            }
+
             //if ( distance ) //TODO cornor cases for
             result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
 
             tempSong.setAlgorithmValue(result);
 
-            if (result > 0 & !tempSong.isPlayed()) {
+            if (result > 0 && !tempSong.isPlayed() && tempSong.getPreference() != Song.DISLIKE) {
                 flashBackPlayList.add(tempSong);
             }
             System.out.println(result);
@@ -322,7 +341,14 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private class SongCompare implements Comparator<Song> {
         public int compare(Song s1, Song s2) {
             if ( (s1.getAlgorithmValue() - s2.getAlgorithmValue()) == 0 ) {
-                return 0;
+                if ( s1.getPreference() == s2.getPreference()) {
+                    return 0;
+                }
+                else if ( s1.getPreference() == Song.FAVORITE) {
+                    return 1;
+                } else {
+                    return  -1;
+                }
             }
             else if ((s1.getAlgorithmValue() - s2.getAlgorithmValue()) > 0) {
                 return 1;

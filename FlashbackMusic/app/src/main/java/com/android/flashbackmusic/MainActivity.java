@@ -5,19 +5,22 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import com.android.flashbackmusic.SongsService.MusicBinder;
 
@@ -30,52 +33,51 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
     private ArrayList<Song> currentPlayList = new ArrayList<Song>();
-    private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
-    private SongsService songsService;
     private ArrayList<Album> albumsList;
-    private ListView songsView;
-    private Intent playIntent;
+
     private boolean didChooseAlbum = false;
-    Album currAlbum;
     private boolean isMusicBound = false;
-    SongListAdapter songAdapt;
-    AlbumListAdapter albumAdapt;
+
+    private Intent playIntent;
+    private ListView songsView;
+    private SongListAdapter songAdapt;
+    private AlbumListAdapter albumAdapt;
 
     private SongDao songDao;
+    private SongsService songsService;
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, SongsService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
-    }
-
-    //TODO release the music player
-    @Override
-    public void onStop() {
-        super.onStop();
-        /*
-        if (isChangingConfigurations() && mediaPlayer.isPlaying()) {
-            ; //"do nothing"
-        }
-        */
+    public void onBackPressed() { //Override back button to not kill this activity
+        moveTaskToBack(true);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unbindService(musicConnection);
         stopService(playIntent);
-        // mediaPlayer.release();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Load database
+        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
+        songDao = Db.songDao();
+
+        listOfAllSongs = new ArrayList<Song>();
+        currentPlayList = new ArrayList<Song>();
+        albumsList = new ArrayList<Album>();
+        getSongsList();
+        getAlbumList();
+
+        //Binds with music player
+        if (playIntent == null) {
+            playIntent = new Intent(this, SongsService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+        }
 
         // Ask for location permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -84,47 +86,22 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},100);
         }
 
-        // Load database
-        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
-        songDao = Db.songDao();
-
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                return;
-            }
-        }
-        */
-
         Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                songsService.switchMode();
-                if (songsService.getFlashBackMode()) {
-                    compoundButton.setChecked(true);
-                } else {
-                    compoundButton.setChecked(false);
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                if (checked && !songsService.getFlashBackMode()) {
+                    songsService.switchMode();
+                } else if (!checked && songsService.getFlashBackMode()) {
+                    songsService.switchMode();
                 }
             }
         });
 
-        // TODO Iteration 2: get the last state instead of default songs list
-        songsView = (ListView) findViewById(R.id.song_list);
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        getSongsList();
-        getAlbumList();
-
-
         TabLayout tabLayout = (TabLayout) findViewById(R.id.topTabs);
-        //TabItem songTab = (TabItem) findViewById(R.id.song_tab);
-        //TabItem albumTab = (TabItem) findViewById(R.id.album_tab);
-
         songAdapt = new SongListAdapter(this, listOfAllSongs);
         albumAdapt = new AlbumListAdapter(this, albumsList);
+        songsView = (ListView) findViewById(R.id.song_list);
         songsView.setAdapter(songAdapt);
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -149,10 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
-
 
     // method that is called once a song is clicked
     public void chosenSong(View view) {
@@ -170,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void chosenAlbum(View view) {
         Intent intent = new Intent(this, IndividualSong.class);
-        currAlbum = albumsList.get((int)view.getTag());
+        Album currAlbum = albumsList.get((int)view.getTag());
         didChooseAlbum = true;
         currentPlayList.clear();
         for (Song i : currAlbum.getSongsInAlbum()) {
@@ -180,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -188,7 +161,13 @@ public class MainActivity extends AppCompatActivity {
             songsService = binder.getService();
             songsService.setList(currentPlayList);
             songsService.setListOfAllSongs(listOfAllSongs);
+            songsService.setMainActivity(MainActivity.this);
             isMusicBound = true;
+
+            SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+            if (flashback_state.getBoolean("State",false)) {
+                songsService.switchMode();
+            }
         }
 
         @Override
@@ -231,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
                 if (songDao.isIntheDB(title, artist, album) == null) {
                     songDao.insertSong(song);
                 }
-                song.initializeLocationAndTime();
                 song.uri = musicUri;
                 listOfAllSongs.add(song);
                 currentPlayList.add(song);
@@ -241,7 +219,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void getAlbumList() { // TODO test it after implemented song list.
+    public void getAlbumList() {
+        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+
 
         for ( Song song : listOfAllSongs) {
             if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
@@ -258,6 +238,27 @@ public class MainActivity extends AppCompatActivity {
         java.util.Collections.sort(albumsList, new AlbumComparator());
     }
 
+    public void changeBackgroundForFlashback() {
+        if (songsService == null) {
+            Log.e("changeBackground", "songsServices is null");
+            return;
+        }
+
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.MainActivity);
+
+        if (songsService.getFlashBackMode() && mySwitch.isChecked()) {
+            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+        } else if (!songsService.getFlashBackMode() && mySwitch.isChecked()) {
+            mySwitch.setChecked(false);
+            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        } else if (!songsService.getFlashBackMode() && !mySwitch.isChecked()) {
+            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        } else {
+            mySwitch.setChecked(true);
+            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+        }
+    }
 
 
     class AlbumComparator implements Comparator<Album> {
