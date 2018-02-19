@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -62,6 +63,7 @@ public class ExampleInstrumentedTest {
         song1 = songDao.isIntheDB("as", "artistName", "albumName");
         assertTrue(null == song1);
     }
+
 
     @Rule
     public ActivityTestRule<MainActivity> mainactivity = new ActivityTestRule<MainActivity>(MainActivity.class);
