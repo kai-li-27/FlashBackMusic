@@ -10,7 +10,7 @@ import android.util.Log;
 import java.util.Date;
 
 /**
- * Created by Kate on 2/4/2018.
+ * holds information related to one song
  */
 
 @Entity(primaryKeys = {"title", "artist", "album"})
@@ -72,15 +72,16 @@ public class Song {
      * Fetch data from database and update the last time and last location it was played
      */
     private void initializeLocationAndTime() {
-        Log.v(TAG, "initializing location and time of song");
-        preference = songDao.queryPreference(title,artist,album);
-        lastTimeLong = songDao.queryLastTime(title,artist,album);
-        if (lastTimeLong != 0) { // which means that the song was played before
-            lastTime = new Date(lastTimeLong);
+        if (songDao != null) {
+            preference = songDao.queryPreference(title, artist, album);
+            lastTimeLong = songDao.queryLastTime(title, artist, album);
+            if (lastTimeLong != 0) { // which means that the song was played before
+                lastTime = new Date(lastTimeLong);
 
-            lastLocation.setLatitude(songDao.queryLastLatitude(title,artist, album));
-            lastLocation.setLongitude(songDao.queryLastLongitude(title,artist, album));
-        } // else these two will be null
+                lastLocation.setLatitude(songDao.queryLastLatitude(title, artist, album));
+                lastLocation.setLongitude(songDao.queryLastLongitude(title, artist, album));
+            } // else these two will be null
+        }
     }
 
     /**

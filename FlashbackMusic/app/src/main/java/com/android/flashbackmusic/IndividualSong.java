@@ -27,12 +27,15 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.List;
 
+/**
+ * screen that displays when a song is playing
+ */
 public class IndividualSong extends AppCompatActivity {
 
     private SongsService songsService;
     private Song currentSong;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-    private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
+    private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
 
     /**
@@ -179,11 +182,11 @@ public class IndividualSong extends AppCompatActivity {
 
         //curr_song_artist
         TextView artist = (TextView)findViewById(R.id.curr_song_artist);
-        artist.setText(currentSong.getArtist());
+        artist.setText("by " + currentSong.getArtist());
 
         //curr_song_album
         TextView album = (TextView)findViewById(R.id.curr_song_album);
-        album.setText(currentSong.getAlbum());
+        album.setText("Album: " + currentSong.getAlbum());
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -197,7 +200,7 @@ public class IndividualSong extends AppCompatActivity {
                     if (addressList != null && addressList.size() > 0) {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
-                        addressName = address.getLocality();
+                        addressName = address.getAddressLine(0);
                         if (addressName == null) { // In case can't get specific address
                             addressName = address.getThoroughfare();
                         }
@@ -242,6 +245,8 @@ public class IndividualSong extends AppCompatActivity {
             Bundle bundle = getIntent().getExtras();
             int index = bundle.getInt(Intent.EXTRA_INDEX);
             songsService.loadMedia(index);
+            songsService.playPause();
+            playPause();
             songsService.setCurrentIndividualSong(IndividualSong.this);
             // Change the look according to current song
             changeText();
