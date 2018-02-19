@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="17184739-a84c-4965-b916-3118979e4d27" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java" afterPath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/AlbumListAdapter.java" afterPath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/AlbumListAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java" afterPath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java" afterPath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" afterPath="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,7 +19,7 @@
       <file leaf-file-name="IndividualSong.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2113">
+            <state relative-caret-position="425">
               <caret line="25" column="28" lean-forward="true" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
               <folding />
             </state>
@@ -32,28 +29,28 @@
       <file leaf-file-name="SongListAdapter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-136">
+            <state relative-caret-position="323">
               <caret line="27" column="31" lean-forward="false" selection-start-line="27" selection-start-column="31" selection-end-line="27" selection-end-column="31" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SongsService.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SongsService.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="61" column="7" lean-forward="true" selection-start-line="61" selection-start-column="7" selection-end-line="61" selection-end-column="7" />
+            <state relative-caret-position="136">
+              <caret line="50" column="23" lean-forward="false" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Album.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Album.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="186">
-              <caret line="42" column="35" lean-forward="false" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
+            <state relative-caret-position="594">
+              <caret line="42" column="35" lean-forward="true" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -114,9 +111,9 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java" />
-        <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java" />
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java" />
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/AlbumListAdapter.java" />
+        <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java" />
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" />
       </list>
     </option>
@@ -412,7 +409,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1518997004277" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1519000993682" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -460,7 +457,7 @@
       </Profilers>
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1518997004277" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1519000993682" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -885,14 +882,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2113">
-          <caret line="25" column="28" lean-forward="true" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongDao.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-137">
@@ -917,9 +906,25 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="42" column="35" lean-forward="true" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="28" lean-forward="true" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-136">
+        <state relative-caret-position="323">
           <caret line="27" column="31" lean-forward="false" selection-start-line="27" selection-start-column="31" selection-end-line="27" selection-end-column="31" />
           <folding />
         </state>
@@ -927,16 +932,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="61" column="7" lean-forward="true" selection-start-line="61" selection-start-column="7" selection-end-line="61" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="42" column="35" lean-forward="false" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
+        <state relative-caret-position="136">
+          <caret line="50" column="23" lean-forward="false" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
           <folding />
         </state>
       </provider>

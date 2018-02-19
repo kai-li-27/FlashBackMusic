@@ -111,6 +111,7 @@ public class IndividualSong extends AppCompatActivity {
                     public void onClick(View view){
                         songsService.playNext();
                         changeText();
+                        //changes look of button
                         changeDisplay(plus);
                     }
                 });
