@@ -217,7 +217,7 @@ public class IndividualSong extends AppCompatActivity {
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
                 TextView loc = (TextView)findViewById(R.id.curr_song_location);
-                loc.setText("Last location played: " + addressName);
+                loc.setText(addressName);
             }
         }.execute();
 
@@ -226,7 +226,7 @@ public class IndividualSong extends AppCompatActivity {
         if (currentSong.getLastTime() == null) {
             time.setText("Time Unavailable");
         } else {
-            time.setText("Last time played: " + DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
+            time.setText(DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
                     + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
         }

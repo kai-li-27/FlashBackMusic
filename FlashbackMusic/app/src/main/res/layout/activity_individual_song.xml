@@ -21,7 +21,7 @@
         android:id="@+id/curr_song_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="100dp"
         android:text="Uninitialized Song Name"
         android:textSize="30sp"
         android:gravity="center"
@@ -46,14 +46,32 @@
         app:layout_constraintTop_toBottomOf="@id/curr_song_artist"/>
 
     <TextView
+        android:id="@+id/location_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Last location played:"
+        android:gravity="center"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_album"
+        app:layout_constraintVertical_bias=".4"/>
+
+    <TextView
         android:id="@+id/curr_song_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Uninitialized Song Location"
         android:gravity="center"
         android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/curr_song_album"
-        app:layout_constraintVertical_bias=".4"/>
+        app:layout_constraintTop_toBottomOf="@id/location_label" />
+
+    <TextView
+        android:id="@+id/time_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Last time played:"
+        android:gravity="center"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/curr_song_location"/>
 
     <TextView
         android:id="@+id/curr_song_datetime"
@@ -62,7 +80,7 @@
         android:gravity="center"
         android:textSize="20sp"
         android:text="Uninitialized Song Date and Time"
-        app:layout_constraintTop_toBottomOf="@id/curr_song_location"/>
+        app:layout_constraintTop_toBottomOf="@id/time_label"/>
 
     <Button
         android:id="@+id/button_reset"
