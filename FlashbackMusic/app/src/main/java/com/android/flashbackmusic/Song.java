@@ -5,6 +5,7 @@ import android.arch.persistence.room.Ignore;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -51,6 +52,8 @@ public class Song {
     @Ignore
     private boolean played = false;
 
+    private static final String TAG = "Song";
+
     public Song(String title, String artist, String album, SongDao songDao) {
         this.title = title;
         this.artist = artist;
@@ -69,6 +72,7 @@ public class Song {
      * Fetch data from database and update the last time and last location it was played
      */
     private void initializeLocationAndTime() {
+        Log.v(TAG, "initializing location and time of song");
         preference = songDao.queryPreference(title,artist,album);
         lastTimeLong = songDao.queryLastTime(title,artist,album);
         if (lastTimeLong != 0) { // which means that the song was played before

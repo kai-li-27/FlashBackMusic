@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -32,12 +33,14 @@ public class IndividualSong extends AppCompatActivity {
     private Song currentSong;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
+    private static final String TAG = "IndividualSong";
 
     /**
      * Override back button behavior to not allow user to go back to mainActivity while in flashback mode
      */
     @Override
     public void onBackPressed() {
+        Log.v(TAG, "back button pressed");
         if (!songsService.getFlashBackMode()) {
             finish();
         } else {
@@ -141,6 +144,7 @@ public class IndividualSong extends AppCompatActivity {
      * @param button
      */
     private void changeDisplay(Button button){
+        Log.v(TAG, "toggling favorite/dislike button");
         currentSong = songsService.getCurrentSong();
         int[] appearance = new int [3];
         appearance[0] = R.drawable.flashback_plus_inactive;
@@ -153,6 +157,7 @@ public class IndividualSong extends AppCompatActivity {
      * Change the icon of play/pause button
      */
     public void playPause(){
+        Log.v(TAG, "play/pause button pressed");
         Button play = (Button) findViewById(R.id.button_play);
         int playButton = (!songsService.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
         play.setBackgroundResource(playButton);
@@ -164,6 +169,7 @@ public class IndividualSong extends AppCompatActivity {
      */
     @SuppressLint("StaticFieldLeak")
     public void changeText(){
+        Log.v(TAG, "changing text info of current song");
         currentSong = songsService.getCurrentSong();
 
         //curr_song_title
@@ -225,7 +231,7 @@ public class IndividualSong extends AppCompatActivity {
 
 
     /**
-     * Establish connection to songsSerive, and play the chosen song
+     * Establish connection to songsService, and play the chosen song
      */
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override

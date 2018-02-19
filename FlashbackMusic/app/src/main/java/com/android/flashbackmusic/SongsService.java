@@ -45,6 +45,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     private MediaPlayer player;
     private final IBinder musicBind = new MusicBinder();
 
+    private static final String TAG = "SongsService";
 
 
 
@@ -66,6 +67,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCompletion(MediaPlayer mp) {
         // If not in flashbackmode, updates current playing song's fileds.
+        Log.v(TAG, "song completed; updating fields");
         if (!flashBackMode) {
             currentSong = currentPlayList.get(currentIndex);
             currentSong.setLastTime(new Date(System.currentTimeMillis()));
@@ -135,6 +137,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * Load the current playing song into the player
      */
     private void loadMedia() {
+        Log.v(TAG, "loading current song into player");
         if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
@@ -156,6 +159,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 System.out.println("************************");
                 System.out.println("Failed to load song!!!!!");
                 System.out.println("************************");
+                Log.e(TAG, "Failed to load song!!");
             }
         }
 
@@ -187,6 +191,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 System.out.println("************************");
                 System.out.println("Failed to load song!!!!!");
                 System.out.println("************************");
+                Log.e(TAG, "Failed to long song!!");
             }
         }
 
@@ -196,6 +201,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * Load the song at given index to the player
      */
     public void loadMedia(int index) {
+        Log.v(TAG, "loadMedia; loading media into player");
         if (failedToGetLoactionPermission) {
             try {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
@@ -223,6 +229,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             System.out.println("************************");
             System.out.println("Failed to load song!!!!!");
             System.out.println("************************");
+            Log.e(TAG, "Failed to load song!!");
         }
 
     }
@@ -265,7 +272,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * Play the next song, and change its info
      */
     public void playNext() {
-
+        Log.v(TAG, "Playing the next song");
         if (!flashBackMode) {
             if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
                 currentIndex++;
@@ -287,6 +294,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * Switch flashback mode
      */
     public void switchMode() {
+        Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode) {
             flashBackMode = false;
         } else {
@@ -310,6 +318,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      * In flashback mode, calculate the playableness of each song and add the playable song to playlist.
      */
     private void algorithm () {
+        Log.v(TAG, "calculating playableness of each song");
         double distFactor = 1.0;
         double timeFactor = 1.0;
         double dayFactor = 1.0;
