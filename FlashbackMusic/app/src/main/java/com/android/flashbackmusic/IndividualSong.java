@@ -244,6 +244,8 @@ public class IndividualSong extends AppCompatActivity {
             Bundle bundle = getIntent().getExtras();
             int index = bundle.getInt(Intent.EXTRA_INDEX);
             songsService.loadMedia(index);
+            songsService.playPause();
+            playPause();
             songsService.setCurrentIndividualSong(IndividualSong.this);
             // Change the look according to current song
             changeText();
