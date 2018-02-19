@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.PriorityQueue;
 
 /**
- * Created by Kate on 2/4/2018. Allows the songs to actually play.
+ * service that allows the songs to actually play with mediaplayer
  */
 
 public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {

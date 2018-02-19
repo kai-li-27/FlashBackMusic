@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
+/**
+ * Landing page with all the songs and albums
+ */
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();

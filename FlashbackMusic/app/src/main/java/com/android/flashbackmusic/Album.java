@@ -3,7 +3,7 @@ package com.android.flashbackmusic;
 import java.util.ArrayList;
 
 /**
- * Created by Kate and Camron on 2/7/2018.
+ * holds information about a particular album with its songs
  */
 
 public class Album {
