@@ -181,11 +181,11 @@ public class IndividualSong extends AppCompatActivity {
 
         //curr_song_artist
         TextView artist = (TextView)findViewById(R.id.curr_song_artist);
-        artist.setText(currentSong.getArtist());
+        artist.setText("by " + currentSong.getArtist());
 
         //curr_song_album
         TextView album = (TextView)findViewById(R.id.curr_song_album);
-        album.setText(currentSong.getAlbum());
+        album.setText("Album: " + currentSong.getAlbum());
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -199,7 +199,7 @@ public class IndividualSong extends AppCompatActivity {
                     if (addressList != null && addressList.size() > 0) {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
-                        addressName = address.getLocality();
+                        addressName = address.getAddressLine(0);
                         if (addressName == null) { // In case can't get specific address
                             addressName = address.getThoroughfare();
                         }
@@ -217,7 +217,7 @@ public class IndividualSong extends AppCompatActivity {
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
                 TextView loc = (TextView)findViewById(R.id.curr_song_location);
-                loc.setText(addressName);
+                loc.setText("Last location played: " + addressName);
             }
         }.execute();
 
@@ -226,7 +226,7 @@ public class IndividualSong extends AppCompatActivity {
         if (currentSong.getLastTime() == null) {
             time.setText("Time Unavailable");
         } else {
-            time.setText(DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
+            time.setText("Last time played: " + DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
                     + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
         }
