@@ -35,7 +35,7 @@ public class IndividualSong extends AppCompatActivity {
     private SongsService songsService;
     private Song currentSong;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-    private final String[] TIMERANGE = {"Morning", "Noon", "Afternoon"};
+    private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
 
     /**
