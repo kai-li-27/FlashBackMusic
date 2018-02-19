@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.List;
 
+/**
+ * screen that displays when a song is playing
+ */
 public class IndividualSong extends AppCompatActivity {
 
     private SongsService songsService;

@@ -7,7 +7,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
 /**
- * Created by ecsan on 2/7/2018.
+ * queries for database
  */
 
 @Dao

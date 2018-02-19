@@ -6,7 +6,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
 /**
- * Created by ecsan on 2/7/2018.
+ * instance of database for songs and their information with history
  */
 
 @Database(entities = {Song.class}, version = 1, exportSchema = false)

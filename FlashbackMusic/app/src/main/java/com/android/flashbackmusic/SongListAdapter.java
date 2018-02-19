@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Created by Kate on 2/4/2018.
+ * converts the song list into a format ListView can use
  */
 
 public class SongListAdapter extends BaseAdapter{

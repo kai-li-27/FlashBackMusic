@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Created by Kate and Camron on 2/7/2018.
+ * converts a list of albums into a format ListView can display
  */
 
 public class AlbumListAdapter extends BaseAdapter {
