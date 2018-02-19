@@ -303,7 +303,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 i.setPlayed(false);
             }
         }
-        mainActivity.changeBackgroundForFlashback();
 
         SharedPreferences sharedPreferences = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

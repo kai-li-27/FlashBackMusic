@@ -86,11 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Ask for location permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},100);
-        }
+        getPermissions();
 
         Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -138,6 +134,48 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
+            }
+        });
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        flashbackSwitchOff();
+    }
+
+    /**
+     * Gets Location permission from user if did not get it yet
+     */
+    public void getPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},100);
+        }
+    }
+
+    /**
+     * reset flashback switch UI display
+     */
+    public void flashbackSwitchOff() {
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(null);
+        mySwitch.setChecked(false);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                Log.v(TAG, "Flashback mode toggled");
+                if (checked && !songsService.getFlashBackMode()) {
+                    songsService.switchMode();
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                } else if (checked && songsService.getFlashBackMode()) {
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                }
             }
         });
     }
