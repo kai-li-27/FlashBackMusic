@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 public class AlbumListAdapter extends BaseAdapter {
     private ArrayList<Album> albums;
     private LayoutInflater albumInflater; // maps strings to textviews in song.xml
+    private static final String TAG = "AlbumListAdapter";
 
     public AlbumListAdapter (Context c, ArrayList<Album> inAlbums) {
         albums = inAlbums;
@@ -50,6 +52,7 @@ public class AlbumListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // mapping to the listview
+        Log.i(TAG, "getView; mapping album list to the ListView");
         LinearLayout listLay = (LinearLayout) albumInflater.inflate (R.layout.album, parent, false);
         TextView albumView = (TextView) listLay.findViewById(R.id.album_title);
         TextView artistView = (TextView) listLay.findViewById(R.id.album_artist);

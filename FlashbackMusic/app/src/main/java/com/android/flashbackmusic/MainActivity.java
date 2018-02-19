@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private SongDao songDao;
     private SongsService songsService;
 
+    private static final String TAG = "MainActivity";
+
     /**
      * Override back button to not kill this activity
      */
@@ -84,16 +86,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Ask for location permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},100);
-        }
+        getPermissions();
 
         Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
                     songsService.switchMode();
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
@@ -117,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                Log.v(TAG, "tab was selected");
                 String theTab = tab.getText().toString();
                 if (theTab.equalsIgnoreCase("songs")) {
                     songsView.setAdapter(songAdapt);
@@ -138,14 +138,58 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        flashbackSwitchOff();
+    }
+
+    /**
+     * Gets Location permission from user if did not get it yet
+     */
+    public void getPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},100);
+        }
+    }
+
+    /**
+     * reset flashback switch UI display
+     */
+    public void flashbackSwitchOff() {
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(null);
+        mySwitch.setChecked(false);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                Log.v(TAG, "Flashback mode toggled");
+                if (checked && !songsService.getFlashBackMode()) {
+                    songsService.switchMode();
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                } else if (checked && songsService.getFlashBackMode()) {
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                }
+            }
+        });
+    }
+
     /**
      * When a song is clicked, play the song
      * @param view
      */
     public void chosenSong(View view) {
+        Log.v(TAG, "selected a song to play");
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
         if (didChooseAlbum) {
+            Log.v(TAG, "selected album");
             currentPlayList.clear();
             for (Song i : listOfAllSongs) {
                 currentPlayList.add(i);
@@ -160,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void chosenAlbum(View view) {
+        Log.v(TAG, "selected an album to play");
         Intent intent = new Intent(this, IndividualSong.class);
         Album currAlbum = albumsList.get((int)view.getTag());
         didChooseAlbum = true;
@@ -167,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
         for (Song i : currAlbum.getSongsInAlbum()) {
             currentPlayList.add(i);
         }
+        Log.v(TAG, "added songs in album to queue");
         intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song
         startActivity(intent);
     }
@@ -203,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
      * This methods scan the folder and populate the songlist, and also update their info in database
      */
     private void getSongsList() {
+        Log.i(TAG, "Importing list of songs");
         Field[] filesName = R.raw.class.getFields();
 
         for (int i = 0; i < filesName.length; i++) {
@@ -210,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
             Uri musicUri = Uri.parse("android.resource://" + getPackageName() + "/" + Integer.toString(resourceId)  );
 
             try {
+                Log.i(TAG, "Trying to get the songs from folder");
                 MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
                 metaRetriever.setDataSource(getApplicationContext(), musicUri);
                 String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -234,7 +282,9 @@ public class MainActivity extends AppCompatActivity {
                 listOfAllSongs.add(song);
                 currentPlayList.add(song);
 
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                Log.e(TAG, "failed to get songs from folder");
+            }
         }
     }
 
@@ -242,9 +292,10 @@ public class MainActivity extends AppCompatActivity {
      * Get a list of all albums of the songs
      */
     private void getAlbumList() {
+        Log.v(TAG, "getting list of all albums");
         HashMap<String, Album> albumsMap = new HashMap<String, Album>();
 
-
+        Log.v(TAG, "placing songs in albums");
         for ( Song song : listOfAllSongs) {
             if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
                 Album album = new Album(song.getAlbum(), song.getArtist());
@@ -264,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
      * Change the color of background based on on/off of flashback mode
      */
     public void changeBackgroundForFlashback() {
+        Log.v(TAG, "changing background to indicate flashback mode");
         if (songsService == null) {
             Log.e("changeBackground", "songsServices is null");
             return;
