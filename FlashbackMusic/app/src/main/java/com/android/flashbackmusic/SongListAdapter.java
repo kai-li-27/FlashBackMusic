@@ -24,6 +24,9 @@ public class SongListAdapter extends BaseAdapter{
         songInflater = LayoutInflater.from(c);
     }
 
+    /**
+     * Gets the number of songs
+     */
     @Override
     public int getCount() {
         return songs.size();
@@ -39,6 +42,12 @@ public class SongListAdapter extends BaseAdapter{
         return 0;
     }
 
+    /**
+     * Gets the listview
+     * @param position
+     * @param convertView
+     * @param parent
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // mapping to the listview

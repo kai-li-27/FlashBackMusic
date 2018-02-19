@@ -47,7 +47,9 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
 
 
-
+    /**
+     * Gets the IBinder
+     */
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

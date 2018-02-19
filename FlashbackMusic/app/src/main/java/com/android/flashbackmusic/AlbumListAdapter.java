@@ -23,6 +23,9 @@ public class AlbumListAdapter extends BaseAdapter {
         albumInflater = LayoutInflater.from(c);
     }
 
+    /**
+     * Gets the size of the list of albums
+     */
     @Override
     public int getCount() {
         return albums.size();
@@ -38,6 +41,12 @@ public class AlbumListAdapter extends BaseAdapter {
         return 0;
     }
 
+    /**
+     * Gets the listview
+     * @param position
+     * @param convertView
+     * @param parent
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // mapping to the listview

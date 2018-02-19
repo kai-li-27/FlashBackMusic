@@ -79,55 +79,104 @@ public class Song {
         } // else these two will be null
     }
 
+    /**
+     * Fetch title of song from database
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Fetch artist of song from database
+     */
     public String getArtist() {
         return artist;
     }
 
+    /**
+     * Fetch album of song from database
+     */
     public String getAlbum() {
         return album;
     }
 
+    /**
+     * Fetch last time when song was last played as a date
+     */
     public Date getLastTime() {
         return lastTime;
     }
 
+    /**
+     * Fetch current preference of song
+     */
     public int getPreference() {
         return preference;
     }
 
+    /**
+     * Fetch last location where song was played
+     */
     public Location getLastLocation() {
         return lastLocation;
     }
 
-
+    /**
+     * Fetch last time when song was played as a long
+     */
     public long getLastTimeLong() {
         return lastTimeLong;
     }
 
+    /**
+     * Fetch the longitude of the location where a song was last played
+     */
     public double getLastLongitude() {
         return lastLongitude;
     }
 
+    /**
+     * Fetch the latitude of the location where a song was last played
+     */
     public double getLastLatitude() {
         return lastLatitude;
     }
 
+    /**
+     * Fetch distance of a song from database
+     */
     public double getDistance() {return distance;}
 
+    /**
+     * Fetch time difference of a song from database
+     */
     public double getTimeDifference() {return timeDifference;}
 
+    /**
+     * Fetch data from database to see if it is the same day
+     */
     public boolean isSameDay() {return  isSameDay;}
 
+    /**
+     * Fetch data from database to see if it is the same time of day
+     */
     public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
 
+    /**
+     * Fetch data from database to see if a song is played
+     */
     public boolean isPlayed() {return played;}
 
+    /**
+     * Sets the title of a song, and update the data to database
+     * @param title
+     */
     public void setTitle(String title) { this.title = title;}
 
+    /**
+     * Sets the artist of a song, and update the data to database
+     * @param artist
+     */
     public void setArtist(String artist) { this.artist = artist;}
 
     /**
@@ -145,6 +194,10 @@ public class Song {
         }
     }
 
+    /**
+     * Set the album of a song, and update the data to database
+     * @param album
+     */
     public void setAlbum(String album) {this.album = album;}
 
     /**
@@ -187,6 +240,10 @@ public class Song {
     public void setLastLatitude(double lastLatitude) {
     }
 
+    /**
+     * Sets song for played status
+     * @param played
+     */
     public void setPlayed(boolean played) {
         this.played = played;
     }
@@ -239,10 +296,17 @@ public class Song {
         }
     }
 
+    /**
+     * Sets algorithm value for this song
+     * @param value
+     */
     public void setAlgorithmValue(double value) {
         this.algorithmValue = value;
     }
 
+    /**
+     * Gets algorithm value for this song
+     */
     public double getAlgorithmValue() {
         return this.algorithmValue;
     }
