@@ -82,7 +82,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
+        return true;
     }
 
     @Override
@@ -151,8 +151,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             try {
                 player.reset();
                 currentSong = currentPlayList.get(currentIndex);
-                currentSong.setLastLocation(currlocation);
-                currentSong.setLastTime(new Date(System.currentTimeMillis()));
                 player.setDataSource(getApplicationContext(), currentSong.uri);
                 player.prepare();
             } catch (IOException e) {
@@ -218,10 +216,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             player.reset();
             currentIndex = index;
             currentSong = currentPlayList.get(index);
-            if (!flashBackMode) {
-                currentSong.setLastLocation(currlocation);
-                currentSong.setLastTime(new Date(System.currentTimeMillis()));
-            }
 
             player.setDataSource(getApplicationContext(), currentSong.uri);
             player.prepare();
