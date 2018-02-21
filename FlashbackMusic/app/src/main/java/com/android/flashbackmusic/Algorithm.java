@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.app.Application;
+import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
@@ -28,11 +29,11 @@ public final class Algorithm {
      */
     public static void importSongsFromResource(ArrayList<Song> songsList) {
         if (songsList == null) {
-            System.err.println("Argument to importSongsFromResource can't be null.");
+            System.err.println("Argument passed into importSongsFromResource() is null.");
             throw new IllegalArgumentException();
         }
         if (songsList.size() != 0) {
-            System.err.println("Argument to importSongsFromResource should be empty.");
+            System.err.println("Argument passed into importSongsFromResource() is not empty.");
             throw new IllegalArgumentException();
         }
         Field[] filesName = R.raw.class.getFields();
@@ -88,7 +89,7 @@ public final class Algorithm {
      */
     public static ArrayList<Album> getAlbumList(ArrayList<Song> songsList) {
         if (songsList == null) {
-            System.err.println("Argument to importSongsFromResource can't be null.");
+            System.err.println("Argument passed into getAlbumList() is null.");
             throw new IllegalArgumentException();
         }
 
@@ -115,4 +116,54 @@ public final class Algorithm {
             return a.getName().compareToIgnoreCase(b.getName());
         }
     }
+
+    /**
+     * Calculate the weight for a song
+     * @precondition song can not be null
+     * @precondition updateTimeDiffernce() and updateDistance has been called on the song
+     * @postcondition the algorithmValue field of song will be set to its weight
+     */
+    static public void calculateSongWeight(Song song) {
+        if (song == null) {
+            System.err.println("Argument passed into calculateSongWeight() is null");
+            throw new IllegalArgumentException();
+        }
+        double distFactor = 1.0;
+        double timeFactor = 1.0;
+        double dayFactor = 1.0;
+        double result = 0.0;
+        double distance, timeDiff;
+        boolean sameTime, sameDay;
+
+        distance = song.getDistance();
+        sameTime = song.isSameTimeOfDay();
+        sameDay = song.isSameDay();
+        timeDiff = song.getTimeDifference();
+        distFactor = 1.0;
+        timeFactor = 1.0;
+        dayFactor = 1.0;
+
+        if (distance > 1000) {
+            distFactor = 0.0;
+        }
+        if (!sameTime) {
+            timeFactor = 0.0;
+        }
+        if (!sameDay) {
+            dayFactor = 0.0;
+        }
+
+        if (distance < 1) {
+            distance = 1;
+        }
+
+        if (timeDiff < 1) {
+            timeDiff = 1;
+        }
+
+        result = (1.0 / distance) * 2 * distFactor + (1.0 / timeDiff) * timeFactor + dayFactor;
+
+        song.setAlgorithmValue(result);
+    }
+
 }
