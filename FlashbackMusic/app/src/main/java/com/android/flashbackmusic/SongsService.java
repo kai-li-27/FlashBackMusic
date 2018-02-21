@@ -171,14 +171,14 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 i.updateDistance(currlocation);
                 i.updateTimeDifference(new Date(System.currentTimeMillis()));
             }
-            algorithm();
+            updateFlashbackPlaylist();
 
             if (flashBackPlayList.peek() == null) {
                 Toast.makeText(SongsService.this, "FlashBack playlist is empty. Starting over.", Toast.LENGTH_SHORT).show();
                 for (Song i : listOfAllSongs) {
                     i.setPlayed(false);
                 }
-                algorithm();
+                updateFlashbackPlaylist();
             }
 
             try {
@@ -312,50 +312,12 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     /**
      * In flashback mode, calculate the playableness of each song and add the playable song to playlist.
      */
-    private void algorithm () {
-        Log.v(TAG, "calculating playableness of each song");
-        double distFactor = 1.0;
-        double timeFactor = 1.0;
-        double dayFactor = 1.0;
-        double result = 0.0;
-        double distance, timeDiff;
-        boolean sameTime, sameDay;
-        Song tempSong;
+    private void updateFlashbackPlaylist () {
         flashBackPlayList.clear();
 
-        for (int i = 0; i < listOfAllSongs.size(); i++) {
-            tempSong = listOfAllSongs.get(i);
-            distance = tempSong.getDistance();
-            sameTime = tempSong.isSameTimeOfDay();
-            sameDay = tempSong.isSameDay();
-            timeDiff = tempSong.getTimeDifference();
-            distFactor = 1.0;
-            timeFactor = 1.0;
-            dayFactor = 1.0;
-
-            if (distance > 1000) {
-                distFactor = 0.0;
-            }
-            if (!sameTime) {
-                timeFactor = 0.0;
-            }
-            if (!sameDay) {
-                dayFactor = 0.0;
-            }
-
-            if (distance < 1) {
-                distance = 1;
-            }
-
-            if( timeDiff < 1) {
-                timeDiff = 1;
-            }
-
-            result = (1.0/distance)*2*distFactor + (1.0/timeDiff)*timeFactor + dayFactor;
-
-            tempSong.setAlgorithmValue(result);
-
-            if (result > 0 && !tempSong.isPlayed() && tempSong.getPreference() != Song.DISLIKE) {
+        for (Song tempSong : listOfAllSongs) {
+            Algorithm.calculateSongWeight(tempSong);
+            if (tempSong.getAlgorithmValue() > 0 && !tempSong.isPlayed() && tempSong.getPreference() != Song.DISLIKE) {
                 flashBackPlayList.add(tempSong);
             }
         }
