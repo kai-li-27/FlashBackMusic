@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Song> currentPlayList = new ArrayList<Song>();
     private ArrayList<Album> albumsList;
 
-    private boolean didChooseAlbum = false;
+    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
     private boolean isMusicBound = false;
 
     private Intent playIntent;
@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
 
-    private SongDao songDao;
     private SongsService songsService;
 
     private static final String TAG = "MainActivity";
@@ -71,16 +70,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Load database
-        SongDatabase Db = SongDatabase.getSongDatabase(getApplicationContext());
-        songDao = Db.songDao();
 
         // Load all the songs
         listOfAllSongs = new ArrayList<Song>();
         currentPlayList = new ArrayList<Song>();
         albumsList = new ArrayList<Album>();
-        getSongsList();
-        getAlbumList();
+        Algorithm.importSongsFromResource(listOfAllSongs);
+        albumsList = Algorithm.getAlbumList(listOfAllSongs);
 
         //Binds with music player
         if (playIntent == null) {
@@ -246,74 +242,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
-    /***********************Import songs***********************************/
-
-    /**
-     * This methods scan the folder and populate the songlist, and also update their info in database
-     */
-    private void getSongsList() {
-        Log.i(TAG, "Importing list of songs");
-        Field[] filesName = R.raw.class.getFields();
-
-        for (int i = 0; i < filesName.length; i++) {
-            int resourceId = getResources().getIdentifier(filesName[i].getName(), "raw", getPackageName());
-            Uri musicUri = Uri.parse("android.resource://" + getPackageName() + "/" + Integer.toString(resourceId)  );
-
-            try {
-                Log.i(TAG, "Trying to get the songs from folder");
-                MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-                metaRetriever.setDataSource(getApplicationContext(), musicUri);
-                String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-
-                if (artist == null) {
-                    artist = "";
-                }
-                if (title == null) {
-                    title = "";
-                }
-                if (album == null) {
-                    album = "";
-                }
-
-                Song song = new Song(title, artist, album, songDao);
-                if (songDao.isIntheDB(title, artist, album) == null) {
-                    songDao.insertSong(song);
-                }
-                song.uri = musicUri;
-                listOfAllSongs.add(song);
-                currentPlayList.add(song);
-
-            } catch (Exception e) {
-                Log.e(TAG, "failed to get songs from folder");
-            }
-        }
-    }
-
-    /**
-     * Get a list of all albums of the songs
-     */
-    private void getAlbumList() {
-        Log.v(TAG, "getting list of all albums");
-        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
-
-        Log.v(TAG, "placing songs in albums");
-        for ( Song song : listOfAllSongs) {
-            if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
-                Album album = new Album(song.getAlbum(), song.getArtist());
-                album.getSongsInAlbum().add(song);
-                albumsMap.put(song.getAlbum() + song.getArtist(), album);
-            } else {
-                Album album = albumsMap.get(song.getAlbum() + song.getArtist());
-                album.getSongsInAlbum().add(song);
-            }
-        }
-
-        albumsList = new ArrayList<Album>(albumsMap.values());
-        java.util.Collections.sort(albumsList, new AlbumComparator());
-    }
-
     /**
      * Change the color of background based on on/off of flashback mode
      */
@@ -341,11 +269,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    class AlbumComparator implements Comparator<Album> {
-        @Override
-        public int compare(Album a, Album b) {
-            return a.getName().compareToIgnoreCase(b.getName());
-        }
-    }
+
 
 }
