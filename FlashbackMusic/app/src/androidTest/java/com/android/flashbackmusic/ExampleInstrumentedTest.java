@@ -1,5 +1,6 @@
 package com.android.flashbackmusic;
 
+import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -68,6 +69,11 @@ public class ExampleInstrumentedTest {
     @Rule
     public ActivityTestRule<MainActivity> mainactivity = new ActivityTestRule<MainActivity>(MainActivity.class);
 
+    @Test
+    public void testInsetIntoDataBase() {
+        VibeDatabase database = new VibeDatabase();
+        database.insertUser(123);
+    }
 
 
 }
