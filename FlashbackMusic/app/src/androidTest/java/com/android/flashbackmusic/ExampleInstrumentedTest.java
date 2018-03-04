@@ -3,6 +3,7 @@ package com.android.flashbackmusic;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.location.Location;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -72,7 +73,27 @@ public class ExampleInstrumentedTest {
     @Test
     public void testInsetIntoDataBase() {
         VibeDatabase database = new VibeDatabase();
-        database.insertUser(123);
+        Song song = new Song("song","artist","album",null);
+        database.insertSong(song);
+    }
+    @Test
+    public void testUpdateIntoDataBase(){
+        VibeDatabase database = new VibeDatabase();
+        Song song = new Song("song","artist","Album",null);
+        database.updateSong(song);
+
+    }
+
+    @Test
+    public  void testQueryFromDatabase() {
+        VibeDatabase database = new VibeDatabase();
+        Song song = new Song("song", "artist", "album", null);
+        song.setLastLongitude(10);
+        database.insertSong(song);
+        Location location = new Location("");
+        location.setLongitude(10);
+        location.setLatitude(0);
+        database.QueryByLocation(location, 2);
     }
 
 

@@ -62,6 +62,9 @@ public class Song {
         initializeLocationAndTime();
     }
 
+    public String getUser(){
+        return "123";
+    }
     public Song() {
         title = "";
         artist = "";
@@ -240,6 +243,7 @@ public class Song {
     }
 
     public void setLastLongitude(double lastLongitude) {
+        this.lastLongitude = lastLongitude;
     }
 
     public void setLastLatitude(double lastLatitude) {
