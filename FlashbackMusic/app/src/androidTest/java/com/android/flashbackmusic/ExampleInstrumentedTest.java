@@ -71,48 +71,7 @@ public class ExampleInstrumentedTest {
     @Rule
     public ActivityTestRule<MainActivity> mainactivity = new ActivityTestRule<MainActivity>(MainActivity.class);
 
-    @Test
-    public void testInsetIntoDataBase() {
-        VibeDatabase database = new VibeDatabase();
-        Song song = new Song("InsertTest","artist","album",null);
-        database.insertSong(song);
-        sleep();
-    }
-    @Test
-    public void testUpdateIntoDataBase(){
-        VibeDatabase database = new VibeDatabase();
-        Song song = new Song("UpdateTest","artist","Album",null);
-        database.updateSong(song);
-    }
 
-    @Test
-    public  void testQueryFromDatabase() {
-        VibeDatabase database = new VibeDatabase();
-        Song song = new Song("QueryTest", "artist", "album", null);
-        song.setLastLongitude(10);
-        database.insertSong(song);
-        Location location = new Location("");
-        location.setLongitude(10);
-        location.setLatitude(0);
-        ArrayList<Song> list = database.QueryByLocation(location, 2);
-
-        sleep();
-
-        assertEquals(1, list.size());
-    }
-
-    @Test
-    public void TestConnected() {
-        VibeDatabase database = new VibeDatabase();
-        sleep();
-        assertTrue(database.getConnectionState());
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e){}
-    }
 
 
 }

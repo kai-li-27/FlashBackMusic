@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +55,8 @@ public class Song {
     private double algorithmValue;
     @Ignore
     private boolean played = false;
+    @Ignore
+    private String userIdString;
 
     private static final String TAG = "Song";
 
@@ -64,11 +68,15 @@ public class Song {
         initializeLocationAndTime();
     }
 
-    public String getUser(){
-        return "123";
+    public String getUserIdString(){
+        return userIdString;
     } //TODO for kate and eddy -- return a string representation of userID. It has to be a string to be stored
       // and it has to be able to be connverted back from string to whatever type it is.
       // DO NOT CHANGE the declaration of this method
+
+    public void setUserIdString(String userIdString) {
+        this.userIdString = userIdString;
+    }
 
     public Song() {
         title = "";
@@ -124,14 +132,19 @@ public class Song {
         return lastLatitude;
     }
 
+    @Exclude
     public double getDistance() {return distance;}
 
+    @Exclude
     public double getTimeDifference() {return timeDifference;}
 
+    @Exclude
     public boolean isSameDay() {return  isSameDay;}
 
+    @Exclude
     public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
 
+    @Exclude
     public boolean isPlayed() {return played;}
 
     public void setTitle(String title) { this.title = title;}
@@ -252,6 +265,7 @@ public class Song {
     /**
      * Gets algorithm value for this song
      */
+    @Exclude
     public double getAlgorithmValue() {
         return this.algorithmValue;
     }
@@ -271,11 +285,18 @@ public class Song {
         }
     }
 
+    @Exclude // Stop the database from creating field for this
     public Location getLastLocation() {
         Location location = new Location("");
         location.setLatitude(lastLatitude);
         location.setLongitude(lastLongitude);
         return location;
     }
+
+    @Exclude
+    public String getDataBaseReferenceString() {
+        return userIdString + ": " + title + ", " + album + ", " + artist; //TODO change User
+    }
+
 
 }

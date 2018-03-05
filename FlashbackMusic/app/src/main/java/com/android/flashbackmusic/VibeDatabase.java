@@ -54,21 +54,19 @@ public class VibeDatabase {
     }
 
     public void insertSong(Song song) {
-        myRef.child(song.getTitle()+ song.getUser()).setValue(song);
+        myRef.child(song.getDataBaseReferenceString()).setValue(song);
     }
 
     public void updateSong(Song song){
-        DatabaseReference dataEntry = myRef.child(song.getTitle()+ song.getUser());
+        DatabaseReference dataEntry = myRef.child(song.getDataBaseReferenceString());
         dataEntry.setValue(song);
     }
 
-    public ArrayList<Song> QueryByLocation(Location location, double radius){
-        radius = radius;//ToDO convert radius into coordinates system
+    public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet){
+        final double radiusInCordinate = radiusInFeet / 364605; //length of 1 latitude at 45 degrees
 
-        Query query = myRef.orderByChild("lastLongitude").startAt(location.getLongitude() - radius)
-                .endAt(location.getLongitude() + radius);
-        query = query.getRef().orderByChild("lastLatitude").startAt(location.getLatitude() - radius)
-                .endAt(location.getLatitude() + radius);
+        Query query = myRef.orderByChild("lastLatitude").startAt(location.getLatitude() - radiusInCordinate)
+                .endAt(location.getLatitude() + radiusInCordinate);
 
         final ArrayList<Song> songsList = new ArrayList<>();
 
@@ -77,7 +75,9 @@ public class VibeDatabase {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                Song song =dataSnapshot.getValue(Song.class);
                if (song != null) {
-                   songsList.add(song);
+                   if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) {
+                       songsList.add(song);
+                   }
                }
             }
 
@@ -104,7 +104,45 @@ public class VibeDatabase {
         return songsList;
     }
 
-    public boolean getConnectionState() {
+    public ArrayList<Song> querySongsOfUser(String userId) {
+        Query query = myRef.orderByChild("userIdString").equalTo(userId);
+
+        final ArrayList<Song> songsList = new ArrayList<>();
+
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Song song = dataSnapshot.getValue(Song.class);
+                if (song != null) {
+                    songsList.add(song);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        } );
+        return songsList;
+    }
+
+
+    public boolean isConnected() {
         return connected;
     }
 
