@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * holds information related to one song
@@ -33,8 +35,6 @@ public class Song {
 
     @Ignore
     public Uri uri;
-    @Ignore
-    private Location lastLocation = new Location("");
     @Ignore
     private Date lastTime;
     @Ignore
@@ -81,119 +81,60 @@ public class Song {
             if (lastTimeLong != 0) { // which means that the song was played before
                 lastTime = new Date(lastTimeLong);
 
-                lastLocation.setLatitude(songDao.queryLastLatitude(title, artist, album));
-                lastLocation.setLongitude(songDao.queryLastLongitude(title, artist, album));
+                lastLatitude = songDao.queryLastLatitude(title, artist, album);
+                lastLongitude = songDao.queryLastLongitude(title, artist, album);
             } // else these two will be null
         }
     }
 
-    /**
-     * Fetch title of song from database
-     */
     public String getTitle() {
         return title;
     }
 
-    /**
-     * Fetch artist of song from database
-     */
     public String getArtist() {
         return artist;
     }
 
-    /**
-     * Fetch album of song from database
-     */
     public String getAlbum() {
         return album;
     }
 
-    /**
-     * Fetch last time when song was last played as a date
-     */
     public Date getLastTime() {
         return lastTime;
     }
 
-    /**
-     * Fetch current preference of song
-     */
     public int getPreference() {
         return preference;
     }
 
-    /**
-     * Fetch last location where song was played
-     */
-    public Location getLastLocation() {
-        return lastLocation;
-    }
-
-    /**
-     * Fetch last time when song was played as a long
-     */
     public long getLastTimeLong() {
         return lastTimeLong;
     }
 
-    /**
-     * Fetch the longitude of the location where a song was last played
-     */
     public double getLastLongitude() {
         return lastLongitude;
     }
 
-    /**
-     * Fetch the latitude of the location where a song was last played
-     */
     public double getLastLatitude() {
         return lastLatitude;
     }
 
-    /**
-     * Fetch distance of a song from database
-     */
     public double getDistance() {return distance;}
 
-    /**
-     * Fetch time difference of a song from database
-     */
     public double getTimeDifference() {return timeDifference;}
 
-    /**
-     * Fetch data from database to see if it is the same day
-     */
     public boolean isSameDay() {return  isSameDay;}
 
-    /**
-     * Fetch data from database to see if it is the same time of day
-     */
     public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
 
-    /**
-     * Fetch data from database to see if a song is played
-     */
     public boolean isPlayed() {return played;}
 
-    /**
-     * Sets the title of a song, and update the data to database
-     * @param title
-     */
     public void setTitle(String title) { this.title = title;}
 
-    /**
-     * Sets the artist of a song, and update the data to database
-     * @param artist
-     */
     public void setArtist(String artist) { this.artist = artist;}
 
-    /**
-     * Set the location where it was played last, and update the data to database
-     * @param location
-     */
     public void setLastLocation(Location location) {
         if (location != null) {
-            lastLocation = location;
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
             if (songDao != null) {
@@ -202,16 +143,8 @@ public class Song {
         }
     }
 
-    /**
-     * Set the album of a song, and update the data to database
-     * @param album
-     */
     public void setAlbum(String album) {this.album = album;}
 
-    /**
-     * Set the time where it was played last, and update the data to database
-     * @param lastTime
-     */
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
@@ -220,10 +153,6 @@ public class Song {
         }
     }
 
-    /**
-     * Set user-specified preference of this song, and update the data to database
-     * @param preference
-     */
     public void setPreference(int preference) {
         this.preference = preference;
         if (songDao != null){
@@ -240,6 +169,7 @@ public class Song {
     }
 
     public void setLastTimeLong(long lastTimeLong) {
+        this.lastTimeLong = lastTimeLong;
     }
 
     public void setLastLongitude(double lastLongitude) {
@@ -247,6 +177,7 @@ public class Song {
     }
 
     public void setLastLatitude(double lastLatitude) {
+        this.lastLatitude = lastLatitude;
     }
 
     /**
@@ -265,7 +196,7 @@ public class Song {
         if (here == null) { // When distance is unavailable
             distance = 100000000; // Keep it from being played
         } else {
-            distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
+            distance = getLastLocation().distanceTo(here) * 3.28084; //Returns meter, convert to feet
         }
     }
 
@@ -333,6 +264,13 @@ public class Song {
         } else {
             return 2;
         }
+    }
+
+    public Location getLastLocation() {
+        Location location = new Location("");
+        location.setLatitude(lastLatitude);
+        location.setLongitude(lastLongitude);
+        return location;
     }
 
 }

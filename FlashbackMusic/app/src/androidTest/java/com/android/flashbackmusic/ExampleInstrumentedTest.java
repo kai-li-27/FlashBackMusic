@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import static org.junit.Assert.*;
@@ -81,7 +82,6 @@ public class ExampleInstrumentedTest {
         VibeDatabase database = new VibeDatabase();
         Song song = new Song("song","artist","Album",null);
         database.updateSong(song);
-
     }
 
     @Test
@@ -93,7 +93,13 @@ public class ExampleInstrumentedTest {
         Location location = new Location("");
         location.setLongitude(10);
         location.setLatitude(0);
-        database.QueryByLocation(location, 2);
+        ArrayList<Song> list = database.QueryByLocation(location, 2);
+
+        try {
+            Thread.sleep(2000); //wait for network
+        } catch (InterruptedException e){}
+
+        assertEquals(1, list.size());
     }
 
 

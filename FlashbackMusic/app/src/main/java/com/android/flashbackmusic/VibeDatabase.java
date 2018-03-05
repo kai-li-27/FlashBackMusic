@@ -19,48 +19,38 @@ import java.util.Map;
  */
 
 public class VibeDatabase {
-    FirebaseDatabase database;
     DatabaseReference myRef;
 
     public VibeDatabase(){
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
+        myRef = FirebaseDatabase.getInstance().getReference();
     }
 
     public void insertSong(Song song) {
-        //myRef.orderByChild("");
-        DatabaseReference entry = myRef.push();
         myRef.child(song.getTitle()+ song.getUser()).setValue(song);
-
     }
 
     public void updateSong(Song song){
-        DatabaseReference entry = myRef.child(song.getTitle()+ song.getUser());
-        entry.setValue(song);
+        DatabaseReference dataEntry = myRef.child(song.getTitle()+ song.getUser());
+        dataEntry.setValue(song);
     }
 
     public ArrayList<Song> QueryByLocation(Location location, double radius){
         radius = radius;//ToDO convert radius into coordinates system
+
         Query query = myRef.orderByChild("lastLongitude").startAt(location.getLongitude() - radius)
                 .endAt(location.getLongitude() + radius);
         query = query.getRef().orderByChild("lastLatitude").startAt(location.getLatitude() - radius)
                 .endAt(location.getLatitude() + radius);
 
+        final ArrayList<Song> songsList = new ArrayList<>();
+
         query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                HashMap<String, String> hashMap = (HashMap<String, String>)dataSnapshot.getValue();
-                Song temp = new Song("","","",null);
-                for (Map.Entry<String, String> entry : hashMap.entrySet()) {
-                    switch (entry.getKey()) {
-                        case "album":
-                            temp.setAlbum(entry.getValue());
-                            break;
-                        case "lastLongitude":
-                            temp.setLastLongitude(Double.valueOf(entry.getValue()));
-                    }
-                }
-                System.out.println(Double.toString( temp.getLastLongitude()));
+               Song song =dataSnapshot.getValue(Song.class);
+               if (song != null) {
+                   songsList.add(song);
+               }
             }
 
             @Override
@@ -83,7 +73,7 @@ public class VibeDatabase {
 
             }
         } );
-        return null ;
+        return songsList;
     }
 
 
