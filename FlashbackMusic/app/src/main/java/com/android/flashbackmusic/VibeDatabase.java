@@ -1,5 +1,6 @@
 package com.android.flashbackmusic;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
@@ -11,7 +12,11 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -19,10 +24,33 @@ import java.util.Map;
  */
 
 public class VibeDatabase {
-    DatabaseReference myRef;
+    private DatabaseReference myRef;
+    private DatabaseReference connectionStateRef;
+    private boolean connected;
+
+    private ArrayList<ConnectionChangedListener> connectionChangedListeners = new ArrayList<ConnectionChangedListener>();
+    public void addConnectionChangedListener(ConnectionChangedListener listener) {
+        connectionChangedListeners.add(listener);
+    }
+
 
     public VibeDatabase(){
         myRef = FirebaseDatabase.getInstance().getReference();
+        connectionStateRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectionStateRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                connected = dataSnapshot.getValue(Boolean.class);
+                for (ConnectionChangedListener i : connectionChangedListeners) {
+                    i.onConnectionChanged(connected);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void insertSong(Song song) {
@@ -76,6 +104,8 @@ public class VibeDatabase {
         return songsList;
     }
 
-
+    public boolean getConnectionState() {
+        return connected;
+    }
 
 }

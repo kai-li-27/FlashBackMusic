@@ -33,6 +33,8 @@ public class Song {
     private double lastLongitude;
     private double lastLatitude;
 
+    //private userID TODO for kate and eddy -- figure out what type is this
+
     @Ignore
     public Uri uri;
     @Ignore
@@ -64,7 +66,10 @@ public class Song {
 
     public String getUser(){
         return "123";
-    }
+    } //TODO for kate and eddy -- return a string representation of userID. It has to be a string to be stored
+      // and it has to be able to be connverted back from string to whatever type it is.
+      // DO NOT CHANGE the declaration of this method
+
     public Song() {
         title = "";
         artist = "";
