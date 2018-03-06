@@ -8,17 +8,14 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -32,10 +29,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 
 /**
  * Landing page with all the songs and albums
@@ -95,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Ask for location permission
-        // and google account permission?
         getPermissions();
 
         // google sign-in
@@ -111,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
                 startActivityForResult(signInIntent, RC_SIGN_IN);
+                Log.i(TAG, "clicked to sign in");
             }
         });
 
