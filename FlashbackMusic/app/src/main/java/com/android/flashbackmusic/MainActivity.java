@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Ask for location permission
+        // and google account permission?
         getPermissions();
 
         Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
