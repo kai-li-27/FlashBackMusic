@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private final int RC_SIGN_IN = 42069;
+    private String accountId = "";
 
     /**
      * Override back button to not kill this activity
@@ -93,8 +94,10 @@ public class MainActivity extends AppCompatActivity {
 
         // google sign-in
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestServerAuthCode(getString(R.string.clientId))
                 .requestEmail()
                 .build();
+
         // Build a GoogleSignInClient with the options specified by gso.
         final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
@@ -200,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
+            accountId = account.getId();
             // Signed in successfully, show authenticated UI.
             updateUI(account);
         } catch (ApiException e) {

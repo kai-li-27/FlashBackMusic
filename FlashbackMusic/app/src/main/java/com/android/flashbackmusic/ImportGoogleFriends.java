@@ -23,6 +23,11 @@ import java.util.List;
 
 public class ImportGoogleFriends {
 
+    private static final String APPLICATION_NAME = "FlashbackMusic";
+
+    // user credentials storage location
+    // private static final java.io.File DATA_STORE_DIR = new java
+
     // based on https://developers.google.com/people/v1/getting-started
 
     public static PeopleService setUp(Context context, String serverAuthCode) throws IOException {
@@ -30,11 +35,11 @@ public class ImportGoogleFriends {
         JacksonFactory jsonFactory = new JacksonFactory();
 
         // from Google API Console
-        String clientId = "756311596633-qldfpshls2ukumt0bopb6gikmqu5eg3u.apps.googleusercontent.com";
-        String clientSecret = "K2HSgYAGczNb8QFT1zDLKMkl";
+        String clientId = context.getString(R.string.clientId);
+        String clientSecret = context.getString(R.string.client_secret);
 
         // might need to change the following 2 lines
-        String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+        String redirectUrl = context.getString(R.string.redirectUrl);
 
         GoogleTokenResponse tokenResponses = new GoogleAuthorizationCodeTokenRequest(httpTransport, jsonFactory, clientId, clientSecret, serverAuthCode, redirectUrl).execute();
 
