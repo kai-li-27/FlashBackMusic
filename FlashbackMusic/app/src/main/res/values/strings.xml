@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">FlashbackMusic</string>
+    <string name="clientId">756311596633-qldfpshls2ukumt0bopb6gikmqu5eg3u.apps.googleusercontent.com</string>
+    <string name="client_secret">K2HSgYAGczNb8QFT1zDLKMkl</string>
+    <string name="redirectUrl">urn:ietf:wg:oauth:2.0:oob</string>
 </resources>
