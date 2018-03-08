@@ -8,11 +8,19 @@ import java.util.ArrayList;
 
 public interface IUser {
 
-    void setRelationship(String relationship);
-
-    void setAnonymousName(String anonymousName);
+    void setName(String name);
 
     void setListOfPlayedSongs(ArrayList<Song> listOfPlayedSongs);
 
     void setUserId(String userId);
+
+    void setEmail(String email);
+
+    String getName();
+
+    ArrayList<Song> getListOfPlayedSongs();
+
+    String getUserId();
+
+    String getEmail();
 }
