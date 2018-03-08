@@ -17,71 +17,57 @@ import java.util.Map;
  * holds information related to one song
  */
 
-@Entity(primaryKeys = {"title", "artist", "album"})
 public class Song {
 
     public static final int NEUTRAL = 0;
     public static final int FAVORITE = 1;
     public static final int DISLIKE = 2;
 
-    @NonNull
+
+    private String userIdString;
+    private String email;
+    private Uri uri;
+
     private String title;
-    @NonNull
     private String artist;
-    @NonNull
     private String album;
+
     private long lastTimeLong;
     private int preference = NEUTRAL;
+
     private double lastLongitude;
     private double lastLatitude;
-
-    //private userID TODO for kate and eddy -- figure out what type is this
-
-    @Ignore
-    public Uri uri;
-    @Ignore
     private Date lastTime;
-    @Ignore
-    private SongDao songDao;
-    @Ignore
+
     private double distance;
-    @Ignore
     private double timeDifference;
-    @Ignore
-    private boolean isSameDay;
-    @Ignore
-    private boolean isSameTimeOfDay;
-    @Ignore
     private double algorithmValue;
-    @Ignore
     private boolean played = false;
-    @Ignore
-    private String userIdString;
 
     private static final String TAG = "Song";
 
-    public Song(String title, String artist, String album, SongDao songDao) {
-        this.title = title;
-        this.artist = artist;
-        this.album = album;
-        this.songDao = songDao;
+    public Song(Uri uri, String userIdString, String email) {
+        if (uri == null || userIdString == null || email == null) {
+            System.err.print("One of the parameter passed in to constructor of Song is null");
+            throw new IllegalArgumentException();
+        }
+        this.uri = uri;
+        this.userIdString = userIdString;
+        this.email = email;
         initializeLocationAndTime();
     }
 
+
     public String getUserIdString(){
         return userIdString;
-    } //TODO for kate and eddy -- return a string representation of userID. It has to be a string to be stored
-      // and it has to be able to be connverted back from string to whatever type it is.
-      // DO NOT CHANGE the declaration of this method
+    }
 
     public void setUserIdString(String userIdString) {
         this.userIdString = userIdString;
     }
 
     public Song() {
-        title = "";
-        artist = "";
-        album = "";
+        
     }
 
     /**
