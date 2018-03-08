@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity  {
     private String accountId = "";
 
     GoogleApiClient mGoogleApiClient;
+    UserManager userManager = new UserManager();
 
     /**
      * Override back button to not kill this activity
@@ -411,18 +412,39 @@ public class MainActivity extends AppCompatActivity  {
                         List<Name> names = person.getNames();
                         List<EmailAddress> emailAddresses = person.getEmailAddresses();
                         List<PhoneNumber> phoneNumbers = person.getPhoneNumbers();
+                        String chosenName = null;
+                        String chosenEmail = null;
 
                         if (phoneNumbers != null)
                             for (PhoneNumber phoneNumber : phoneNumbers)
                                 Log.d(TAG, "phone: " + phoneNumber.getValue());
 
-                        if (emailAddresses != null)
-                            for (EmailAddress emailAddress : emailAddresses)
+                        if (emailAddresses != null) {
+                            boolean gotIt = false;
+                            for (EmailAddress emailAddress : emailAddresses) {
+                                if (!gotIt) {
+                                    chosenEmail = emailAddress.getValue();
+                                    gotIt = true;
+                                }
                                 Log.d(TAG, "email: " + emailAddress.getValue());
+                            }
+                        }
 
-                        if (names != null)
-                            for (Name name : names)
+                        if (names != null) {
+                            boolean gotIt = false;
+                            for (Name name : names) {
+                                if (!gotIt) {
+                                    chosenName = name.getDisplayName();
+                                    gotIt = true;
+                                }
                                 nameList.add(name.getDisplayName());
+                            }
+                        }
+
+                        if (chosenName != null && chosenEmail != null) {
+                            // FIXME: change this so that the song list is being passed onto IUser
+                            userManager.addOneUserToList(chosenName, chosenEmail, "friend", null, "");
+                        }
 
                     }
                 }

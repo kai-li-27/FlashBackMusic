@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class UserManager {
     ArrayList<IUser> allUsers;
     ArrayList<IUser> friends;
-    ArrayList<IUser> strangers;
+    ArrayList<IUser> strangers; // FIXME: change this to hashmap or something with key value pair
 
     public ArrayList<IUser> getAllUsers() {
         return allUsers;
