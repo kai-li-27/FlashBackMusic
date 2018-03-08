@@ -10,7 +10,7 @@ import android.arch.persistence.room.Update;
  * queries for database
  */
 
-@Dao
+//@Dao
 public interface SongDao {
 
     @Query ("Select lastLongitude FROM song where title = :title AND album = :album AND artist = :artist")

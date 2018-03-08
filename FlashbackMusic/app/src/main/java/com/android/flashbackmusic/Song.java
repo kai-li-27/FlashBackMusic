@@ -28,20 +28,20 @@ public class Song {
     private String email;
     private Uri uri;
 
-    private String title;
-    private String artist;
-    private String album;
+    private String title = "No title";
+    private String artist = "No artist";
+    private String album = "No album";
 
-    private long lastTimeLong;
+    private long lastTimeLong = 0;
     private int preference = NEUTRAL;
 
-    private double lastLongitude;
-    private double lastLatitude;
-    private Date lastTime;
+    private double lastLongitude = 0;
+    private double lastLatitude = 0;
+    private Date lastTime = null;
 
-    private double distance;
-    private double timeDifference;
-    private double algorithmValue;
+    private double distance = 0;
+    private double timeDifference = 0;
+    private double algorithmValue = 0;
     private boolean played = false;
 
     private static final String TAG = "Song";
@@ -77,6 +77,11 @@ public class Song {
 
     public String getEmail() {
         return email;
+    }
+
+    @Exclude
+    public Uri getUri() {
+        return uri;
     }
 
     public String getTitle() {

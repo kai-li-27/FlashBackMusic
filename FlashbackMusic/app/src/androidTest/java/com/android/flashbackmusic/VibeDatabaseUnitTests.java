@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.location.Location;
+import android.net.Uri;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
@@ -15,13 +16,14 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class VibeDatabaseUnitTests {
+    Uri testUri = Uri.parse("test");
     @Test
     public void testInsetIntoDataBase() {
         VibeDatabase database = new VibeDatabase();
-        Song song = new Song("InsertTest","artistInsert","albumInsert",null);
-        song.setUserIdString("UserInsertTest");
+        Song song = new SongBuilder(testUri,"InsertTestID","InsertTest@test.com")
+                                      .setArtist("artistInsert").setAlbum("albumInsert").build();
         database.insertSong(song);
-        ArrayList<Song> list = database.querySongsOfUser("UserInsertTest");
+        ArrayList<Song> list = database.querySongsByUserId("InsertTestID");
 
         waitForServer();
         assertEquals(1, list.size());
@@ -33,17 +35,26 @@ public class VibeDatabaseUnitTests {
     public void testUpdateIntoDataBase(){
         VibeDatabase database = new VibeDatabase();
         testInsetIntoDataBase();
-        Song song = new Song("InsertTest","artistInsert","albumInsert",null);
-        song.setUserIdString("UserInsertTest");
-        song.setLastTimeLong(10);
-        song.setLastLatitude(19);
+        Song song = new SongBuilder(testUri,"UpdateTestID","UpdateTest@test.com")
+                .setArtist("artistUpdate").setAlbum("albumUpdate").build();
         database.updateSong(song);
-        ArrayList<Song> list = database.querySongsOfUser("UserInsertTest");
+        ArrayList<Song> list = database.querySongsByUserId("UpdateTestID");
 
         waitForServer();
         assertEquals(1, list.size());
-        assertTrue(list.get(0).getArtist().equals("artistInsert"));
-        assertTrue(list.get(0).getAlbum().equals("albumInsert"));
+        assertTrue(list.get(0).getArtist().equals("artistUpdate"));
+        assertTrue(list.get(0).getAlbum().equals("albumUpdate"));
+
+        song.setLastLatitude(19);
+        song.setLastTimeLong(10);
+        database.updateSong(song);
+        list = database.querySongsByUserId("UpdateTestID");
+
+        waitForServer();
+
+        assertEquals(1, list.size());
+        assertTrue(list.get(0).getArtist().equals("artistUpdate"));
+        assertTrue(list.get(0).getAlbum().equals("albumUpdate"));
         assertEquals(10, list.get(0).getLastTimeLong());
         assertEquals(19, list.get(0).getLastLatitude(), 0.1);
     }
@@ -51,17 +62,16 @@ public class VibeDatabaseUnitTests {
     @Test
     public  void testQueryByLocationFromDatabase() {
         VibeDatabase database = new VibeDatabase();
-        Song song = new Song("QueryTestNorthPole", "artist", "album", null);
-        song.setLastLongitude(0);
-        song.setLastLatitude(90); //NorthPole
+        Song song = new SongBuilder(testUri, "QueryNorthPoleLocationTestID", "QueryLocation@test.com")
+                                    .setLastLongitude(0).setLastLatitude(90).build();
+
         database.insertSong(song);
         Location location = new Location("");
         location.setLongitude(40); //at north pole longitude lines converge
         location.setLatitude(90);
 
-        Song song2 = new Song("QueryTestSouthPole", "artist", "album", null);
-        song2.setLastLongitude(0);
-        song2.setLastLatitude(-90); //South Pole
+        Song song2 = new SongBuilder(testUri, "QuerySouthPoleLocationTestID", "QueryLocation@test.com")
+                                .setLastLongitude(0).setLastLatitude(-90).build();
         database.insertSong(song2);
         Location location2 = new Location("");
         location2.setLongitude(0);
@@ -82,18 +92,18 @@ public class VibeDatabaseUnitTests {
     @Test
     public void testQueryByUserFromDatabase() {
         VibeDatabase database = new VibeDatabase();
-        Song song = new Song("UserTest", "artist", "album", null);
-        song.setUserIdString("user1");
+        Song song = new SongBuilder(testUri, "QueryByUserID", "QueryByUser@test.com")
+                            .setTitle("TitleTest").setAlbum("AlbumTest").setArtist("ArtistTest").build();
         database.insertSong(song);
-        ArrayList<Song> list1 = database.querySongsOfUser("user1");
-        ArrayList<Song> list2 = database.querySongsOfUser("randomDude");
+        ArrayList<Song> list1 = database.querySongsByUserId("QueryByUserID");
+        ArrayList<Song> list2 = database.querySongsByUserId("randomDude");
         waitForServer();
         assertEquals(1, list1.size());
         assertEquals(0, list2.size());
 
-        assertTrue(list1.get(0).getTitle().equals("UserTest"));
-        assertTrue(list1.get(0).getAlbum().equals("album"));
-        assertTrue(list1.get(0).getArtist().equals("artist"));
+        assertTrue(list1.get(0).getTitle().equals("TitleTest"));
+        assertTrue(list1.get(0).getAlbum().equals("AlbumTest"));
+        assertTrue(list1.get(0).getArtist().equals("ArtistTest"));
     }
 
     @Test

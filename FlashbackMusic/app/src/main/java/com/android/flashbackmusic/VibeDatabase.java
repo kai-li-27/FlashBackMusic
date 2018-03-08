@@ -104,7 +104,7 @@ public class VibeDatabase {
         return songsList;
     }
 
-    public ArrayList<Song> querySongsOfUser(String userId) {
+    public ArrayList<Song> querySongsByUserId(String userId) {
         Query query = myRef.orderByChild("userIdString").equalTo(userId);
 
         final ArrayList<Song> songsList = new ArrayList<>();
