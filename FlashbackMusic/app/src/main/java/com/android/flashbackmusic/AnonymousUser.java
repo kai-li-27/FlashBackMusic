@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by kwmag on 3/7/2018.
  */
 
-public class AnonymousUser implements User {
+public class AnonymousUser implements IUser {
 
     private String relationship;
     private String anonymousName;

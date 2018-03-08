@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Created by kwmag on 3/7/2018.
  */
 
-public interface User {
+public interface IUser {
 
     void setRelationship(String relationship);
 
