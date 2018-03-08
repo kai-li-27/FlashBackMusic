@@ -46,6 +46,8 @@ public class Song {
 
     private static final String TAG = "Song";
 
+
+//region Constructors
     public Song(Uri uri, String userIdString, String email) {
         if (uri == null || userIdString == null || email == null) {
             System.err.print("One of the parameter passed in to constructor of Song is null");
@@ -58,32 +60,23 @@ public class Song {
     }
 
 
+    /**
+     * NEVER CALL THIS. This is for firebase
+     */
+    public Song() {}
+//endregion;
+
+
+
+
+
+//region Getters
     public String getUserIdString(){
         return userIdString;
     }
 
-    public void setUserIdString(String userIdString) {
-        this.userIdString = userIdString;
-    }
-
-    public Song() {
-        
-    }
-
-    /**
-     * Fetch data from database and update the last time and last location it was played
-     */
-    private void initializeLocationAndTime() {
-        if (songDao != null) {
-            preference = songDao.queryPreference(title, artist, album);
-            lastTimeLong = songDao.queryLastTime(title, artist, album);
-            if (lastTimeLong != 0) { // which means that the song was played before
-                lastTime = new Date(lastTimeLong);
-
-                lastLatitude = songDao.queryLastLatitude(title, artist, album);
-                lastLongitude = songDao.queryLastLongitude(title, artist, album);
-            } // else these two will be null
-        }
+    public String getEmail() {
+        return email;
     }
 
     public String getTitle() {
@@ -98,8 +91,9 @@ public class Song {
         return album;
     }
 
+    @Exclude
     public Date getLastTime() {
-        return lastTime;
+        return new Date(lastTimeLong);
     }
 
     public int getPreference() {
@@ -118,6 +112,14 @@ public class Song {
         return lastLatitude;
     }
 
+    @Exclude // Stop the database from creating field for this
+    public Location getLastLocation() {
+        Location location = new Location("");
+        location.setLatitude(lastLatitude);
+        location.setLongitude(lastLongitude);
+        return location;
+    }
+
     @Exclude
     public double getDistance() {return distance;}
 
@@ -125,13 +127,26 @@ public class Song {
     public double getTimeDifference() {return timeDifference;}
 
     @Exclude
-    public boolean isSameDay() {return  isSameDay;}
-
-    @Exclude
-    public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
+    public double getAlgorithmValue() {
+        return this.algorithmValue;
+    }
 
     @Exclude
     public boolean isPlayed() {return played;}
+//endregion;
+
+
+
+
+
+//region Setters
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setUserIdString(String userIdString) {
+        this.userIdString = userIdString;
+    }
 
     public void setTitle(String title) { this.title = title;}
 
@@ -141,9 +156,6 @@ public class Song {
         if (location != null) {
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
-            if (songDao != null) {
-                songDao.updateSong(this);
-            }
         }
     }
 
@@ -152,29 +164,20 @@ public class Song {
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
-        if (songDao != null) {
-            songDao.updateSong(this);
-        }
     }
 
     public void setPreference(int preference) {
         this.preference = preference;
-        if (songDao != null){
-            songDao.updateSong(this);
-        }
     }
 
-    /**
-     * Rotate the preference as like the rotation of the button, and udpate the data to database
-     */
     public void rotatePreference() {
         preference = (preference + 1) % 3;
-        songDao.updateSong(this);
     }
 
     public void setLastTimeLong(long lastTimeLong) {
         this.lastTimeLong = lastTimeLong;
     }
+
 
     public void setLastLongitude(double lastLongitude) {
         this.lastLongitude = lastLongitude;
@@ -184,14 +187,20 @@ public class Song {
         this.lastLatitude = lastLatitude;
     }
 
-    /**
-     * Sets song for played status
-     * @param played
-     */
     public void setPlayed(boolean played) {
         this.played = played;
     }
 
+    public void setAlgorithmValue(double value) {
+        this.algorithmValue = value;
+    }
+//endregion;
+
+
+
+
+
+//region Real methods
     /**
      * Calculate the distance between given location to the location where it was played last time
      * @param here
@@ -219,42 +228,9 @@ public class Song {
             long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
             timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
 
-            // If two songs are 10 mins apart, then practically they are in the same range
-            if (timeDifference > 10) {
-                if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
-                    isSameTimeOfDay = true;
-                } else {
-                    isSameTimeOfDay = false;
-                }
-            } else {
-                isSameTimeOfDay = true;
-            }
-
-            // Determine if two time are same day of week
-            if (now.getDay() == lastTime.getDay()) {
-                isSameDay = true;
-            } else {
-                isSameDay = false;
-            }
-
         }
     }
 
-    /**
-     * Sets algorithm value for this song
-     * @param value
-     */
-    public void setAlgorithmValue(double value) {
-        this.algorithmValue = value;
-    }
-
-    /**
-     * Gets algorithm value for this song
-     */
-    @Exclude
-    public double getAlgorithmValue() {
-        return this.algorithmValue;
-    }
 
     /**
      * Given an hour, between 0-23, return its time range.
@@ -270,19 +246,18 @@ public class Song {
             return 2;
         }
     }
-
-    @Exclude // Stop the database from creating field for this
-    public Location getLastLocation() {
-        Location location = new Location("");
-        location.setLatitude(lastLatitude);
-        location.setLongitude(lastLongitude);
-        return location;
+    /**
+     * Fetch data from database and update the last time and last location it was played
+     */
+    private void initializeLocationAndTime() {
+        //TODO fix it
     }
+
 
     @Exclude
     public String getDataBaseReferenceString() {
         return userIdString + ": " + title + ", " + album + ", " + artist; //TODO change User
     }
-
+//endregion;
 
 }
