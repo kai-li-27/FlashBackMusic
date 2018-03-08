@@ -153,7 +153,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             try {
                 player.reset();
                 currentSong = currentPlayList.get(currentIndex);
-                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.setDataSource(getApplicationContext(), currentSong.getUri());
                 player.prepare();
             } catch (IOException e) {
                 System.out.println("************************");
@@ -185,7 +185,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 player.reset();
                 currentSong = flashBackPlayList.peek();
                 currentSong.setPlayed(true);
-                player.setDataSource(getApplicationContext(), currentSong.uri);
+                player.setDataSource(getApplicationContext(), currentSong.getUri());
                 player.prepare();
             } catch (IOException e) {
                 System.out.println("************************");
@@ -219,7 +219,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             currentIndex = index;
             currentSong = currentPlayList.get(index);
 
-            player.setDataSource(getApplicationContext(), currentSong.uri);
+            player.setDataSource(getApplicationContext(), currentSong.getUri());
             player.prepare();
         } catch (IOException e) {
             System.out.println("************************");
