@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ public class IndividualSong extends AppCompatActivity {
 
     private SongsService songsService;
     private Song currentSong;
+    private EditText urlEditText;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
@@ -77,6 +79,17 @@ public class IndividualSong extends AppCompatActivity {
                 }
             }
         });
+
+        // Downloading song from URL
+        Button downloadButton = (Button)findViewById(R.id.download_button);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override // TODO Get switching working
+            public void onClick(View view) {
+                Intent intent1 = new Intent(App.getContext(), DownloadSong.class);
+                startActivity(intent1);
+            }
+        });
+
 
         final Button plus = (Button) findViewById(R.id.button_favdisneu);
         plus.setOnClickListener(

@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
         Album currAlbum = albumsList.get((int)view.getTag());
         didChooseAlbum = true;
         currentPlayList.clear();
+
         for (Song i : currAlbum.getSongsInAlbum()) {
             currentPlayList.add(i);
         }
