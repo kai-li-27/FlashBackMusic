@@ -176,6 +176,10 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         TextView album = findViewById(R.id.curr_song_album);
         album.setText("Album: " + song.getAlbum());
 
+        //curr_song_user
+        TextView user = findViewById(R.id.curr_song_album);
+        //user.setText("User: " + song.getDisplayUser); TODO: need method to retrieve correct user name and display it either as a Anonymous title, Friend, or You
+
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
             String addressName;
