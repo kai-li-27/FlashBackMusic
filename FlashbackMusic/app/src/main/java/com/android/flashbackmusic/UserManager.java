@@ -17,8 +17,20 @@ public class UserManager {
     private HashMap<String, IUser> allUsers = new HashMap<>();
     private HashMap<String, IUser> friends = new HashMap<>();
     private HashMap<String, IUser> strangers = new HashMap<>(); // FIXME: change this to hashmap or something with key value pair
+    private IUser self;
 
     private static final String TAG = "UserManager";
+
+    private static UserManager instance;
+
+    private UserManager() {}
+
+    public static UserManager getUserManager() {
+        if (instance == null) {
+            instance = new UserManager();
+        }
+        return instance;
+    }
 
     public ArrayList<IUser> getUsersList(String relationship) {
         ArrayList<IUser> users = new ArrayList<>();
@@ -55,6 +67,8 @@ public class UserManager {
         return strangers;
     }
 
+    public IUser getSelf() {return self;}
+
     // set the list of users if you already have it
     public void setAllUsers(HashMap<String, IUser> allUsers) {
         this.allUsers = allUsers;
@@ -76,6 +90,7 @@ public class UserManager {
             strangers.put(email, working);
         } else if (relationship.equalsIgnoreCase("self")) {
             working = new SelfUser("You", userId, email);
+            self = working;
         } else {
             working = new FriendUser(name, "", email);
             friends.put(email, working);

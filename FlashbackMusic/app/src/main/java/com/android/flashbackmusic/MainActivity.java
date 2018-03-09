@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private String accountId = "";
 
     GoogleApiClient mGoogleApiClient;
-    UserManager userManager = new UserManager();
+    UserManager userManager = UserManager.getUserManager();
 
     /**
      * Override back button to not kill this activity
@@ -137,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
                 GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
                 if (acct != null) {
                     String personEmail = acct.getEmail();
+                    new PeoplesAsync().execute(acct.getServerAuthCode());
+                    userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
                     Toast.makeText(App.getContext(), "You have already logged in as: " + personEmail, Toast.LENGTH_LONG).show();
                     return;
                 }
