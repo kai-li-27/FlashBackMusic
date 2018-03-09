@@ -5,11 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
@@ -22,34 +19,25 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 
-import com.android.flashbackmusic.SongsService.MusicBinder;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import com.android.flashbackmusic.SongService.MusicBinder;
 
 /**
  * Landing page with all the songs and albums
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener {
 
-    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
-    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
-    private ArrayList<Album> albumsList;
-
-    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
-    private boolean isMusicBound = false;
-
+    private SongService songsService;
     private Intent playIntent;
+
     private ListView songsView;
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
 
-    private SongsService songsService;
-
+    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
     private static final String TAG = "MainActivity";
 
+
+//region Handlers of MainActivity
     /**
      * Override back button to not kill this activity
      */
@@ -70,30 +58,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
-
         //Binds with music player
         if (playIntent == null) {
-            playIntent = new Intent(this, SongsService.class);
+            playIntent = new Intent(this, SongService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         }
 
-        // Ask for location permission
+        // Ask for all the permissions
         getPermissions();
 
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode();
+                    songsService.switchMode(checked);
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
                     intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
                     startActivity(intent);
@@ -105,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Display the songs
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.topTabs);
-        songAdapt = new SongListAdapter(this, listOfAllSongs);
-        albumAdapt = new AlbumListAdapter(this, albumsList);
-        songsView = (ListView) findViewById(R.id.song_list);
+        songAdapt = new SongListAdapter(this, SongManager.getSongManager().getDisplaySongList());
+        albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
+        songsView = findViewById(R.id.song_list);
         songsView.setAdapter(songAdapt);
 
+        // Display the songs
+        TabLayout tabLayout = findViewById(R.id.topTabs);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -142,7 +122,13 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         flashbackSwitchOff();
     }
+//endregion;
 
+
+
+
+
+//region Other methods of MainActivity
     /**
      * Gets Location permission from user if did not get it yet
      */
@@ -158,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
      * reset flashback switch UI display
      */
     public void flashbackSwitchOff() {
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+        Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(null);
         mySwitch.setChecked(false);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -166,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode();
+                    songsService.switchMode(checked);
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
                     intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
                     startActivity(intent);
@@ -188,11 +174,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
         if (didChooseAlbum) {
-            Log.v(TAG, "selected album");
-            currentPlayList.clear();
-            for (Song i : listOfAllSongs) {
-                currentPlayList.add(i);
-            }
+
             didChooseAlbum = false;
         }
         startActivity(intent);
@@ -205,12 +187,6 @@ public class MainActivity extends AppCompatActivity {
     public void chosenAlbum(View view) {
         Log.v(TAG, "selected an album to play");
         Intent intent = new Intent(this, IndividualSong.class);
-        Album currAlbum = albumsList.get((int)view.getTag());
-        didChooseAlbum = true;
-        currentPlayList.clear();
-        for (Song i : currAlbum.getSongsInAlbum()) {
-            currentPlayList.add(i);
-        }
         Log.v(TAG, "added songs in album to queue");
         intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song
         startActivity(intent);
@@ -221,23 +197,12 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             songsService = binder.getService();
-            songsService.setList(currentPlayList);
-            songsService.setListOfAllSongs(listOfAllSongs);
-            songsService.setMainActivity(MainActivity.this);
-            isMusicBound = true;
-
-            SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
-            if (flashback_state.getBoolean("State",false)) {
-                songsService.switchMode();
-                Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                startActivity(intent);
-            }
+            songsService.addSongServiceEventListener(MainActivity.this);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            isMusicBound = false;
+
         }
     };
 
@@ -267,8 +232,52 @@ public class MainActivity extends AppCompatActivity {
             indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
         }
     }
+//endregion;
 
 
 
 
+
+//region SongServiceEventListener handlers
+    @Override
+    public void onSongLoaded(Song loadedSong) {
+
+    }
+
+    @Override
+    public void onSongCompleted(Song completedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongPaused(Song currentSong) {
+
+    }
+
+    @Override
+    public void onSongSkipped(Song skippedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongResumed(Song currentSong) {
+
+    }
+
+    @Override
+    public void onVibeModeToggled(boolean vibeModeOn) {
+
+    }
+//endregion;
+
+
+
+
+
+//region VibeDatabaseEventListener Handler
+    @Override
+    public void onConnectionChanged(boolean connected) {
+
+    }
+//endregion;
 }

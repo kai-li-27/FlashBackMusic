@@ -19,7 +19,7 @@ public class VibeDatabaseUnitTests {
     Uri testUri = Uri.parse("test");
     @Test
     public void testInsetIntoDataBase() {
-        VibeDatabase database = new VibeDatabase();
+        VibeDatabase database = VibeDatabase.getDatabase();
         Song song = new SongBuilder(testUri,"InsertTestID","InsertTest@test.com")
                                       .setArtist("artistInsert").setAlbum("albumInsert").build();
         database.insertSong(song);
@@ -33,7 +33,7 @@ public class VibeDatabaseUnitTests {
 
     @Test
     public void testUpdateIntoDataBase(){
-        VibeDatabase database = new VibeDatabase();
+        VibeDatabase database = VibeDatabase.getDatabase();
         testInsetIntoDataBase();
         Song song = new SongBuilder(testUri,"UpdateTestID","UpdateTest@test.com")
                 .setArtist("artistUpdate").setAlbum("albumUpdate").build();
@@ -61,7 +61,7 @@ public class VibeDatabaseUnitTests {
 
     @Test
     public  void testQueryByLocationFromDatabase() {
-        VibeDatabase database = new VibeDatabase();
+        VibeDatabase database = VibeDatabase.getDatabase();
         Song song = new SongBuilder(testUri, "QueryNorthPoleLocationTestID", "QueryLocation@test.com")
                                     .setLastLongitude(0).setLastLatitude(90).build();
 
@@ -91,7 +91,7 @@ public class VibeDatabaseUnitTests {
 
     @Test
     public void testQueryByUserFromDatabase() {
-        VibeDatabase database = new VibeDatabase();
+        VibeDatabase database = VibeDatabase.getDatabase();
         Song song = new SongBuilder(testUri, "QueryByUserID", "QueryByUser@test.com")
                             .setTitle("TitleTest").setAlbum("AlbumTest").setArtist("ArtistTest").build();
         database.insertSong(song);
@@ -108,7 +108,7 @@ public class VibeDatabaseUnitTests {
 
     @Test
     public void TestConnected() {
-        VibeDatabase database = new VibeDatabase();
+        VibeDatabase database = VibeDatabase.getDatabase();
         waitForServer();
         assertTrue(database.isConnected());
     }
@@ -121,7 +121,7 @@ public class VibeDatabaseUnitTests {
 
     //@Test
     public void TestForWhateverCrazyStuffs() {
-        VibeDatabase databse = new VibeDatabase();
+        VibeDatabase databse = VibeDatabase.getDatabase();
         databse.insertSong(null);
     }
 }

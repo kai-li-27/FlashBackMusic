@@ -27,18 +27,20 @@ import java.util.PriorityQueue;
  * service that allows the songs to actually play with mediaplayer
  */
 
-public class SongsService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class SongService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private ArrayList<Song> listOfAllSongs;
-    private PriorityQueue<Song> flashBackPlayList;
+    private enum Event {
+        SONG_LOADED, SONG_COMPLETED, SONG_PAUSED, SONG_RESUMED, SONG_SKIPPED, VIBE_MODE_TOGGLED
+    }
+    private ArrayList<SongServiceEventListener> listeners = new ArrayList<>();
+
     private ArrayList<Song> currentPlayList;
 
-    private IndividualSong currentIndividualSong;
-    private MainActivity mainActivity;
     private Song currentSong;
     private Location currlocation;
     private int currentIndex;
     private boolean flashBackMode = false;
+    private SongManager songManager;
 
     private boolean failedToGetLoactionPermission = true;//If you need to use this, ask Kai first
     private LocationManager locationManager;
@@ -75,7 +77,14 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             currentSong.setLastTime(new Date(System.currentTimeMillis()));
             currentSong.setLastLocation(currlocation);
         }
-        playNext();
+        notify(Event.SONG_COMPLETED);
+        if (currentIndex == currentPlayList.size()-1) {
+            currentIndex = 0;
+        } else {
+            currentIndex++;
+        }
+        loadMedia();
+        player.start();
     }
 
     @Override
@@ -98,7 +107,13 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
 
-        flashBackPlayList = new PriorityQueue<Song>(new SongCompare());
+        songManager = SongManager.getSongManager();
+        currentPlayList = songManager.getCurrentPlayList();
+
+        SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+        if (flashback_state.getBoolean("State",false)) {
+            switchMode(true);
+        }
 
         currentIndex = 0;
         player = new MediaPlayer();
@@ -106,19 +121,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
-
-
-    public void setList(ArrayList<Song> inSongs) {
-        currentPlayList = inSongs;
-    }
-
-    public void setListOfAllSongs(ArrayList<Song> inList) {listOfAllSongs = inList;}
-
-    public void setMainActivity(MainActivity mainActivity) { this.mainActivity = mainActivity;}
-
-    public void setCurrentIndividualSong(IndividualSong individualSong) {
-        currentIndividualSong = individualSong;
-    }
 
     public boolean isPlaying() {
         return player.isPlaying();
@@ -128,10 +130,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
         return currentSong;
     }
 
+
     public boolean getFlashBackMode() {
         return flashBackMode;
     }
-
 
 
 
@@ -155,6 +157,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 currentSong = currentPlayList.get(currentIndex);
                 player.setDataSource(getApplicationContext(), currentSong.getUri());
                 player.prepare();
+                notify(Event.SONG_LOADED);
             } catch (IOException e) {
                 System.out.println("************************");
                 System.out.println("Failed to load song!!!!!");
@@ -162,39 +165,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
                 Log.e(TAG, "Failed to load song!!");
             }
         }
-
-        // In flashback mode
-        else {
-
-            // calculate the playlist
-            for (Song i : listOfAllSongs) {
-                i.updateDistance(currlocation);
-                i.updateTimeDifference(new Date(System.currentTimeMillis()));
-            }
-            updateFlashbackPlaylist();
-
-            if (flashBackPlayList.peek() == null) {
-                Toast.makeText(SongsService.this, "FlashBack playlist is empty. Starting over.", Toast.LENGTH_SHORT).show();
-                for (Song i : listOfAllSongs) {
-                    i.setPlayed(false);
-                }
-                updateFlashbackPlaylist();
-            }
-
-            try {
-                player.reset();
-                currentSong = flashBackPlayList.peek();
-                currentSong.setPlayed(true);
-                player.setDataSource(getApplicationContext(), currentSong.getUri());
-                player.prepare();
-            } catch (IOException e) {
-                System.out.println("************************");
-                System.out.println("Failed to load song!!!!!");
-                System.out.println("************************");
-                Log.e(TAG, "Failed to long song!!");
-            }
-        }
-
     }
 
     /**
@@ -221,6 +191,7 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
 
             player.setDataSource(getApplicationContext(), currentSong.getUri());
             player.prepare();
+            notify(Event.SONG_LOADED);
         } catch (IOException e) {
             System.out.println("************************");
             System.out.println("Failed to load song!!!!!");
@@ -252,8 +223,10 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     public void playPause() {
         if (player.isPlaying()) {
             player.pause();
+            notify(Event.SONG_PAUSED);
         } else {
             player.start();
+            notify(Event.SONG_RESUMED);
         }
     }
 
@@ -269,36 +242,27 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
      */
     public void playNext() {
         Log.v(TAG, "Playing the next song");
-        if (!flashBackMode) {
-            if (currentIndex < currentPlayList.size() - 1) { //Check if the end of playlist has been reached
-                currentIndex++;
-            } else {
-                currentIndex = 0;
-            }
+        if (currentIndex == currentPlayList.size()-1) {
+            currentIndex = 0;
+        } else {
+            currentIndex++;
         }
-
         loadMedia();
         player.start();
-
-        if (currentIndividualSong != null) { //In case the app is at main screen now
-            currentIndividualSong.changeText();
-            currentIndividualSong.playPause();
-        }
+        notify(Event.SONG_SKIPPED);
     }
 
     /**
      * Switch flashback mode
      */
-    public void switchMode() {
+    public void switchMode(boolean mode) {
         Log.i(TAG, "switchMode; toggling flashback mode");
-        if (flashBackMode) {
+        if (flashBackMode && !mode) {
             flashBackMode = false;
-        } else {
+        }  else if (!flashBackMode && mode) {
             flashBackMode = true;
-            for ( Song i : listOfAllSongs ) { //Set all the songs to not played
-                i.setPlayed(false);
-            }
         }
+        notify(Event.VIBE_MODE_TOGGLED);
 
         SharedPreferences sharedPreferences = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -307,21 +271,6 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
-
-
-    /**
-     * In flashback mode, calculate the playableness of each song and add the playable song to playlist.
-     */
-    private void updateFlashbackPlaylist () {
-        flashBackPlayList.clear();
-
-        for (Song tempSong : listOfAllSongs) {
-            Algorithm.calculateSongWeight(tempSong);
-            if (tempSong.getAlgorithmValue() > 0 && !tempSong.isPlayed() && tempSong.getPreference() != Song.DISLIKE) {
-                flashBackPlayList.add(tempSong);
-            }
-        }
-    }
 
 
 
@@ -370,8 +319,46 @@ public class SongsService extends Service implements MediaPlayer.OnPreparedListe
     };
 
     public class MusicBinder extends Binder {
-        SongsService getService() {
-            return SongsService.this;
+        SongService getService() {
+            return SongService.this;
         }
     }
+
+
+
+
+
+//region Listeners
+    public void addSongServiceEventListener(SongServiceEventListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeSongServiceEventListener(SongServiceEventListener listener) {
+        listeners.remove(listener);
+    }
+    public void notify(Event event) {
+        for (SongServiceEventListener i : listeners) {
+            switch (event) {
+                case SONG_LOADED:
+                    i.onSongLoaded(currentSong);
+                    break;
+                case SONG_COMPLETED:
+                    i.onSongCompleted(currentSong,currentSong);//TODO
+                    break;
+                case SONG_PAUSED:
+                    i.onSongPaused(currentSong);
+                    break;
+                case SONG_RESUMED:
+                    i.onSongResumed(currentSong);
+                    break;
+                case SONG_SKIPPED:
+                    i.onSongSkipped(currentSong,currentSong);//TODO
+                    break;
+                case VIBE_MODE_TOGGLED:
+                    i.onVibeModeToggled(flashBackMode);
+                    break;
+            }
+        }
+    }
+//endregion;
 }

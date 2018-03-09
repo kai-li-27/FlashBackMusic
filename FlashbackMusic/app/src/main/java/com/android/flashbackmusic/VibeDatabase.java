@@ -28,20 +28,25 @@ public class VibeDatabase {
     private DatabaseReference connectionStateRef;
     private boolean connected;
 
-    private ArrayList<ConnectionChangedListener> connectionChangedListeners = new ArrayList<ConnectionChangedListener>();
-    public void addConnectionChangedListener(ConnectionChangedListener listener) {
+    private static VibeDatabase database;
+
+    private ArrayList<VibeDatabaseEventListener> connectionChangedListeners = new ArrayList<>();
+    public void addConnectionChangedListener(VibeDatabaseEventListener listener) {
         connectionChangedListeners.add(listener);
     }
 
 
-    public VibeDatabase(){
+    /**
+     * Do not call this!!!!!!!!!! use VibeDatabase.getDatabase();
+     */
+    private VibeDatabase() {
         myRef = FirebaseDatabase.getInstance().getReference();
         connectionStateRef = FirebaseDatabase.getInstance().getReference(".info/connected");
         connectionStateRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 connected = dataSnapshot.getValue(Boolean.class);
-                for (ConnectionChangedListener i : connectionChangedListeners) {
+                for (VibeDatabaseEventListener i : connectionChangedListeners) {
                     i.onConnectionChanged(connected);
                 }
             }
@@ -53,7 +58,15 @@ public class VibeDatabase {
         });
     }
 
+    public static VibeDatabase getDatabase() {
+        if (database == null) {
+            database = new VibeDatabase();
+        }
+        return database;
+    }
+
     public void insertSong(Song song) {
+        myRef.child("asshole");
         myRef.child(song.getDataBaseReferenceString()).setValue(song);
     }
 
