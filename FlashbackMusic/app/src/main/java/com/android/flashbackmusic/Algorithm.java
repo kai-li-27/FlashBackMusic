@@ -38,6 +38,7 @@ public final class Algorithm {
         }
         Field[] filesName = R.raw.class.getFields();
 
+
         for (int i = 0; i < filesName.length; i++) {
             int resourceId = App.getContext().getResources().getIdentifier(filesName[i].getName(), "raw", App.getContext().getPackageName());
             Uri musicUri = Uri.parse("android.resource://" + App.getContext().getPackageName() + "/" + Integer.toString(resourceId)  );
@@ -61,6 +62,7 @@ public final class Algorithm {
 
                 Song song = new SongBuilder(musicUri, "Donal Trump 2020", "Invalid email")
                                 .setArtist(artist).setAlbum(album).setTitle(title).build();
+
 
                 songsList.add(song);
 
@@ -134,8 +136,10 @@ public final class Algorithm {
         boolean sameTime, sameDay;
 
         distance = song.getDistance();
+
         sameTime = false;
         sameDay = false;
+
         timeDiff = song.getTimeDifference();
         distFactor = 1.0;
         timeFactor = 1.0;

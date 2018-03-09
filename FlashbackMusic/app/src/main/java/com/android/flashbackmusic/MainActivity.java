@@ -1,30 +1,73 @@
 package com.android.flashbackmusic;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+<<<<<<< HEAD
+=======
+import android.os.AsyncTask;
+import android.os.Bundle;
+>>>>>>> master
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.Toast;
 
+<<<<<<< HEAD
 import com.android.flashbackmusic.SongService.MusicBinder;
+=======
+import com.android.flashbackmusic.SongsService.MusicBinder;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Task;
+import com.google.api.services.people.v1.PeopleService;
+import com.google.api.services.people.v1.model.EmailAddress;
+import com.google.api.services.people.v1.model.ListConnectionsResponse;
+import com.google.api.services.people.v1.model.Name;
+import com.google.api.services.people.v1.model.Person;
+import com.google.api.services.people.v1.model.PhoneNumber;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+>>>>>>> master
 
 /**
  * Landing page with all the songs and albums
  */
 public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener {
+
+    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
+    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
+    private ArrayList<Album> albumsList;
+
+    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
+    private boolean isMusicBound = false;
 
     private SongService songsService;
     private Intent playIntent;
@@ -33,11 +76,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
 
+
     private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
     private static final String TAG = "MainActivity";
 
+    private final int RC_SIGN_IN = 42069;
+    private final int  RC_API_CHECK = 1;
+    private String accountId = "";
 
-//region Handlers of MainActivity
+    GoogleApiClient mGoogleApiClient;
+    UserManager userManager = new UserManager();
+
     /**
      * Override back button to not kill this activity
      */
@@ -58,6 +107,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+
+        // Load all the songs
+        listOfAllSongs = new ArrayList<Song>();
+        currentPlayList = new ArrayList<Song>();
+        albumsList = new ArrayList<Album>();
+        Algorithm.importSongsFromResource(listOfAllSongs);
+        albumsList = Algorithm.getAlbumList(listOfAllSongs);
+
+
         //Binds with music player
         if (playIntent == null) {
             playIntent = new Intent(this, SongService.class);
@@ -67,7 +127,52 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         // Ask for all the permissions
         getPermissions();
 
+
         Switch mySwitch = findViewById(R.id.flashback_switch);
+        // google sign-in
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestServerAuthCode(getString(R.string.clientId))
+                .requestScopes(new Scope(Scopes.PLUS_LOGIN),
+                        new Scope("https://www.googleapis.com/auth/contacts.readonly"))
+                .build();
+
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+                if (acct != null) {
+                    String personEmail = acct.getEmail();
+                    Toast.makeText(App.getContext(), "You have already logged in as: " + personEmail, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+                Log.i(TAG, "clicked to sign in");
+            }
+        });
+
+
+
+
+        /* final Button signButton = findViewById(R.id.sign_in_button);
+
+        signButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent,RC_SIGN_IN);
+            }
+        });
+        */
+
+
+        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
@@ -116,6 +221,40 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             }
         });
     }
+
+    // Don't know if we need to use a google sign-in
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+    }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("Result received");
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+
+            System.out.println("Status Code: " + result.getStatus());
+            if (result.isSuccess()) {
+                GoogleSignInAccount acct = result.getSignInAccount();
+                System.out.println("Login succeeded");
+                Log.d(TAG, "onActivityResult:GET_TOKEN:success:" + result.getStatus().isSuccess());
+                // This is what we need to exchange with the server.
+                System.out.println(acct.getServerAuthCode());
+                new PeoplesAsync().execute(acct.getServerAuthCode());
+            } else {
+                Toast.makeText(App.getContext(), "Login failed. Error code: " + result.getStatus().toString(), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
     @Override
     public void onRestart() {
@@ -202,7 +341,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
         }
     };
 
@@ -280,4 +418,96 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
     }
 //endregion;
+
+
+
+
+
+class PeoplesAsync extends AsyncTask<String, Void, List<String>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //updateUI();
+
+        }
+
+        @Override
+        protected List<String> doInBackground(String... params) {
+
+            List<String> nameList = new ArrayList<>();
+
+            try {
+                PeopleService peopleService = ImportGoogleFriends.setUp(MainActivity.this, params[0]);
+
+                ListConnectionsResponse response = peopleService.people().connections()
+                        .list("people/me")
+                        // This line's really important! Here's why:
+                        // http://stackoverflow.com/questions/35604406/retrieving-information-about-a-contact-with-google-people-api-java
+                        .setRequestMaskIncludeField("person.names,person.emailAddresses")
+                        .execute();
+                List<Person> connections = response.getConnections();
+
+                if (connections == null) {
+                    Toast.makeText(App.getContext(), "Oops, No contacts found. Try to make some friends.", Toast.LENGTH_LONG).show();
+                }
+
+                for (Person person : connections) {
+                    if (!person.isEmpty()) {
+                        List<Name> names = person.getNames();
+                        List<EmailAddress> emailAddresses = person.getEmailAddresses();
+                        List<PhoneNumber> phoneNumbers = person.getPhoneNumbers();
+                        String chosenName = null;
+                        String chosenEmail = null;
+
+                        if (phoneNumbers != null)
+                            for (PhoneNumber phoneNumber : phoneNumbers)
+                                Log.d(TAG, "phone: " + phoneNumber.getValue());
+
+                        if (emailAddresses != null) {
+                            boolean gotIt = false;
+                            for (EmailAddress emailAddress : emailAddresses) {
+                                if (!gotIt) {
+                                    chosenEmail = emailAddress.getValue();
+                                    gotIt = true;
+                                }
+                                Log.d(TAG, "email: " + emailAddress.getValue());
+                            }
+                        }
+
+                        if (names != null) {
+                            boolean gotIt = false;
+                            for (Name name : names) {
+                                if (!gotIt) {
+                                    chosenName = name.getDisplayName();
+                                    gotIt = true;
+                                }
+                                nameList.add(name.getDisplayName());
+                            }
+                        }
+
+                        if (chosenName != null && chosenEmail != null) {
+                            // FIXME: change this so that the song list is being passed onto IUser
+                            userManager.addOneUserToList(chosenName, chosenEmail, "friend", null, "");
+                        }
+
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return nameList;
+        }
+
+
+        @Override
+        protected void onPostExecute(List<String> nameList) {
+            super.onPostExecute(nameList);
+        }
+    }
+
+
 }
