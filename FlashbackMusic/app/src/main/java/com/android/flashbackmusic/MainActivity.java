@@ -8,11 +8,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-<<<<<<< HEAD
-=======
 import android.os.AsyncTask;
 import android.os.Bundle;
->>>>>>> master
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -27,24 +24,18 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-<<<<<<< HEAD
+
 import com.android.flashbackmusic.SongService.MusicBinder;
-=======
-import com.android.flashbackmusic.SongsService.MusicBinder;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.Task;
 import com.google.api.services.people.v1.PeopleService;
 import com.google.api.services.people.v1.model.EmailAddress;
 import com.google.api.services.people.v1.model.ListConnectionsResponse;
@@ -55,7 +46,6 @@ import com.google.api.services.people.v1.model.PhoneNumber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
->>>>>>> master
 
 /**
  * Landing page with all the songs and albums
@@ -77,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private AlbumListAdapter albumAdapt;
 
 
-    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
     private static final String TAG = "MainActivity";
 
     private final int RC_SIGN_IN = 42069;
@@ -171,24 +160,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         });
         */
 
-
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                Log.v(TAG, "Flashback mode toggled");
-                if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode(checked);
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
-                } else if (checked && songsService.getFlashBackMode()) {
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
-                }
-            }
-        });
 
         songAdapt = new SongListAdapter(this, SongManager.getSongManager().getDisplaySongList());
         albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
