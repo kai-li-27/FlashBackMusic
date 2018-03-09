@@ -9,7 +9,7 @@ import android.content.Context;
  * instance of database for songs and their information with history
  */
 
-@Database(entities = {Song.class}, version = 1, exportSchema = false)
+//@Database(entities = {Song.class}, version = 1, exportSchema = false)
 public abstract class SongDatabase extends RoomDatabase {
     private static SongDatabase INSTANCE;
 
