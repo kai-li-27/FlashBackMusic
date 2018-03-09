@@ -65,6 +65,9 @@ public class UserManager {
         allUsers.put(user.getName(), user);
     }
 
+    /*
+     *
+     */
     public void addOneUserToList(String name, String email, String relationship, ArrayList<Song> songs, String userId) {
         IUser working;
         if (relationship.equalsIgnoreCase("stranger")) {
