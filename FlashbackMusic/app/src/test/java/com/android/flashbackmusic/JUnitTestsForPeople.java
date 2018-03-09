@@ -58,12 +58,12 @@ public class JUnitTestsForPeople {
         assertEquals(foundPerson, person); // should be found
     }
 
-    /*
+
 
     @Test
     public void creatingAFriendTest() {
         manager.addOneUserToList("Roy", "rwfeng@ucsd.edu", "friend", null, "");
-        assertEquals();
+        assertEquals(manager.findAUser("rwfeng@ucsd.edu").getName(), "Roy");
     }
-    */
+
 }

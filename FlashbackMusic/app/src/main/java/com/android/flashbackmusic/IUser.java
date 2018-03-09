@@ -12,6 +12,8 @@ public interface IUser {
 
     void setListOfPlayedSongs(ArrayList<Song> listOfPlayedSongs);
 
+    void addSongToSongList(Song song);
+
     void setUserId(String userId);
 
     void setEmail(String email);

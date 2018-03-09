@@ -23,6 +23,10 @@ public class SelfUser implements IUser {
         this.name = name;
     }
 
+    public void addSongToSongList(Song song) {
+        listOfPlayedSongs.add(song);
+    }
+
     public void setAnonymousName(String anonymousName) {
         this.anonymousName = anonymousName;
     }

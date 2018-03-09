@@ -104,4 +104,19 @@ public class UserManager {
         return "Bob";
     }
 
+    public void setSongsListOfUser(String email, ArrayList<Song> songsList) {
+        IUser user = findAUser(email);
+        user.setListOfPlayedSongs(songsList);
+    }
+
+    public void addSongToListOfUser(String email, Song song) {
+        IUser user = findAUser(email);
+        user.addSongToSongList(song);
+    }
+
+    public ArrayList<Song> getSongsListOfUser(String email) {
+        IUser user = findAUser(email);
+        return user.getListOfPlayedSongs();
+    }
+
 }
