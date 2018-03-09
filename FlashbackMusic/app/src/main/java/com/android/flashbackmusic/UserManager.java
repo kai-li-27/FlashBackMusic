@@ -14,9 +14,9 @@ import java.util.HashMap;
  */
 
 public class UserManager {
-    private HashMap<String, IUser> allUsers;
-    private HashMap<String, IUser> friends;
-    private HashMap<String, IUser> strangers; // FIXME: change this to hashmap or something with key value pair
+    private HashMap<String, IUser> allUsers = new HashMap<>();
+    private HashMap<String, IUser> friends = new HashMap<>();
+    private HashMap<String, IUser> strangers = new HashMap<>(); // FIXME: change this to hashmap or something with key value pair
 
     private static final String TAG = "UserManager";
 

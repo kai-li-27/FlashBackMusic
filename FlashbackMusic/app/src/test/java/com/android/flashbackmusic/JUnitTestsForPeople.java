@@ -42,11 +42,23 @@ public class JUnitTestsForPeople {
         assertEquals(person.getEmail(), "you@internet.com");
     }
 
-    /*
+
     @Test
     public void findAUserNotExisting() {
-
+        IUser person = new FriendUser("Kate", "10", "kww006@ucsd.edu");
+        IUser foundPerson = manager.findAUser("Kate");
+        assertEquals(foundPerson, null); // should not be found
     }
+
+    @Test
+    public void findAUserExisting() {
+        IUser person = new FriendUser("Kate", "10", "kww006@ucsd.edu");
+        manager.addOneUserToList(person);
+        IUser foundPerson = manager.findAUser("Kate");
+        assertEquals(foundPerson, person); // should be found
+    }
+
+    /*
 
     @Test
     public void creatingAFriendTest() {
