@@ -25,6 +25,10 @@ public class AnonymousUser implements IUser {
 
     }
 
+    public void addSongToSongList(Song song) {
+        listOfPlayedSongs.add(song);
+    }
+
     public void setListOfPlayedSongs(ArrayList<Song> listOfPlayedSongs) {
         this.listOfPlayedSongs = listOfPlayedSongs;
     }

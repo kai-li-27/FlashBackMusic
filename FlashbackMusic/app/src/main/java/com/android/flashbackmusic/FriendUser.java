@@ -43,8 +43,8 @@ public class FriendUser implements IUser {
         return name;
     }
 
-    public String getAnonymousName() {
-        return anonymousName;
+    public void addSongToSongList(Song song) {
+        listOfPlayedSongs.add(song);
     }
 
     public ArrayList<Song> getListOfPlayedSongs() {
