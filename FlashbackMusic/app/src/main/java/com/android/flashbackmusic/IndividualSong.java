@@ -130,9 +130,9 @@ public class IndividualSong extends AppCompatActivity {
                     public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                         if (checked && !songsService.getFlashBackMode()) {
                             songsService.switchMode();
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#c1c5e7"));
                         } else if (checked && songsService.getFlashBackMode()) {
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+                            indivSongActivity.setBackgroundColor(Color.parseColor("#c1c5e7"));
                         } else if (!checked && songsService.getFlashBackMode()) {
                             songsService.switchMode();
                             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
@@ -169,7 +169,7 @@ public class IndividualSong extends AppCompatActivity {
 
 
     /**
-     * Change the text of last time, last location, song title, artist and album
+     * Change the text of last time, last location, song title, artist, album, and last user
      */
     @SuppressLint("StaticFieldLeak")
     public void changeText(){
@@ -187,6 +187,12 @@ public class IndividualSong extends AppCompatActivity {
         //curr_song_album
         TextView album = (TextView)findViewById(R.id.curr_song_album);
         album.setText("Album: " + currentSong.getAlbum());
+
+        //TODO need to make getUser() method that gets user info from Database
+        //TODO we also need a helper method that returns the correct way to display the user eg Anon, Friend, You
+        //curr_song_user
+        TextView user = (TextView) findViewById(R.id.curr_song_user);
+        //user.setText("User: " + currentSong.getDisplayUser()); TODO
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -231,6 +237,9 @@ public class IndividualSong extends AppCompatActivity {
                     + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
         }
+
+
+
     }
 
 
