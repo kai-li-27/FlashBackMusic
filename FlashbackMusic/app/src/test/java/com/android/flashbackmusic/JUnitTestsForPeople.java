@@ -46,7 +46,7 @@ public class JUnitTestsForPeople {
     @Test
     public void findAUserNotExisting() {
         IUser person = new FriendUser("Kate", "10", "kww006@ucsd.edu");
-        IUser foundPerson = manager.findAUser("Kate");
+        IUser foundPerson = manager.findAUser("kww006@ucsd.edu");
         assertEquals(foundPerson, null); // should not be found
     }
 
@@ -54,7 +54,7 @@ public class JUnitTestsForPeople {
     public void findAUserExisting() {
         IUser person = new FriendUser("Kate", "10", "kww006@ucsd.edu");
         manager.addOneUserToList(person);
-        IUser foundPerson = manager.findAUser("Kate");
+        IUser foundPerson = manager.findAUser("kww006@ucsd.edu");
         assertEquals(foundPerson, person); // should be found
     }
 

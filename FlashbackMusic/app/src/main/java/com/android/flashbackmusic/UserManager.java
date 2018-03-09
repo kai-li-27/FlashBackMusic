@@ -62,7 +62,7 @@ public class UserManager {
 
     // just add one individual user given the user
     public void addOneUserToList(IUser user) {
-        allUsers.put(user.getName(), user);
+        allUsers.put(user.getEmail(), user);
     }
 
     /*
@@ -73,22 +73,22 @@ public class UserManager {
         if (relationship.equalsIgnoreCase("stranger")) {
             name = createOneAnonymousName();
             working = new AnonymousUser(name, "", email);
-            strangers.put(name, working);
+            strangers.put(email, working);
         } else if (relationship.equalsIgnoreCase("self")) {
             working = new SelfUser("You", userId, email);
         } else {
             working = new FriendUser(name, "", email);
-            friends.put(name, working);
+            friends.put(email, working);
         }
         working.setListOfPlayedSongs(songs);
-        allUsers.put(name, working);
+        allUsers.put(email, working);
     }
 
-    public IUser findAUser(String name) {
-        if (allUsers.get(name) == null) {
-            Log.w(TAG, "User not in list of contacts");
+    public IUser findAUser(String email) {
+        if (allUsers.get(email) == null) {
+            //Log.w(TAG, "User not in list of contacts");
         }
-        return allUsers.get(name);
+        return allUsers.get(email);
     }
 
     // iterate through the users and set their anonymous names for the session
