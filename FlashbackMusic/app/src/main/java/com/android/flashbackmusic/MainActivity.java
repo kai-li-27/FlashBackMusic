@@ -20,8 +20,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -73,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private ListView songsView;
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
+
+    private Spinner sortOptions;
+    private ArrayAdapter<CharSequence> sortSpinnerAdapter;
 
 
     private static final String TAG = "MainActivity";
@@ -191,6 +197,12 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
         songsView = findViewById(R.id.song_list);
         songsView.setAdapter(songAdapt);
+
+        // set the sorting options available for the sort options
+        sortOptions = (Spinner) findViewById(R.id.sortingOptions);
+        sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
+        sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortOptions.setAdapter(sortSpinnerAdapter);
 
         // Display the songs
         TabLayout tabLayout = findViewById(R.id.topTabs);
