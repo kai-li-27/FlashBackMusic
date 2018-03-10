@@ -13,10 +13,10 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="IndividualSong.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="IndividualSong.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1000">
+            <state relative-caret-position="40">
               <caret line="25" column="27" lean-forward="false" selection-start-line="25" selection-start-column="27" selection-end-line="25" selection-end-column="27" />
               <folding />
             </state>
@@ -28,16 +28,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="720">
               <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SongsService.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="50" column="7" lean-forward="false" selection-start-line="50" selection-start-column="7" selection-end-line="50" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -66,11 +56,9 @@
       <file leaf-file-name="Song.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4880">
-              <caret line="145" column="37" lean-forward="false" selection-start-line="145" selection-start-column="37" selection-end-line="145" selection-end-column="37" />
-              <folding>
-                <element signature="e#3540#3541#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="4400">
+              <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -80,7 +68,51 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
+              <folding>
+                <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+                <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+                <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+                <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+                <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+                <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+                <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+                <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+                <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+                <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+                <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+                <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -108,6 +140,7 @@
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/AlbumListAdapter.java" />
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java" />
         <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" />
+        <option value="$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java" />
       </list>
     </option>
   </component>
@@ -132,188 +165,24 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
+              <option name="myItemId" value="cse-110-team-project-team-10" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="flashbackmusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cse-110-team-project-team-10-milestone-1-iteration-2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="FlashbackMusic" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="androidTest" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="flashbackmusic" />
+              <option name="myItemId" value="cse-110-team-project-team-10" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="Scratches" />
+      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -401,8 +270,7 @@
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
       <method>
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520295480155" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520643911287" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -449,8 +317,7 @@
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
       </Profilers>
       <method>
-        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520295480155" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520643911287" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -482,6 +349,27 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
+      <method />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
       <method />
     </configuration>
     <configuration default="true" type="JarApplication" factoryName="JAR Application">
@@ -608,10 +496,10 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33058307" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33004925" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24775726" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24775726" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -635,6 +523,98 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongListAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Album.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1440">
+          <caret line="42" column="35" lean-forward="false" selection-start-line="42" selection-start-column="35" selection-end-line="42" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/AlbumListAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="680">
+          <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4400">
+          <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+            <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+            <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+            <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+            <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+            <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1000">
@@ -671,9 +651,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4880">
           <caret line="145" column="37" lean-forward="true" selection-start-line="145" selection-start-column="37" selection-end-line="145" selection-end-column="37" />
-          <folding>
-            <element signature="e#3540#3541#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -681,18 +659,55 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+            <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+            <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+            <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+            <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+            <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1160">
-          <caret line="50" column="7" lean-forward="true" selection-start-line="50" selection-start-column="7" selection-end-line="50" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" />
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -748,9 +763,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#3540#3541#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -758,7 +771,51 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+            <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+            <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+            <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+            <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+            <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -810,9 +867,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#3540#3541#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -820,7 +875,51 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+            <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+            <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+            <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+            <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+            <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -870,7 +969,51 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1520643818058" expanded="true" signature="7583:8249" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="7664:8041" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8124:8140" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8223:8239" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8322:8580" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="8613:8971" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9067:9180" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="9277:10378" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10423:10487" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="10506:14885" ph="Other methods of MainActivity" />
+            <marker date="1520643818058" expanded="true" signature="10549:10624" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="10658:11064" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11070:11122" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="11160:12301" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11401:12293" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="11514:12283" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12307:12382" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12421:12780" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="12786:12917" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="12957:13242" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13315:13697" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13411:13598" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13680:13691" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="13705:13788" ph="/**...*/" />
+            <marker date="1520643818058" expanded="true" signature="13836:14872" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="14891:15414" ph="SongServiceEventListener handlers" />
+            <marker date="1520643818058" expanded="true" signature="14994:15002" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15085:15093" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15156:15164" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15243:15251" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15315:15323" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15393:15401" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15420:15802" ph="VibeDatabaseEventListener Handler" />
+            <marker date="1520643818058" expanded="true" signature="15532:15540" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15635:15643" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15712:15720" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15781:15789" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15873:19317" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="15932:16005" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16089:19176" ph="{...}" />
+            <marker date="1520643818058" expanded="true" signature="16425:16607" ph="//..." />
+            <marker date="1520643818058" expanded="false" signature="19256:19271" ph=" { " />
+            <marker date="1520643818058" expanded="false" signature="19301:19311" ph=" }" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -898,11 +1041,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4880">
-          <caret line="145" column="37" lean-forward="false" selection-start-line="145" selection-start-column="37" selection-end-line="145" selection-end-column="37" />
-          <folding>
-            <element signature="e#3540#3541#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="4400">
+          <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -916,7 +1057,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1000">
+        <state relative-caret-position="40">
           <caret line="25" column="27" lean-forward="false" selection-start-line="25" selection-start-column="27" selection-end-line="25" selection-end-column="27" />
           <folding />
         </state>
@@ -930,13 +1071,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="50" column="7" lean-forward="false" selection-start-line="50" selection-start-column="7" selection-end-line="50" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/SongsService.java" />
   </component>
 </project>
