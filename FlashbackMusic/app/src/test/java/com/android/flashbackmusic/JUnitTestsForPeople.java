@@ -15,7 +15,7 @@ public class JUnitTestsForPeople {
 
     @Before
     public void initializeUserManager() {
-        manager = new UserManager();
+        manager = UserManager.getUserManager();
     }
 
     @Test
