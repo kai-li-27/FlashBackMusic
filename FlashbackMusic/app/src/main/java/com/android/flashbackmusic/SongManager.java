@@ -1,5 +1,7 @@
 package com.android.flashbackmusic;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -10,6 +12,7 @@ public class SongManager {
     private ArrayList<Song> listOfAllImportedSongs = new ArrayList<>();
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
+    private static final String TAG = "SongManager";
 
     private static SongManager instance;
 
@@ -40,16 +43,19 @@ public class SongManager {
 
 
     public void sortByTitle(){
-
+        Log.i(TAG, "sortByTitle called");
     }
     void sortByAlbum() {
-
+        Log.i(TAG, "sortByAlbum called");
     }
     void sortByArtist() {
-
+        Log.i(TAG, "sortByArtist called");
     }
-    void sortBy() {
-
+    void sortByDefault() {
+        Log.i(TAG, "sortByDefault called");
+    }
+    void sortByFavorites() {
+        Log.i(TAG, "sortbyFavorites called");
     }
 
 }

@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
         sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortOptions.setAdapter(sortSpinnerAdapter);
+        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener());
 
         // Display the songs
         TabLayout tabLayout = findViewById(R.id.topTabs);
