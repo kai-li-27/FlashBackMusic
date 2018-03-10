@@ -16,6 +16,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -254,8 +257,18 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
     /**
      * Switch flashback mode
+     * TODO make sure user is logged in to google acc, connected to internet,
      */
     public void switchMode(boolean mode) {
+
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+
+        if (acct == null) {
+            System.out.println("wogaskdfkjasdf:   switch mode test ");
+            Toast.makeText(App.getContext(), "You must log in before using Vibe Mode" , Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;

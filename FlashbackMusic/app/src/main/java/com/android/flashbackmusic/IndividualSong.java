@@ -117,12 +117,16 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     }
                 });
 
-        Switch mySwitch = findViewById(R.id.flashback_switch);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                         songsService.switchMode(checked);
+
+                        if (!songsService.getFlashBackMode() ) {
+                            mySwitch.setChecked(false);
+                        }
                     }
                 });
     }
@@ -287,7 +291,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     public void onVibeModeToggled(boolean vibeModeOn) {
         final ConstraintLayout indivSongActivity = findViewById(R.id.individualsongactivity);
         if (vibeModeOn) {
-            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+            indivSongActivity.setBackgroundColor(Color.parseColor("#D6CEF2"));
         } else {
             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
         }

@@ -104,9 +104,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
-
         // Load all the songs
         listOfAllSongs = new ArrayList<Song>();
         currentPlayList = new ArrayList<Song>();
@@ -302,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      * reset flashback switch UI display
      */
     public void flashbackSwitchOff() {
-        Switch mySwitch = findViewById(R.id.flashback_switch);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(null);
         mySwitch.setChecked(false);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -311,9 +308,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
                 Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
                     songsService.switchMode(checked);
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
+
+                    if (songsService.getFlashBackMode() ) {
+                        Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                        intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                        startActivity(intent);
+                    }
+
+                    else {
+                        mySwitch.setChecked(false);
+                    }
+
                 } else if (checked && songsService.getFlashBackMode()) {
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
                     intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
