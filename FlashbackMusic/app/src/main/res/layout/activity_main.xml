@@ -31,10 +31,11 @@
         android:id="@+id/sortOptionsText"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:text="Sort by"
+        android:text="Sort songs by: "
+        android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/sortingOptions"
-        app:layout_constraintTop_toBottomOf="@id/topTabs" />
+        app:layout_constraintTop_toTopOf="@id/sortingOptions" />
 
     <Spinner
         android:id="@+id/sortingOptions"
