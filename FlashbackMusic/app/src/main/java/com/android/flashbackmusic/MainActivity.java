@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -32,11 +33,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.api.services.people.v1.PeopleService;
+import com.google.api.services.people.v1.PeopleServiceScopes;
 import com.google.api.services.people.v1.model.EmailAddress;
 import com.google.api.services.people.v1.model.ListConnectionsResponse;
 import com.google.api.services.people.v1.model.Name;
@@ -50,7 +58,7 @@ import java.util.List;
 /**
  * Landing page with all the songs and albums
  */
-public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener {
+public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
     private ArrayList<Song> currentPlayList = new ArrayList<Song>();
@@ -126,9 +134,27 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
                         new Scope("https://www.googleapis.com/auth/contacts.readonly"))
                 .build();
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addOnConnectionFailedListener(this)
+                .addConnectionCallbacks(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
         final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        OptionalPendingResult<GoogleSignInResult> pendingResult = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+        if (pendingResult.isDone()) {
+            handleSignInResult(pendingResult.get());
+        } else {
+            pendingResult.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
 
         SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
@@ -137,8 +163,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
                 GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
                 if (acct != null) {
                     String personEmail = acct.getEmail();
-                    new PeoplesAsync().execute(acct.getServerAuthCode());
-                    userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
                     Toast.makeText(App.getContext(), "You have already logged in as: " + personEmail, Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -195,6 +219,27 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         });
     }
 
+    private void handleSignInResult(GoogleSignInResult result) {
+        try {
+            GoogleSignInAccount account = result.getSignInAccount();
+
+            new PeoplesAsync().execute(account.getServerAuthCode());
+
+        } catch (Exception e) {
+            Log.w(TAG, "handleSignInResult:error", e);
+        }
+    }
+
+    private void getUserInfo() {
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+        if (acct != null) {
+            String personEmail = acct.getEmail();
+            new PeoplesAsync().execute(acct.getServerAuthCode());
+            userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
+        }
+
+    }
+
     // Don't know if we need to use a google sign-in
 
     @Override
@@ -217,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             System.out.println("Status Code: " + result.getStatus());
             if (result.isSuccess()) {
                 GoogleSignInAccount acct = result.getSignInAccount();
+                getUserInfo();
                 System.out.println("Login succeeded");
                 Log.d(TAG, "onActivityResult:GET_TOKEN:success:" + result.getStatus().isSuccess());
                 // This is what we need to exchange with the server.
@@ -390,6 +436,21 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     public void onConnectionChanged(boolean connected) {
 
     }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
 //endregion;
 
 
@@ -425,6 +486,8 @@ class PeoplesAsync extends AsyncTask<String, Void, List<String>> {
                 if (connections == null) {
                     Toast.makeText(App.getContext(), "Oops, No contacts found. Try to make some friends.", Toast.LENGTH_LONG).show();
                 }
+
+                Log.v(TAG, "got to doInBackground line 490");
 
                 for (Person person : connections) {
                     if (!person.isEmpty()) {
