@@ -155,6 +155,13 @@ public class VibeDatabase {
     }
 
 
+    public void locationHasChanged(Location location) {
+        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();;
+
+
+    }
+
+
     public boolean isConnected() {
         return connected;
     }

@@ -85,6 +85,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     public void onClick(View view){
                         Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refator to songsservice if have time
                         currentSong.rotatePreference();
+                        VibeDatabase.getDatabase().updateSong(currentSong);
                         //changes look of button
                         changeDisplay(currentSong);
                     }
