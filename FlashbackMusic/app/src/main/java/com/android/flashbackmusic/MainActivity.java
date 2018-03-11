@@ -103,13 +103,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
+        
 
         //Binds with music player
         if (playIntent == null) {
