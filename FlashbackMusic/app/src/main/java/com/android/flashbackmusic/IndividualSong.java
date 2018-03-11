@@ -18,12 +18,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,6 +40,15 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
+
+    /*
+    ExpandableSongListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, List<Song>> listDataChild;
+    */
+
+    ArrayList<Song> upcomingList = new ArrayList<>();
 
 
 //region Handlers of IndividualActivity
@@ -62,9 +76,19 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual_song);
 
+
         // Binds to the music service
         Intent intent = new Intent(this, SongService.class);
         bindService(intent, musicConnection, Context.BIND_AUTO_CREATE);
+
+
+        ArrayList listDataHeader = new ArrayList<String>();
+        listDataHeader.add("Upcoming Songs");
+        HashMap listDataChild = new HashMap<String,List<Song>>();
+        listDataChild.put("Upcoming Songs", upcomingList);
+        ExpandableListView expListView = findViewById(R.id.previewNextSongsList);
+        ExpandableListAdapter listAdapter = new ExpandableSongListAdapter(this, upcomingList, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
 
         Button goBack = findViewById(R.id.button_back);
         goBack.setOnClickListener( new View.OnClickListener() {
@@ -83,7 +107,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refator to songsservice if have time
+                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refactor to songsservice if have time
                         currentSong.rotatePreference();
                         //changes look of button
                         changeDisplay(currentSong);
@@ -137,6 +161,22 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
 
 //region UI change methods
+
+    /**
+     * preparing the list data
+     * */
+    private void prepareListData(){
+        Song currentSong = songsService.getCurrentSong();
+        ArrayList<Song> currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+        int currentIndex = currentPlayList.indexOf(currentSong);
+
+        upcomingList.clear();
+        for (int i = currentIndex + 1; i < currentPlayList.size(); i++) {
+            upcomingList.add(currentPlayList.get(i));
+        }
+    }
+
+
     /**
      * Change the icon of +/-/check button
      */
@@ -265,6 +305,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     public void onSongLoaded(Song loadedSong) {
         changeText(loadedSong);
         changeDisplay(loadedSong);
+        prepareListData();
     }
 
     @Override

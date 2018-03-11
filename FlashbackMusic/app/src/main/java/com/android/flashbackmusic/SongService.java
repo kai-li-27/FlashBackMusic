@@ -41,7 +41,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
     private Song currentSong;
     private Location currlocation;
-    private int currentIndex;
     private boolean flashBackMode = false;
     private SongManager songManager;
 
@@ -76,16 +75,18 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         // If not in flashbackmode, updates current playing song's fileds.
         Log.v(TAG, "song completed; updating fields");
         if (!flashBackMode) {
-            currentSong = currentPlayList.get(currentIndex);
             currentSong.setLastTime(new Date(System.currentTimeMillis()));
             currentSong.setLastLocation(currlocation);
         }
         notify(Event.SONG_COMPLETED);
-        if (currentIndex == currentPlayList.size()-1) {
+        int currentIndex = currentPlayList.indexOf(currentSong);
+        if (currentIndex == currentPlayList.size() - 1) {
             currentIndex = 0;
+            Toast.makeText(App.getContext(), "Reached the end of playlist. Starting over.", Toast.LENGTH_LONG).show();
         } else {
             currentIndex++;
         }
+        currentSong = currentPlayList.get(currentIndex);
         loadMedia();
         player.start();
     }
@@ -118,7 +119,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             switchMode(true);
         }
 
-        currentIndex = 0;
+        currentSong = currentPlayList.get(0);
         player = new MediaPlayer();
         initializeMusicPlayer();
     }
@@ -141,7 +142,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
 
     /**
-     * Load the current playing song into the player
+     * @precondition currentSong is set to the song to be loaded
      */
     private void loadMedia() {
         Log.v(TAG, "loading current song into player");
@@ -157,7 +158,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         if (!flashBackMode) {
             try {
                 player.reset();
-                currentSong = currentPlayList.get(currentIndex);
                 player.setDataSource(getApplicationContext(), currentSong.getUri());
                 player.prepare();
                 notify(Event.SONG_LOADED);
@@ -189,7 +189,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
         try {
             player.reset();
-            currentIndex = index;
             currentSong = currentPlayList.get(index);
 
             player.setDataSource(getApplicationContext(), currentSong.getUri());
@@ -245,11 +244,14 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
      */
     public void playNext() {
         Log.v(TAG, "Playing the next song");
+        int currentIndex = currentPlayList.indexOf(currentSong);
         if (currentIndex == currentPlayList.size()-1) {
             currentIndex = 0;
+            Toast.makeText(App.getContext(), "Reached the end of playlist. Starting over.", Toast.LENGTH_LONG).show();
         } else {
             currentIndex++;
         }
+        currentSong = currentPlayList.get(currentIndex);
         loadMedia();
         player.start();
         notify(Event.SONG_SKIPPED);
