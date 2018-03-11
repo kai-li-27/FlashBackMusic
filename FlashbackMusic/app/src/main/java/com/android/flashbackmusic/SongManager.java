@@ -25,10 +25,37 @@ public class SongManager {
     private static SongManager instance;
 
     private SongManager() {
+        String userId = null;
+        int i = 0;
+        while(UserManager.getUserManager().getSelf() == null) {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {};
+            i++;
+            if (i > 10) {
+                break;
+            }
+        }
+
+        if (i < 11) {
+            userId =  UserManager.getUserManager().getSelf().getUserId();
+        }
+
         Algorithm.importSongsFromResource(listOfAllImportedSongs);
         listOfAlbums = Algorithm.getAlbumList(listOfAllImportedSongs);
         currentPlayList = new ArrayList<>(listOfAllImportedSongs);
+
         sortByDefault();
+
+
+        if (userId != null) {
+            for (Song song : listOfAllImportedSongs) {
+                song.setUserIdString(userId);
+            }
+
+            VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllImportedSongs);
+        }
+
     }
 
     public static SongManager getSongManager() {
