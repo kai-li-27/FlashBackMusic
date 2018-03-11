@@ -300,6 +300,10 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
     private final LocationListener mLocationListener = new LocationListener(){
         @Override
         public void onLocationChanged(Location location) {
+            if (currlocation == null) {
+                currlocation = location;
+                return;
+            }
             if (location.distanceTo(currlocation) * 3.28 > 1000) { //feet
                 currlocation = location;
                 VibeDatabase.getDatabase().locationHasChanged(location);
