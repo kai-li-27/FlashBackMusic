@@ -29,7 +29,7 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_download_song);
 
 
         //Download Music from URL
