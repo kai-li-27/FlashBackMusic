@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
 
         //Binds with music player
         if (playIntent == null) {
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
         sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortOptions.setAdapter(sortSpinnerAdapter);
-        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener());
+        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener(songAdapt));
 
         // Display the songs
         TabLayout tabLayout = findViewById(R.id.topTabs);
