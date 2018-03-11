@@ -28,6 +28,7 @@ public class SongManager {
         Algorithm.importSongsFromResource(listOfAllImportedSongs);
         listOfAlbums = Algorithm.getAlbumList(listOfAllImportedSongs);
         currentPlayList = new ArrayList<>(listOfAllImportedSongs);
+        sortByDefault();
     }
 
     public static SongManager getSongManager() {

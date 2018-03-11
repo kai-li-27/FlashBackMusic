@@ -79,6 +79,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         int currentIndex = currentPlayList.indexOf(currentSong);
         if (currentIndex == currentPlayList.size() - 1) {
             currentIndex = 0;
+            Toast.makeText(App.getContext(), "Reached the end of playlist. Starting over.", Toast.LENGTH_LONG).show();
         } else {
             currentIndex++;
         }
@@ -243,6 +244,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         int currentIndex = currentPlayList.indexOf(currentSong);
         if (currentIndex == currentPlayList.size()-1) {
             currentIndex = 0;
+            Toast.makeText(App.getContext(), "Reached the end of playlist. Starting over.", Toast.LENGTH_LONG).show();
         } else {
             currentIndex++;
         }
