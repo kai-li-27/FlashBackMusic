@@ -63,12 +63,6 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
-    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
-    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
-    private ArrayList<Album> albumsList;
-
-    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
-    private boolean isMusicBound = false;
 
     private SongService songsService;
     private Intent playIntent;
@@ -109,16 +103,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
 
 
         //Binds with music player
@@ -342,12 +326,9 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      */
     public void chosenSong(View view) {
         Log.v(TAG, "selected a song to play");
+        SongManager.getSongManager().singleSongChosen();
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
-        if (didChooseAlbum) {
-
-            didChooseAlbum = false;
-        }
         startActivity(intent);
     }
 
@@ -357,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      */
     public void chosenAlbum(View view) {
         Log.v(TAG, "selected an album to play");
+        SongManager.getSongManager().albumChosen((int)view.getTag());
         Intent intent = new Intent(this, IndividualSong.class);
         Log.v(TAG, "added songs in album to queue");
         intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song
