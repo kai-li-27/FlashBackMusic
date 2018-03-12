@@ -1,6 +1,7 @@
 package com.android.flashbackmusic;
 
 import android.app.ProgressDialog;
+import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ public class SongManager {
     private ArrayList<Song> listOfAllImportedSongs = new ArrayList<>();
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
+    private ArrayList<Song> vibeSongList = new ArrayList<>();
     private static final String TAG = "SongManager"; //for adding a new song\
 
     enum SortMode {
@@ -33,8 +35,10 @@ public class SongManager {
             Toast.makeText(App.getContext(), "You are not signed in, your play history won't be stored", Toast.LENGTH_LONG).show(); //This will make unit test fails. comment this out before unit test
         } else {
             String userId = UserManager.getUserManager().getSelf().getUserId();
+            String userEmail = UserManager.getUserManager().getSelf().getEmail();
             for (Song song : listOfAllImportedSongs) {
                 song.setUserIdString(userId);
+                song.setEmail(userEmail);
             }
 
             VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllImportedSongs); //This will go to server and get the preference, location and time for each song
@@ -60,6 +64,8 @@ public class SongManager {
     public ArrayList<Song> getDisplaySongList() {
         return listOfAllImportedSongs;
     }
+
+    public ArrayList<Song> getVibeSongList() { return  vibeSongList;}
 
 
 //region Sorting Methods
@@ -138,13 +144,16 @@ public class SongManager {
         currentPlayList.addAll(listOfAllImportedSongs);
     }
 
+    public void updateVibePlaylist(Location location) {
+        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();
+        vibeSongList.clear();
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000, vibeSongList);
+    }
+
     public void albumChosen(int indexOfAlbum) {
         currentPlayList.clear();
         currentPlayList.addAll(listOfAlbums.get(indexOfAlbum).getSongsInAlbum());
     }
 
-    public void vibeModeTurnedOn() {}
-
-    public void vibeModeTurnedOff() {}
 //endregion;
 }
