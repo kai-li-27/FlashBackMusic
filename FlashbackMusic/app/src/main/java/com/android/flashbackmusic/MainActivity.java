@@ -1,7 +1,6 @@
 package com.android.flashbackmusic;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,14 +16,13 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -39,15 +37,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.PeopleServiceScopes;
 import com.google.api.services.people.v1.model.EmailAddress;
 import com.google.api.services.people.v1.model.ListConnectionsResponse;
 import com.google.api.services.people.v1.model.Name;
@@ -103,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
 
         //Binds with music player
@@ -162,6 +158,14 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             }
         });
 
+        Button setDateTime = (Button) findViewById(R.id.set_temporal_button);
+        setDateTime.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                goToTimeActivity();
+            }
+
+        });
 
 
 
@@ -235,6 +239,10 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
         }
 
+    }
+    public void goToTimeActivity(){
+        Intent intent = new Intent(this, SetAppTimeActivity.class);
+        startActivity(intent);
     }
 
     // Don't know if we need to use a google sign-in
