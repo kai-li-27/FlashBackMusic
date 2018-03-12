@@ -75,7 +75,13 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         // If not in flashbackmode, updates current playing song's fileds.
         Log.v(TAG, "song completed; updating fields");
         if (!flashBackMode) {
-            currentSong.setLastTime(new Date(System.currentTimeMillis()));
+            TimeAndDate instance = TimeAndDate.getTimeAndDate();
+            if(!instance.isTimeCurrentTime()){
+                currentSong.setLastTime(new Date(instance.getDateSelected()));
+            }
+            else {
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+            }
             currentSong.setLastLocation(currlocation);
             VibeDatabase.getDatabase().updateSong(currentSong);
         }
@@ -275,6 +281,9 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;
+        }  else if (!flashBackMode && mode) {
+            flashBackMode = true;
+            notify(Event.VIBE_MODE_TOGGLED);
             currentPlayList = SongManager.getSongManager().getCurrentPlayList();
             currentSong = currentPlayList.get(0);
             loadMedia();
