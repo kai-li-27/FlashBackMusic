@@ -1,6 +1,9 @@
 package com.android.flashbackmusic;
 
+import android.app.ProgressDialog;
+import android.location.Location;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,22 +16,34 @@ public class SongManager {
     private ArrayList<Song> listOfAllImportedSongs = new ArrayList<>();
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
-    private static final String TAG = "SongManager"; //for adding a new song
-    private boolean albumMode = false;
+    private ArrayList<Song> vibeSongList = new ArrayList<>();
+    private static final String TAG = "SongManager"; //for adding a new song\
 
     enum SortMode {
         TITLE, ALBUM, ARTIST, MOST_RECENT, PREFERENCE
     }
 
-    //TODO after sorting it doesn't automatically update to listview unless you scroll it
-    //TODO figure whether or not to change playlist if user changes sort option
     private static SongManager instance;
 
     private SongManager() {
+
         Algorithm.importSongsFromResource(listOfAllImportedSongs);
         listOfAlbums = Algorithm.getAlbumList(listOfAllImportedSongs);
         currentPlayList = new ArrayList<>(listOfAllImportedSongs);
-        sortByDefault();
+
+        if (UserManager.getUserManager().getSelf() == null) {
+            Toast.makeText(App.getContext(), "You are not signed in, your play history won't be stored", Toast.LENGTH_LONG).show(); //This will make unit test fails. comment this out before unit test
+        } else {
+            String userId = UserManager.getUserManager().getSelf().getUserId();
+            String userEmail = UserManager.getUserManager().getSelf().getEmail();
+            for (Song song : listOfAllImportedSongs) {
+                song.setUserIdString(userId);
+                song.setEmail(userEmail);
+            }
+
+            VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllImportedSongs); //This will go to server and get the preference, location and time for each song
+        }
+
     }
 
     public static SongManager getSongManager() {
@@ -49,6 +64,8 @@ public class SongManager {
     public ArrayList<Song> getDisplaySongList() {
         return listOfAllImportedSongs;
     }
+
+    public ArrayList<Song> getVibeSongList() { return  vibeSongList;}
 
 
 //region Sorting Methods
@@ -89,15 +106,16 @@ public class SongManager {
 
 
     void sortByDefault() {
-        for (int i = 0; i < listOfAllImportedSongs.size() - 1; i++) { //go through whole list, finds most recent each time
+        sortByTitle();
+        for (int i = 0; i < listOfAllImportedSongs.size(); i++) { //go through whole list, finds least recent each time
             Song temp = listOfAllImportedSongs.get(i);
             for (int j = i + 1; j < listOfAllImportedSongs.size(); j++) {
-                if (temp.getLastTimeLong() < listOfAllImportedSongs.get(j).getLastTimeLong()) {
+                if (temp.getLastTime().compareTo(listOfAllImportedSongs.get(j).getLastTime()) >= 0) {
                     temp = listOfAllImportedSongs.get(j);
                 }
             }
             listOfAllImportedSongs.remove(temp);
-            listOfAllImportedSongs.add(0, temp);//insert the most recent to the front
+            listOfAllImportedSongs.add(0, temp);//insert the least recent to the front
         }
     }
 
@@ -126,13 +144,16 @@ public class SongManager {
         currentPlayList.addAll(listOfAllImportedSongs);
     }
 
+    public void updateVibePlaylist(Location location) {
+        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();
+        vibeSongList.clear();
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000, vibeSongList);
+    }
+
     public void albumChosen(int indexOfAlbum) {
         currentPlayList.clear();
         currentPlayList.addAll(listOfAlbums.get(indexOfAlbum).getSongsInAlbum());
     }
 
-    public void vibeModeTurnedOn() {}
-
-    public void vibeModeTurnedOff() {}
 //endregion;
 }

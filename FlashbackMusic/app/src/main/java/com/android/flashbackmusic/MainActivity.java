@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         // Ask for all the permissions
         getPermissions();
+        getUserInfo();
 
 
         Switch mySwitch = findViewById(R.id.flashback_switch);
@@ -239,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct != null) {
             String personEmail = acct.getEmail();
-            new PeoplesAsync().execute(acct.getServerAuthCode());
             userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
         }
 
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      */
     public void flashbackSwitchOff() {
         final Switch mySwitch = findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(null);
+        mySwitch.setOnCheckedChangeListener(null); //TODO this method wan't called on app start
         mySwitch.setChecked(false);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
