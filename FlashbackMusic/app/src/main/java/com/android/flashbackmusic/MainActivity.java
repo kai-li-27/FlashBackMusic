@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         // Ask for all the permissions
         getPermissions();
+        getUserInfo();
 
 
         Switch mySwitch = findViewById(R.id.flashback_switch);
@@ -231,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct != null) {
             String personEmail = acct.getEmail();
-            new PeoplesAsync().execute(acct.getServerAuthCode());
             userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
         }
 

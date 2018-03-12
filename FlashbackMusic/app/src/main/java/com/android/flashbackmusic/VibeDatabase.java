@@ -174,6 +174,8 @@ public class VibeDatabase {
                         temp.setLastTimeLong(song.getLastTimeLong());
                         temp.setLastLocation(song.getLastLocation());
                         temp.setPreference(song.getPreference());
+                        SongManager.getSongManager().sortByDefault(); //This is toxic. Fix it if have time
+                        Toast.makeText(App.getContext(), temp.getTitle() + " Loaded", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

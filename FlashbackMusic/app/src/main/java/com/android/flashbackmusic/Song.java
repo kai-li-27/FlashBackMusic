@@ -19,9 +19,9 @@ import java.util.Map;
 
 public class Song {
 
-    public static final int NEUTRAL = 0;
-    public static final int FAVORITE = 1;
-    public static final int DISLIKE = 2;
+    public static final int NEUTRAL = 1;
+    public static final int FAVORITE = 2;
+    public static final int DISLIKE = 0;
 
 
     private String userIdString;

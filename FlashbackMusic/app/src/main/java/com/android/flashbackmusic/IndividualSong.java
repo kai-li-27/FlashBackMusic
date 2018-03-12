@@ -185,9 +185,9 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         Log.v(TAG, "toggling favorite/dislike button");
         Button plus = findViewById(R.id.button_favdisneu);
         int[] appearance = new int [3];
-        appearance[0] = R.drawable.flashback_plus_inactive;
-        appearance[1] = R.drawable.flashback_checkmark_inactive;
-        appearance[2] = R.drawable.flashback_minus_inactive;
+        appearance[1] = R.drawable.flashback_plus_inactive;
+        appearance[2] = R.drawable.flashback_checkmark_inactive;
+        appearance[0] = R.drawable.flashback_minus_inactive;
         plus.setBackgroundResource(appearance[currentSong.getPreference()]);
     }
 

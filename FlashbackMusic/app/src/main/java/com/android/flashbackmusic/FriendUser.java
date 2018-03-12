@@ -14,9 +14,6 @@ public class FriendUser implements IUser {
     private String email;
 
     public FriendUser(String name, String userId, String email) {
-        while (UserManager.getUserManager().getSelf() == null) {
-
-        }
         this.name = name;
         this.userId = userId;
         this.email = email;

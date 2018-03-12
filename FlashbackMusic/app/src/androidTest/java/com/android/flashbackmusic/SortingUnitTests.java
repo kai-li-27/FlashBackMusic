@@ -24,6 +24,7 @@ public class SortingUnitTests {
 
     @Test
     public void testSortByTitle() {
+        assertTrue(songList.size() > 0);
         SongManager.getSongManager().sortByTitle();
         for (int i = 0; i < songList.size() - 1; i++) {
             assertTrue(songList.get(i).getTitle().compareTo(songList.get(i+1).getTitle()) <= 0);
@@ -34,7 +35,7 @@ public class SortingUnitTests {
     public void testSortByMostRecent() {
         SongManager.getSongManager().sortByDefault();
         for (int i = 0; i < songList.size() - 1; i++) {
-            assertTrue(songList.get(i).getLastTimeLong() >= songList.get(i+1).getLastTimeLong());
+            assertTrue(songList.get(i).getLastTime().compareTo(songList.get(i+1).getLastTime()) <= 0);
         }
     }
 
