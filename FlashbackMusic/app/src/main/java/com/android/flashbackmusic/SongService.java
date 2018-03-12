@@ -76,7 +76,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.v(TAG, "song completed; updating fields");
         if (!flashBackMode) {
             TimeAndDate instance = TimeAndDate.getTimeAndDate();
-            if(instance.isTimeCurrentTime()){
+            if(!instance.isTimeCurrentTime()){
                 currentSong.setLastTime(new Date(instance.getDateSelected()));
             }
             else {
@@ -280,8 +280,10 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;
+            notify(Event.VIBE_MODE_TOGGLED);
         }  else if (!flashBackMode && mode) {
             flashBackMode = true;
+            notify(Event.VIBE_MODE_TOGGLED);
         }
         notify(Event.VIBE_MODE_TOGGLED);
 

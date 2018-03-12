@@ -153,6 +153,11 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                         }
                     }
                 });
+
+        TextView userLabel = (TextView) findViewById(R.id.user_label);
+        TextView userName = (TextView) findViewById(R.id.curr_song_user);
+        userLabel.setVisibility(View.GONE);
+        userName.setVisibility(View.GONE);
     }
 //endregion;
 
@@ -333,8 +338,18 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         final ConstraintLayout indivSongActivity = findViewById(R.id.individualsongactivity);
         if (vibeModeOn) {
             indivSongActivity.setBackgroundColor(Color.parseColor("#D6CEF2"));
+
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.GONE);
+            userName.setVisibility(View.GONE);
+
         } else {
             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.VISIBLE);
+            userName.setVisibility(View.VISIBLE);
         }
     }
 //endregion;
