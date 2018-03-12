@@ -1,7 +1,6 @@
 package com.android.flashbackmusic;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,12 +16,15 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -36,15 +38,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.PeopleServiceScopes;
 import com.google.api.services.people.v1.model.EmailAddress;
 import com.google.api.services.people.v1.model.ListConnectionsResponse;
 import com.google.api.services.people.v1.model.Name;
@@ -60,12 +58,6 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
-    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
-    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
-    private ArrayList<Album> albumsList;
-
-    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
-    private boolean isMusicBound = false;
 
     private SongService songsService;
     private Intent playIntent;
@@ -73,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private ListView songsView;
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
+
+    private Spinner sortOptions;
+    private ArrayAdapter<CharSequence> sortSpinnerAdapter;
 
 
     private static final String TAG = "MainActivity";
@@ -107,14 +102,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
 
 
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
-
-
         //Binds with music player
         if (playIntent == null) {
             playIntent = new Intent(this, SongService.class);
@@ -123,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         // Ask for all the permissions
         getPermissions();
+        getUserInfo();
 
 
         Switch mySwitch = findViewById(R.id.flashback_switch);
@@ -172,6 +160,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             }
         });
 
+        Button setDateTime = (Button) findViewById(R.id.set_temporal_button);
+        setDateTime.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                goToTimeActivity();
+            }
+
+        });
+
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
 
 
 
@@ -191,6 +190,13 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
         songsView = findViewById(R.id.song_list);
         songsView.setAdapter(songAdapt);
+
+        // set the sorting options available for the sort options
+        sortOptions = (Spinner) findViewById(R.id.sortingOptions);
+        sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
+        sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortOptions.setAdapter(sortSpinnerAdapter);
+        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener(songAdapt));
 
         // Display the songs
         TabLayout tabLayout = findViewById(R.id.topTabs);
@@ -234,10 +240,13 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct != null) {
             String personEmail = acct.getEmail();
-            new PeoplesAsync().execute(acct.getServerAuthCode());
             userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
         }
 
+    }
+    public void goToTimeActivity(){
+        Intent intent = new Intent(this, SetAppTimeActivity.class);
+        startActivity(intent);
     }
 
     // Don't know if we need to use a google sign-in
@@ -246,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     public void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
     }
 
 
@@ -279,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     public void onRestart() {
         super.onRestart();
         flashbackSwitchOff();
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
     }
 //endregion;
 
@@ -302,8 +314,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      * reset flashback switch UI display
      */
     public void flashbackSwitchOff() {
-        Switch mySwitch = findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(null);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(null); //TODO this method wan't called on app start
         mySwitch.setChecked(false);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -311,9 +323,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
                 Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
                     songsService.switchMode(checked);
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
+
+                    if (songsService.getFlashBackMode() ) {
+                        Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                        intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                        startActivity(intent);
+                    }
+
+                    else {
+                        mySwitch.setChecked(false);
+                    }
+
                 } else if (checked && songsService.getFlashBackMode()) {
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
                     intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
@@ -329,12 +349,9 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      */
     public void chosenSong(View view) {
         Log.v(TAG, "selected a song to play");
+        SongManager.getSongManager().singleSongChosen();
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
-        if (didChooseAlbum) {
-
-            didChooseAlbum = false;
-        }
         startActivity(intent);
     }
 
@@ -344,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
      */
     public void chosenAlbum(View view) {
         Log.v(TAG, "selected an album to play");
+        SongManager.getSongManager().albumChosen((int)view.getTag());
         Intent intent = new Intent(this, IndividualSong.class);
         Log.v(TAG, "added songs in album to queue");
         intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song

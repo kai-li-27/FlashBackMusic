@@ -18,12 +18,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,6 +40,15 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
+
+    /*
+    ExpandableSongListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, List<Song>> listDataChild;
+    */
+
+    ArrayList<Song> upcomingList = new ArrayList<>();
 
 
 //region Handlers of IndividualActivity
@@ -62,9 +76,19 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual_song);
 
+
         // Binds to the music service
         Intent intent = new Intent(this, SongService.class);
         bindService(intent, musicConnection, Context.BIND_AUTO_CREATE);
+
+
+        ArrayList listDataHeader = new ArrayList<String>();
+        listDataHeader.add("Upcoming Songs");
+        HashMap listDataChild = new HashMap<String,List<Song>>();
+        listDataChild.put("Upcoming Songs", upcomingList);
+        ExpandableListView expListView = findViewById(R.id.previewNextSongsList);
+        ExpandableListAdapter listAdapter = new ExpandableSongListAdapter(this, upcomingList, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
 
         Button goBack = findViewById(R.id.button_back);
         goBack.setOnClickListener( new View.OnClickListener() {
@@ -83,8 +107,9 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refator to songsservice if have time
+                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refactor to songsservice if have time
                         currentSong.rotatePreference();
+                        VibeDatabase.getDatabase().updateSong(currentSong);
                         //changes look of button
                         changeDisplay(currentSong);
                     }
@@ -117,14 +142,23 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     }
                 });
 
-        Switch mySwitch = findViewById(R.id.flashback_switch);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                         songsService.switchMode(checked);
+
+                        if (!songsService.getFlashBackMode() ) {
+                            mySwitch.setChecked(false);
+                        }
                     }
                 });
+
+        TextView userLabel = (TextView) findViewById(R.id.user_label);
+        TextView userName = (TextView) findViewById(R.id.curr_song_user);
+        userLabel.setVisibility(View.GONE);
+        userName.setVisibility(View.GONE);
     }
 //endregion;
 
@@ -133,6 +167,27 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
 
 //region UI change methods
+
+    /**
+     * preparing the list data
+     * */
+    private void prepareListData(){
+        Song currentSong = songsService.getCurrentSong();
+        ArrayList<Song> currentPlayList;
+        if (songsService.getFlashBackMode()) {
+            currentPlayList = SongManager.getSongManager().getVibeSongList();
+        } else {
+            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+        }
+        int currentIndex = currentPlayList.indexOf(currentSong);
+
+        upcomingList.clear();
+        for (int i = currentIndex + 1; i < currentPlayList.size(); i++) {
+            upcomingList.add(currentPlayList.get(i));
+        }
+    }
+
+
     /**
      * Change the icon of +/-/check button
      */
@@ -140,9 +195,9 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         Log.v(TAG, "toggling favorite/dislike button");
         Button plus = findViewById(R.id.button_favdisneu);
         int[] appearance = new int [3];
-        appearance[0] = R.drawable.flashback_plus_inactive;
-        appearance[1] = R.drawable.flashback_checkmark_inactive;
-        appearance[2] = R.drawable.flashback_minus_inactive;
+        appearance[1] = R.drawable.flashback_plus_inactive;
+        appearance[2] = R.drawable.flashback_checkmark_inactive;
+        appearance[0] = R.drawable.flashback_minus_inactive;
         plus.setBackgroundResource(appearance[currentSong.getPreference()]);
     }
 
@@ -177,8 +232,8 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         album.setText("Album: " + song.getAlbum());
 
         //curr_song_user
-        TextView user = findViewById(R.id.curr_song_album);
-        //user.setText("User: " + song.getDisplayUser); TODO: need method to retrieve correct user name and display it either as a Anonymous title, Friend, or You
+        TextView user = findViewById(R.id.curr_song_user);
+        user.setText(song.getUserDisplayName());
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -223,6 +278,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     + TIMERANGE[song.timeRange(song.getLastTime().getHours())]
                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(song.getLastTime()));
         }
+
     }
 //endregion;
 
@@ -261,6 +317,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     public void onSongLoaded(Song loadedSong) {
         changeText(loadedSong);
         changeDisplay(loadedSong);
+        prepareListData();
     }
 
     @Override
@@ -287,9 +344,19 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     public void onVibeModeToggled(boolean vibeModeOn) {
         final ConstraintLayout indivSongActivity = findViewById(R.id.individualsongactivity);
         if (vibeModeOn) {
-            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
+            indivSongActivity.setBackgroundColor(Color.parseColor("#D6CEF2"));
+
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.GONE);
+            userName.setVisibility(View.GONE);
+
         } else {
             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.VISIBLE);
+            userName.setVisibility(View.VISIBLE);
         }
     }
 //endregion;

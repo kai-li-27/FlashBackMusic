@@ -66,7 +66,6 @@ public class VibeDatabase {
     }
 
     public void insertSong(Song song) {
-        myRef.child("asshole");
         myRef.child(song.getDataBaseReferenceString()).setValue(song);
     }
 
@@ -75,20 +74,33 @@ public class VibeDatabase {
         dataEntry.setValue(song);
     }
 
-    public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet){
+    public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet, final ArrayList<Song> songsList){
         final double radiusInCordinate = radiusInFeet / 364605; //length of 1 latitude at 45 degrees
 
         Query query = myRef.orderByChild("lastLatitude").startAt(location.getLatitude() - radiusInCordinate)
                 .endAt(location.getLatitude() + radiusInCordinate);
 
-        final ArrayList<Song> songsList = new ArrayList<>();
 
         query.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) { //TODO this doesn't filter out same song, add it
                Song song =dataSnapshot.getValue(Song.class);
                if (song != null) {
-                   if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) {
+                   if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
+
+                       for (Song i : SongManager.getSongManager().getDisplaySongList()) {
+                           if (i.getTitle().equals(song.getTitle()) && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) { //See if the song is alreayd downloaded
+                               song.setUri(i.getUri());
+                           }
+                       }
+
+                       if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
+                           song.setUserDisplayName("You");
+                       } else {
+                           if (UserManager.getUserManager().getFriends().containsKey(song.getEmail())) {
+                               song.setUserDisplayName(UserManager.getUserManager().getFriends().get(song.getEmail()).getName());
+                           }
+                       }
                        songsList.add(song);
                    }
                }
@@ -152,6 +164,55 @@ public class VibeDatabase {
             }
         } );
         return songsList;
+    }
+
+
+    public void upateInfoOfSongsOfUser(final ArrayList<Song> importedSongs) {
+        Query query = myRef.orderByChild("userIdString").equalTo(importedSongs.get(0).getUserIdString());
+
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Song song = dataSnapshot.getValue(Song.class);
+                if (song != null) {
+                    Song temp = null;
+                    for (Song i : importedSongs) { //Finds the song downloaded from Firebase in Importsonglist
+                        if (i.getTitle().equals(song.getTitle()) && i.getArtist().equals(song.getArtist()) && i.getAlbum().equals(song.getAlbum())) {
+                            temp = i;
+                            break;
+                        }
+                    }
+
+                    if (temp != null) {
+                        temp.setLastTimeLong(song.getLastTimeLong());
+                        temp.setLastLocation(song.getLastLocation());
+                        temp.setPreference(song.getPreference());
+                        SongManager.getSongManager().sortByDefault(); //This is toxic. Fix it if have time
+                        Toast.makeText(App.getContext(), temp.getTitle() + " Loaded", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        } );
     }
 
 
