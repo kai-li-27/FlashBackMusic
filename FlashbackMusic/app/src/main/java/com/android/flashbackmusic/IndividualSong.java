@@ -168,7 +168,12 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
      * */
     private void prepareListData(){
         Song currentSong = songsService.getCurrentSong();
-        ArrayList<Song> currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+        ArrayList<Song> currentPlayList;
+        if (songsService.getFlashBackMode()) {
+            currentPlayList = SongManager.getSongManager().getVibeSongList();
+        } else {
+            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+        }
         int currentIndex = currentPlayList.indexOf(currentSong);
 
         upcomingList.clear();
@@ -222,8 +227,8 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         album.setText("Album: " + song.getAlbum());
 
         //curr_song_user
-        TextView user = findViewById(R.id.curr_song_album);
-        //user.setText("User: " + song.getDisplayUser); TODO: need method to retrieve correct user name and display it either as a Anonymous title, Friend, or You
+        TextView user = findViewById(R.id.curr_song_user);
+        user.setText(song.getUserDisplayName());
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -268,6 +273,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     + TIMERANGE[song.timeRange(song.getLastTime().getHours())]
                     + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(song.getLastTime()));
         }
+
     }
 //endregion;
 

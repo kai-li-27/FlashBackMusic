@@ -115,14 +115,16 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         songManager = SongManager.getSongManager();
         currentPlayList = songManager.getCurrentPlayList();
 
-        SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
-        if (flashback_state.getBoolean("State",false)) {
-            switchMode(true);
-        }
+
 
         currentSong = currentPlayList.get(0);
         player = new MediaPlayer();
         initializeMusicPlayer();
+
+        SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
+        if (flashback_state.getBoolean("State",false)) {
+            switchMode(true);
+        }
     }
 
 
@@ -155,20 +157,19 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         }
 
 
-        // Not in flashback mode
-        if (!flashBackMode) {
-            try {
-                player.reset();
-                player.setDataSource(getApplicationContext(), currentSong.getUri());
-                player.prepare();
-                notify(Event.SONG_LOADED);
-            } catch (IOException e) {
-                System.out.println("************************");
-                System.out.println("Failed to load song!!!!!");
-                System.out.println("************************");
-                Log.e(TAG, "Failed to load song!!");
-            }
+        try {
+            player.reset();
+            player.setDataSource(getApplicationContext(), currentSong.getUri());
+            player.prepare();
+        } catch (Exception e) {
+            System.out.println("************************");
+            System.out.println("Failed to load song!!!!!");
+            System.out.println("************************");
+            Log.e(TAG, "Failed to load song!!");
+            Toast.makeText(App.getContext(), "This song wasn't downloaded", Toast.LENGTH_LONG).show();
         }
+        notify(Event.SONG_LOADED);
+
     }
 
     /**
@@ -267,7 +268,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
 
         if (acct == null) {
-            System.out.println("wogaskdfkjasdf:   switch mode test ");
             Toast.makeText(App.getContext(), "You must log in before using Vibe Mode" , Toast.LENGTH_LONG).show();
             return;
         }
@@ -275,8 +275,21 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;
+            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+            currentSong = currentPlayList.get(0);
+            loadMedia();
+            player.start();
         }  else if (!flashBackMode && mode) {
             flashBackMode = true;
+            currentPlayList = songManager.getVibeSongList();
+            if (currentPlayList.size() == 0) {
+                switchMode(false);
+                Toast.makeText(App.getContext(), "Vibe mode can't turn on because no songs are found", Toast.LENGTH_LONG).show();
+                return;
+            }
+            currentSong = currentPlayList.get(0);
+            loadMedia();
+            player.start();
         }
         notify(Event.VIBE_MODE_TOGGLED);
 
@@ -317,11 +330,12 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         public void onLocationChanged(Location location) {
             if (currlocation == null) {
                 currlocation = location;
+                SongManager.getSongManager().updateVibePlaylist(location);
                 return;
             }
             if (location.distanceTo(currlocation) * 3.28 > 1000) { //feet
                 currlocation = location;
-                VibeDatabase.getDatabase().locationHasChanged(location);
+                SongManager.getSongManager().updateVibePlaylist(location);
             }
         }
 
@@ -359,6 +373,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
     public void removeSongServiceEventListener(SongServiceEventListener listener) {
         listeners.remove(listener);
     }
+
     public void notify(Event event) {
         for (SongServiceEventListener i : listeners) {
             switch (event) {

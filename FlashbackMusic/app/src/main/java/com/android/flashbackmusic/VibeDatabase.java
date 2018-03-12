@@ -74,20 +74,33 @@ public class VibeDatabase {
         dataEntry.setValue(song);
     }
 
-    public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet){
+    public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet, final ArrayList<Song> songsList){
         final double radiusInCordinate = radiusInFeet / 364605; //length of 1 latitude at 45 degrees
 
         Query query = myRef.orderByChild("lastLatitude").startAt(location.getLatitude() - radiusInCordinate)
                 .endAt(location.getLatitude() + radiusInCordinate);
 
-        final ArrayList<Song> songsList = new ArrayList<>();
 
         query.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) { //TODO this doesn't filter out same song, add it
                Song song =dataSnapshot.getValue(Song.class);
                if (song != null) {
-                   if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) {
+                   if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
+
+                       for (Song i : SongManager.getSongManager().getDisplaySongList()) {
+                           if (i.getTitle().equals(song.getTitle()) && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) { //See if the song is alreayd downloaded
+                               song.setUri(i.getUri());
+                           }
+                       }
+
+                       if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
+                           song.setUserDisplayName("You");
+                       } else {
+                           if (UserManager.getUserManager().getFriends().containsKey(song.getEmail())) {
+                               song.setUserDisplayName(UserManager.getUserManager().getFriends().get(song.getEmail()).getName());
+                           }
+                       }
                        songsList.add(song);
                    }
                }
@@ -200,13 +213,6 @@ public class VibeDatabase {
 
             }
         } );
-    }
-
-
-    public void locationHasChanged(Location location) {
-        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();;
-
-
     }
 
 

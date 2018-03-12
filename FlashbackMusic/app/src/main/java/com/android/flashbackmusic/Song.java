@@ -31,6 +31,7 @@ public class Song {
     private String title = "No title";
     private String artist = "No artist";
     private String album = "No album";
+    private String userDisplayName = "Anonymous"; //TODO give them cute name here. This is the default name
 
     private long lastTimeLong = 0;
     private int preference = NEUTRAL;
@@ -97,6 +98,11 @@ public class Song {
     }
 
     @Exclude
+    public String getUserDisplayName() {
+        return userDisplayName;
+    }
+
+    @Exclude
     public Date getLastTime() {
         return new Date(lastTimeLong);
     }
@@ -153,9 +159,17 @@ public class Song {
         this.userIdString = userIdString;
     }
 
+    public void setUri(Uri uri) {
+        this.uri = uri;
+    }
+
     public void setTitle(String title) { this.title = title;}
 
     public void setArtist(String artist) { this.artist = artist;}
+
+    public void setUserDisplayName(String userDisplayName) {
+        this.userDisplayName = userDisplayName;
+    }
 
     public void setLastLocation(Location location) {
         if (location != null) {
