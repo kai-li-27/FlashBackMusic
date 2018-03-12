@@ -90,4 +90,13 @@ public class TimeAndDate {
     public void setTimeCurrentTime(boolean timeCurrentTime) {
         isTimeCurrentTime = timeCurrentTime;
     }
+
+    public String toString() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Date date = new Date(dateSelected);
+        if (isTimeCurrentTime() == false) {
+            return format.format(date);
+        }
+        return "Current";
+    }
 }

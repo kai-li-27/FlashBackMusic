@@ -24,6 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -167,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         });
 
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
+
 
 
         /* final Button signButton = findViewById(R.id.sign_in_button);
@@ -251,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     public void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+
     }
 
 
@@ -284,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     public void onRestart() {
         super.onRestart();
         flashbackSwitchOff();
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
     }
 //endregion;
 

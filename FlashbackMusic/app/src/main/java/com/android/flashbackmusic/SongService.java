@@ -75,8 +75,14 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         // If not in flashbackmode, updates current playing song's fileds.
         Log.v(TAG, "song completed; updating fields");
         if (!flashBackMode) {
-            currentSong.setLastTime(new Date(System.currentTimeMillis()));
-            currentSong.setLastLocation(currlocation);
+            TimeAndDate instance = TimeAndDate.getTimeAndDate();
+            if(instance.isTimeCurrentTime()){
+                currentSong.setLastTime(new Date(instance.getDateSelected()));
+            }
+            else {
+                currentSong.setLastTime(new Date(System.currentTimeMillis()));
+                currentSong.setLastLocation(currlocation);
+            }
         }
         notify(Event.SONG_COMPLETED);
         int currentIndex = currentPlayList.indexOf(currentSong);
