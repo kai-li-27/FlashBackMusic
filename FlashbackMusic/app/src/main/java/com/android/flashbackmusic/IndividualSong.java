@@ -348,15 +348,15 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
             TextView userLabel = (TextView) findViewById(R.id.user_label);
             TextView userName = (TextView) findViewById(R.id.curr_song_user);
-            userLabel.setVisibility(View.GONE);
-            userName.setVisibility(View.GONE);
+            userLabel.setVisibility(View.VISIBLE);
+            userName.setVisibility(View.VISIBLE);
 
         } else {
             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
             TextView userLabel = (TextView) findViewById(R.id.user_label);
             TextView userName = (TextView) findViewById(R.id.curr_song_user);
-            userLabel.setVisibility(View.VISIBLE);
-            userName.setVisibility(View.VISIBLE);
+            userLabel.setVisibility(View.GONE);
+            userName.setVisibility(View.GONE);
         }
     }
 //endregion;
