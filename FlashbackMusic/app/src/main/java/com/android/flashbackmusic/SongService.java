@@ -77,6 +77,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         if (!flashBackMode) {
             currentSong.setLastTime(new Date(System.currentTimeMillis()));
             currentSong.setLastLocation(currlocation);
+            VibeDatabase.getDatabase().updateSong(currentSong);
         }
         notify(Event.SONG_COMPLETED);
         int currentIndex = currentPlayList.indexOf(currentSong);
@@ -314,7 +315,14 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
     private final LocationListener mLocationListener = new LocationListener(){
         @Override
         public void onLocationChanged(Location location) {
-            currlocation = location;
+            if (currlocation == null) {
+                currlocation = location;
+                return;
+            }
+            if (location.distanceTo(currlocation) * 3.28 > 1000) { //feet
+                currlocation = location;
+                VibeDatabase.getDatabase().locationHasChanged(location);
+            }
         }
 
         @Override

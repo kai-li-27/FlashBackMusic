@@ -66,7 +66,6 @@ public class VibeDatabase {
     }
 
     public void insertSong(Song song) {
-        myRef.child("asshole");
         myRef.child(song.getDataBaseReferenceString()).setValue(song);
     }
 
@@ -152,6 +151,62 @@ public class VibeDatabase {
             }
         } );
         return songsList;
+    }
+
+
+    public void upateInfoOfSongsOfUser(final ArrayList<Song> importedSongs) {
+        Query query = myRef.orderByChild("userIdString").equalTo(importedSongs.get(0).getUserIdString());
+
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Song song = dataSnapshot.getValue(Song.class);
+                if (song != null) {
+                    Song temp = null;
+                    for (Song i : importedSongs) { //Finds the song downloaded from Firebase in Importsonglist
+                        if (i.getTitle().equals(song.getTitle()) && i.getArtist().equals(song.getArtist()) && i.getAlbum().equals(song.getAlbum())) {
+                            temp = i;
+                            break;
+                        }
+                    }
+
+                    if (temp != null) {
+                        temp.setLastTimeLong(song.getLastTimeLong());
+                        temp.setLastLocation(song.getLastLocation());
+                        temp.setPreference(song.getPreference());
+                        SongManager.getSongManager().sortByDefault(); //This is toxic. Fix it if have time
+                        Toast.makeText(App.getContext(), temp.getTitle() + " Loaded", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        } );
+    }
+
+
+    public void locationHasChanged(Location location) {
+        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();;
+
+
     }
 
 

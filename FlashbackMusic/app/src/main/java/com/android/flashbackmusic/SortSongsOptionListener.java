@@ -3,6 +3,7 @@ package com.android.flashbackmusic;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListView;
 
 /**
  * Created by kwmag on 3/10/2018.
@@ -10,10 +11,12 @@ import android.widget.AdapterView;
 
 public class SortSongsOptionListener implements AdapterView.OnItemSelectedListener {
     SongManager songManager;
+    SongListAdapter adapter;
     private static final String TAG = "SortSongsOptionListener";
 
-    public SortSongsOptionListener() {
+    public SortSongsOptionListener(SongListAdapter adapter) {
         songManager = SongManager.getSongManager();
+        this.adapter = adapter;
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -30,6 +33,7 @@ public class SortSongsOptionListener implements AdapterView.OnItemSelectedListen
         } else {
             Log.e(TAG, "accessing invalid sort option");
         }
+        adapter.notifyDataSetChanged();
     }
 
     @Override

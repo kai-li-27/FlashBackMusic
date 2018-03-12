@@ -104,12 +104,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
 
         //Binds with music player
         if (playIntent == null) {
@@ -119,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
         // Ask for all the permissions
         getPermissions();
+        getUserInfo();
 
 
         Switch mySwitch = findViewById(R.id.flashback_switch);
@@ -193,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
         sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortOptions.setAdapter(sortSpinnerAdapter);
-        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener());
+        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener(songAdapt));
 
         // Display the songs
         TabLayout tabLayout = findViewById(R.id.topTabs);
@@ -237,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct != null) {
             String personEmail = acct.getEmail();
-            new PeoplesAsync().execute(acct.getServerAuthCode());
             userManager.addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
         }
 
