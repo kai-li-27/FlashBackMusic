@@ -29,7 +29,7 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_download_song);
+        setContentView(R.layout.activity_dowload_song);
 
 
         //Download Music from URL
@@ -185,24 +185,6 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
             toast.show();
 
         }
-        else {
-
-            Toast toast = Toast.makeText(DownloadSong.this,
-                    "Image Download Status:"+ "\n" + statusText + "\n" +
-                            reasonText,
-                    Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.TOP, 25, 400);
-            toast.show();
-
-            // Make a delay of 3 seconds so that next toast (Music Status) will not merge with this one.
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                }
-            }, 3000);
-
-        }
 
     }
 
@@ -214,14 +196,14 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
         //Setting title of request
-        request.setTitle("Data Download");
+        request.setTitle(songUrl.getText().toString());
 
         //Setting description of request
         request.setDescription("Android Data download using DownloadManager.");
 
         //Set the local destination for the downloaded file to a path within the application's external files directory
         if(v.getId() == R.id.start_download_button)
-            request.setDestinationInExternalFilesDir(DownloadSong.this, Environment.DIRECTORY_DOWNLOADS,"AndroidTutorialPoint.mp3");
+            request.setDestinationInExternalFilesDir(DownloadSong.this, Environment.DIRECTORY_MUSIC, "Songs");
 
         //Enqueue download and save the referenceId
         downloadReference = downloadManager.enqueue(request);

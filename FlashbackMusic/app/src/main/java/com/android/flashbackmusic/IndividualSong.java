@@ -85,7 +85,7 @@ public class IndividualSong extends AppCompatActivity {
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override // TODO Get switching working
             public void onClick(View view) {
-                Intent intent1 = new Intent(App.getContext(), DownloadSong.class);
+                Intent intent1 = new Intent(getApplicationContext(), DownloadSong.class);
                 startActivity(intent1);
             }
         });
