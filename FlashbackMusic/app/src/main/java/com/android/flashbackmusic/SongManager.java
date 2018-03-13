@@ -147,7 +147,7 @@ public class SongManager {
     public void updateVibePlaylist(Location location) {
         Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();
         vibeSongList.clear();
-        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000, vibeSongList);
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 100000, vibeSongList);
     }
 
     public void albumChosen(int indexOfAlbum) {
