@@ -94,6 +94,8 @@ public class VibeDatabase {
                            }
                        }
 
+                       song.setUserDisplayName(AnonymousNameGenerator.GenerateAnonymousName(song.getEmail()));
+
                        if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
                            song.setUserDisplayName("You");
                            song.setUserIdString(UserManager.getUserManager().getSelf().getUserId()); //This is for updating preference in vibe mode
