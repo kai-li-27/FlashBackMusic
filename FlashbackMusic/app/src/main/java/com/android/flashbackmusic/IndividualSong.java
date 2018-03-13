@@ -247,10 +247,13 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     if (addressList != null && addressList.size() > 0) {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
-                        addressName = address.getAddressLine(0);
-                        if (addressName == null) { // In case can't get specific address
-                            addressName = address.getThoroughfare();
+                        //addressName = address.getAddressLine(0);
+                        //if (addressName == null) { // In case can't get specific address //TODO this will give specific address
+                        addressName = address.getThoroughfare();
+                        if (addressName == null) {
+                            addressName = "Location Unavailable";
                         }
+                       // }
                     } else {
                         addressName = "Location Unavailable";
                     }
@@ -318,6 +321,15 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         changeText(loadedSong);
         changeDisplay(loadedSong);
         prepareListData();
+
+        Button rotate = findViewById(R.id.button_favdisneu);
+        if (songsService.getFlashBackMode() && loadedSong.getUserDisplayName().equals("You")) {
+            rotate.setVisibility(View.VISIBLE);
+        } else if (!songsService.getFlashBackMode()) {
+            rotate.setVisibility(View.VISIBLE);
+        } else if (songsService.getFlashBackMode() && !loadedSong.getUserDisplayName().equals("You") ) {
+            rotate.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

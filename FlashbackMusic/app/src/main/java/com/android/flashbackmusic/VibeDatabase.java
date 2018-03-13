@@ -96,6 +96,7 @@ public class VibeDatabase {
 
                        if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
                            song.setUserDisplayName("You");
+                           song.setUserIdString(UserManager.getUserManager().getSelf().getUserId()); //This is for updating preference in vibe mode
                        } else {
                            if (UserManager.getUserManager().getFriends().containsKey(song.getEmail())) {
                                song.setUserDisplayName(UserManager.getUserManager().getFriends().get(song.getEmail()).getName());
@@ -188,7 +189,6 @@ public class VibeDatabase {
                         temp.setLastLocation(song.getLastLocation());
                         temp.setPreference(song.getPreference());
                         SongManager.getSongManager().sortByDefault(); //This is toxic. Fix it if have time
-                        Toast.makeText(App.getContext(), temp.getTitle() + " Loaded", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
