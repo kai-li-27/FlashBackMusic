@@ -5,6 +5,9 @@ import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -17,7 +20,9 @@ public class SongManager {
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
     private ArrayList<Song> vibeSongList = new ArrayList<>();
-    private static final String TAG = "SongManager"; //for adding a new song\
+
+    private Location currentlocation = null;
+    private static final String TAG = "SongManager"; //for adding a new song
 
     enum SortMode {
         TITLE, ALBUM, ARTIST, MOST_RECENT, PREFERENCE
@@ -31,7 +36,7 @@ public class SongManager {
         listOfAlbums = Algorithm.getAlbumList(listOfAllImportedSongs);
         currentPlayList = new ArrayList<>(listOfAllImportedSongs);
 
-        if (UserManager.getUserManager().getSelf() == null) {
+        if (UserManager.getUserManager().getSelf() == null) { //NOTE: because the checking of google sign-in is executed before this, so this will always work
             Toast.makeText(App.getContext(), "You are not signed in, your play history won't be stored", Toast.LENGTH_LONG).show(); //This will make unit test fails. comment this out before unit test
         } else {
             String userId = UserManager.getUserManager().getSelf().getUserId();
@@ -65,7 +70,7 @@ public class SongManager {
         return listOfAllImportedSongs;
     }
 
-    public ArrayList<Song> getVibeSongList() { return  vibeSongList;}
+    public ArrayList<Song> getVibeSongList() { return vibeSongList;}
 
 
 //region Sorting Methods
@@ -145,15 +150,27 @@ public class SongManager {
     }
 
     public void updateVibePlaylist(Location location) {
-        Toast.makeText(App.getContext(), "Yoooooooooo! Location has changed.",Toast.LENGTH_LONG).show();
+        currentlocation = location;
+
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+        if (acct == null) {
+            return;
+        }
+
+        Log.d(TAG, "Yoooooooooo! Location has changed.");
         vibeSongList.clear();
-        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 100000, vibeSongList);
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000000000, vibeSongList);
+    }
+
+    public void contactsHaveLoad() {
+        if (currentlocation != null) {
+            updateVibePlaylist(currentlocation);
+        }
     }
 
     public void albumChosen(int indexOfAlbum) {
         currentPlayList.clear();
         currentPlayList.addAll(listOfAlbums.get(indexOfAlbum).getSongsInAlbum());
     }
-
 //endregion;
 }

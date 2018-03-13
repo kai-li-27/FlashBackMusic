@@ -207,7 +207,6 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
                                     chosenEmail = emailAddress.getValue();
                                     gotIt = true;
                                 }
-                                Log.d(TAG, "email: " + emailAddress.getValue());
                             }
                         }
 
@@ -223,9 +222,8 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
                         }
 
                         if (chosenName != null && chosenEmail != null) {
-                            // FIXME: change this so that the song list is being passed onto IUser
                             userManager.addOneUserToList(chosenName, chosenEmail, "friend", null, "");
-                            System.out.println(chosenName + ": " + chosenEmail);
+                            Log.d(TAG, "Contact found: " + chosenName + ", " + chosenEmail);
                         }
 
                     }
@@ -235,6 +233,7 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
                 e.printStackTrace();
             }
 
+            SongManager.getSongManager().contactsHaveLoad(); // To guarantee that contacts are loaded before using vibemode
             return nameList;
         }
 

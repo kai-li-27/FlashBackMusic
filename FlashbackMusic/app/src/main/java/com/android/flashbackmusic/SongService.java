@@ -1,8 +1,10 @@
 package com.android.flashbackmusic;
 
+import android.*;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -40,7 +43,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
     private ArrayList<Song> currentPlayList;
 
     private Song currentSong;
-    private Location currlocation;
+    private Location currlocation = null;
     private boolean flashBackMode = false;
     private SongManager songManager;
 
@@ -52,9 +55,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
     private static final String TAG = "SongsService";
 
 
-    /**
-     * Gets the IBinder
-     */
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -268,7 +268,14 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
 
         if (acct == null) {
-            Toast.makeText(App.getContext(), "You must log in before using Vibe Mode" , Toast.LENGTH_LONG).show();
+            Toast.makeText(App.getContext(), "You must sign in before using the Vibe Mode!" , Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(App.getContext(), "You have to give me location permission to use me ^=^", Toast.LENGTH_LONG);
+            //TODO if have time, request permission here
             return;
         }
 
@@ -283,9 +290,19 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             flashBackMode = true;
             currentPlayList = songManager.getVibeSongList();
             if (currentPlayList.size() == 0) {
-                switchMode(false);
-                Toast.makeText(App.getContext(), "Vibe mode can't turn on because no songs are found", Toast.LENGTH_LONG).show();
-                return;
+                try {
+                    Thread.sleep(2000); //give the app some time to load data
+                } catch (Exception e){} //TODO change this to progress bar so that the app is not freezed
+                if (currentPlayList.size() == 0) {
+                    if (currlocation == null) {
+                        Toast.makeText(App.getContext(), "Sorry! Unable to locate you", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(App.getContext(), "No songs are found in this region! Be the one to write the history!!", Toast.LENGTH_LONG).show();
+                    }
+                    flashBackMode = false;
+                    currentPlayList = songManager.getCurrentPlayList();//Go back to normal mode
+                    return;
+                }
             }
             currentSong = currentPlayList.get(0);
             loadMedia();
