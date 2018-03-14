@@ -7,252 +7,219 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * holds information related to one song
  */
 
-@Entity(primaryKeys = {"title", "artist", "album"})
 public class Song {
 
-    public static final int NEUTRAL = 0;
-    public static final int FAVORITE = 1;
-    public static final int DISLIKE = 2;
+    public static final int NEUTRAL = 1;
+    public static final int FAVORITE = 2;
+    public static final int DISLIKE = 0;
 
-    @NonNull
-    private String title;
-    @NonNull
-    private String artist;
-    @NonNull
-    private String album;
-    private long lastTimeLong;
+
+    private String userIdString;
+    private String email;
+    private Uri uri;
+
+    private String title = "No title";
+    private String artist = "No artist";
+    private String album = "No album";
+    private String userDisplayName = "Anonymous"; //TODO give them cute name here. This is the default name
+
+    private long lastTimeLong = 0;
     private int preference = NEUTRAL;
-    private double lastLongitude;
-    private double lastLatitude;
 
-    @Ignore
-    public Uri uri;
-    @Ignore
-    private Location lastLocation = new Location("");
-    @Ignore
-    private Date lastTime;
-    @Ignore
-    private SongDao songDao;
-    @Ignore
-    private double distance;
-    @Ignore
-    private double timeDifference;
-    @Ignore
-    private boolean isSameDay;
-    @Ignore
-    private boolean isSameTimeOfDay;
-    @Ignore
-    private double algorithmValue;
-    @Ignore
+    private double lastLongitude = 0;
+    private double lastLatitude = 0;
+    private Date lastTime = null;
+
+    private double distance = 0;
+    private double timeDifference = 0;
+    private double algorithmValue = 0;
     private boolean played = false;
 
     private static final String TAG = "Song";
 
-    public Song(String title, String artist, String album, SongDao songDao) {
-        this.title = title;
-        this.artist = artist;
-        this.album = album;
-        this.songDao = songDao;
+
+//region Constructors
+    public Song(Uri uri, String userIdString, String email) {
+        if (uri == null || userIdString == null || email == null) {
+            System.err.print("One of the parameter passed in to constructor of Song is null");
+            throw new IllegalArgumentException();
+        }
+        this.uri = uri;
+        this.userIdString = userIdString;
+        this.email = email;
         initializeLocationAndTime();
     }
 
-    public Song() {
-        title = "";
-        artist = "";
-        album = "";
-    }
 
     /**
-     * Fetch data from database and update the last time and last location it was played
+     * NEVER CALL THIS. This is for firebase
      */
-    private void initializeLocationAndTime() {
-        if (songDao != null) {
-            preference = songDao.queryPreference(title, artist, album);
-            lastTimeLong = songDao.queryLastTime(title, artist, album);
-            if (lastTimeLong != 0) { // which means that the song was played before
-                lastTime = new Date(lastTimeLong);
+    public Song() {}
+//endregion;
 
-                lastLocation.setLatitude(songDao.queryLastLatitude(title, artist, album));
-                lastLocation.setLongitude(songDao.queryLastLongitude(title, artist, album));
-            } // else these two will be null
-        }
+
+
+
+
+//region Getters
+    public String getUserIdString(){
+        return userIdString;
     }
 
-    /**
-     * Fetch title of song from database
-     */
+    public String getEmail() {
+        return email;
+    }
+
+    @Exclude
+    public Uri getUri() {
+        return uri;
+    }
+
     public String getTitle() {
         return title;
     }
 
-    /**
-     * Fetch artist of song from database
-     */
     public String getArtist() {
         return artist;
     }
 
-    /**
-     * Fetch album of song from database
-     */
     public String getAlbum() {
         return album;
     }
 
-    /**
-     * Fetch last time when song was last played as a date
-     */
-    public Date getLastTime() {
-        return lastTime;
+    @Exclude
+    public String getUserDisplayName() {
+        return userDisplayName;
     }
 
-    /**
-     * Fetch current preference of song
-     */
+    @Exclude
+    public Date getLastTime() {
+        return new Date(lastTimeLong);
+    }
+
     public int getPreference() {
         return preference;
     }
 
-    /**
-     * Fetch last location where song was played
-     */
-    public Location getLastLocation() {
-        return lastLocation;
-    }
-
-    /**
-     * Fetch last time when song was played as a long
-     */
     public long getLastTimeLong() {
         return lastTimeLong;
     }
 
-    /**
-     * Fetch the longitude of the location where a song was last played
-     */
     public double getLastLongitude() {
         return lastLongitude;
     }
 
-    /**
-     * Fetch the latitude of the location where a song was last played
-     */
     public double getLastLatitude() {
         return lastLatitude;
     }
 
-    /**
-     * Fetch distance of a song from database
-     */
+    @Exclude // Stop the database from creating field for this
+    public Location getLastLocation() {
+        Location location = new Location("");
+        location.setLatitude(lastLatitude);
+        location.setLongitude(lastLongitude);
+        return location;
+    }
+
+    @Exclude
     public double getDistance() {return distance;}
 
-    /**
-     * Fetch time difference of a song from database
-     */
+    @Exclude
     public double getTimeDifference() {return timeDifference;}
 
-    /**
-     * Fetch data from database to see if it is the same day
-     */
-    public boolean isSameDay() {return  isSameDay;}
+    @Exclude
+    public double getAlgorithmValue() {
+        return this.algorithmValue;
+    }
 
-    /**
-     * Fetch data from database to see if it is the same time of day
-     */
-    public boolean isSameTimeOfDay() {return  isSameTimeOfDay;}
-
-    /**
-     * Fetch data from database to see if a song is played
-     */
+    @Exclude
     public boolean isPlayed() {return played;}
+//endregion;
 
-    /**
-     * Sets the title of a song, and update the data to database
-     * @param title
-     */
+
+
+
+
+//region Setters
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setUserIdString(String userIdString) {
+        this.userIdString = userIdString;
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
+    }
+
     public void setTitle(String title) { this.title = title;}
 
-    /**
-     * Sets the artist of a song, and update the data to database
-     * @param artist
-     */
     public void setArtist(String artist) { this.artist = artist;}
 
-    /**
-     * Set the location where it was played last, and update the data to database
-     * @param location
-     */
+    public void setUserDisplayName(String userDisplayName) {
+        this.userDisplayName = userDisplayName;
+    }
+
     public void setLastLocation(Location location) {
         if (location != null) {
-            lastLocation = location;
             lastLongitude = location.getLongitude();
             lastLatitude = location.getLatitude();
-            if (songDao != null) {
-                songDao.updateSong(this);
-            }
         }
     }
 
-    /**
-     * Set the album of a song, and update the data to database
-     * @param album
-     */
     public void setAlbum(String album) {this.album = album;}
 
-    /**
-     * Set the time where it was played last, and update the data to database
-     * @param lastTime
-     */
     public void setLastTime(Date lastTime) {
         this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
-        if (songDao != null) {
-            songDao.updateSong(this);
-        }
     }
 
-    /**
-     * Set user-specified preference of this song, and update the data to database
-     * @param preference
-     */
     public void setPreference(int preference) {
         this.preference = preference;
-        if (songDao != null){
-            songDao.updateSong(this);
-        }
     }
 
-    /**
-     * Rotate the preference as like the rotation of the button, and udpate the data to database
-     */
     public void rotatePreference() {
         preference = (preference + 1) % 3;
-        songDao.updateSong(this);
     }
 
     public void setLastTimeLong(long lastTimeLong) {
+        this.lastTimeLong = lastTimeLong;
     }
 
+
     public void setLastLongitude(double lastLongitude) {
+        this.lastLongitude = lastLongitude;
     }
 
     public void setLastLatitude(double lastLatitude) {
+        this.lastLatitude = lastLatitude;
     }
 
-    /**
-     * Sets song for played status
-     * @param played
-     */
     public void setPlayed(boolean played) {
         this.played = played;
     }
 
+    public void setAlgorithmValue(double value) {
+        this.algorithmValue = value;
+    }
+//endregion;
+
+
+
+
+
+//region Real methods
     /**
      * Calculate the distance between given location to the location where it was played last time
      * @param here
@@ -261,7 +228,7 @@ public class Song {
         if (here == null) { // When distance is unavailable
             distance = 100000000; // Keep it from being played
         } else {
-            distance = lastLocation.distanceTo(here) * 3.28084; //Returns meter, convert to feet
+            distance = getLastLocation().distanceTo(here) * 3.28084; //Returns meter, convert to feet
         }
     }
 
@@ -280,41 +247,9 @@ public class Song {
             long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
             timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
 
-            // If two songs are 10 mins apart, then practically they are in the same range
-            if (timeDifference > 10) {
-                if (timeRange(now.getHours()) == timeRange(lastTime.getHours())) {
-                    isSameTimeOfDay = true;
-                } else {
-                    isSameTimeOfDay = false;
-                }
-            } else {
-                isSameTimeOfDay = true;
-            }
-
-            // Determine if two time are same day of week
-            if (now.getDay() == lastTime.getDay()) {
-                isSameDay = true;
-            } else {
-                isSameDay = false;
-            }
-
         }
     }
 
-    /**
-     * Sets algorithm value for this song
-     * @param value
-     */
-    public void setAlgorithmValue(double value) {
-        this.algorithmValue = value;
-    }
-
-    /**
-     * Gets algorithm value for this song
-     */
-    public double getAlgorithmValue() {
-        return this.algorithmValue;
-    }
 
     /**
      * Given an hour, between 0-23, return its time range.
@@ -330,5 +265,18 @@ public class Song {
             return 2;
         }
     }
+    /**
+     * Fetch data from database and update the last time and last location it was played
+     */
+    private void initializeLocationAndTime() {
+        //TODO fix it
+    }
+
+
+    @Exclude
+    public String getDataBaseReferenceString() {
+        return userIdString + ": " + title + ", " + album + ", " + artist; //TODO change User
+    }
+//endregion;
 
 }

@@ -9,7 +9,6 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
@@ -20,26 +19,41 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * screen that displays when a song is playing
  */
-public class IndividualSong extends AppCompatActivity {
+public class IndividualSong extends AppCompatActivity implements SongServiceEventListener, VibeDatabaseEventListener {
 
-    private SongsService songsService;
-    private Song currentSong;
-    private EditText urlEditText;
+
+    private SongService songsService;
     private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
 
+    /*
+    ExpandableSongListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, List<Song>> listDataChild;
+    */
+
+    ArrayList<Song> upcomingList = new ArrayList<>();
+
+
+//region Handlers of IndividualActivity
     /**
      * Override back button behavior to not allow user to go back to mainActivity while in flashback mode
      */
@@ -56,7 +70,7 @@ public class IndividualSong extends AppCompatActivity {
     @Override
     protected  void onDestroy() {
         unbindService(musicConnection);
-        super.onDestroy();
+        super.onDestroy(); //TODO remove listener
     }
 
     @Override
@@ -64,21 +78,32 @@ public class IndividualSong extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual_song);
 
+
         // Binds to the music service
-        Intent intent = new Intent(this, SongsService.class);
+        Intent intent = new Intent(this, SongService.class);
         bindService(intent, musicConnection, Context.BIND_AUTO_CREATE);
 
-        Button goBack = (Button) findViewById(R.id.button_back);
+
+        ArrayList listDataHeader = new ArrayList<String>();
+        listDataHeader.add("Upcoming Songs");
+        HashMap listDataChild = new HashMap<String,List<Song>>();
+        listDataChild.put("Upcoming Songs", upcomingList);
+        ExpandableListView expListView = findViewById(R.id.previewNextSongsList);
+        ExpandableListAdapter listAdapter = new ExpandableSongListAdapter(this, upcomingList, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
+
+        Button goBack = findViewById(R.id.button_back);
         goBack.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!songsService.getFlashBackMode()) {
-                    finish();
+                    finish(); //TODO remove listener
                 } else {
                     Toast.makeText(IndividualSong.this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
 
         // Downloading song from URL
         Button downloadButton = (Button)findViewById(R.id.download_button);
@@ -92,91 +117,112 @@ public class IndividualSong extends AppCompatActivity {
 
 
         final Button plus = (Button) findViewById(R.id.button_favdisneu);
+
         plus.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        currentSong = songsService.getCurrentSong();
+                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refactor to songsservice if have time
                         currentSong.rotatePreference();
+                        VibeDatabase.getDatabase().updateSong(currentSong);
                         //changes look of button
-                        changeDisplay(plus);
+                        changeDisplay(currentSong);
                     }
                 });
 
-        Button reset = (Button) findViewById(R.id.button_reset);
+        Button reset = findViewById(R.id.button_reset);
         reset.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
                         songsService.reset();
-                        playPause();
                     }
                 });
 
-        Button play = (Button) findViewById(R.id.button_play);
+        Button play = findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
                         songsService.playPause();
-                        playPause();
                     }
                 });
 
-        Button skip = (Button) findViewById(R.id.button_skip);
+        Button skip = findViewById(R.id.button_skip);
         skip.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
                         songsService.playNext();
-                        changeText();
-                        //changes look of button
-                        changeDisplay(plus);
                     }
                 });
 
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.individualsongactivity);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                        if (checked && !songsService.getFlashBackMode()) {
-                            songsService.switchMode();
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-                        } else if (checked && songsService.getFlashBackMode()) {
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-                        } else if (!checked && songsService.getFlashBackMode()) {
-                            songsService.switchMode();
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                        } else {
-                            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                        songsService.switchMode(checked);
+
+                        if (!songsService.getFlashBackMode() ) {
+                            mySwitch.setChecked(false);
                         }
                     }
                 });
+
+        TextView userLabel = (TextView) findViewById(R.id.user_label);
+        TextView userName = (TextView) findViewById(R.id.curr_song_user);
+        userLabel.setVisibility(View.GONE);
+        userName.setVisibility(View.GONE);
     }
+//endregion;
+
+
+
+
+
+//region UI change methods
+
+    /**
+     * preparing the list data
+     * */
+    private void prepareListData(){
+        Song currentSong = songsService.getCurrentSong();
+        ArrayList<Song> currentPlayList;
+        if (songsService.getFlashBackMode()) {
+            currentPlayList = SongManager.getSongManager().getVibeSongList();
+        } else {
+            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
+        }
+        int currentIndex = currentPlayList.indexOf(currentSong);
+
+        upcomingList.clear();
+        for (int i = currentIndex + 1; i < currentPlayList.size(); i++) {
+            upcomingList.add(currentPlayList.get(i));
+        }
+    }
+
 
     /**
      * Change the icon of +/-/check button
-     * @param button
      */
-    private void changeDisplay(Button button){
+    private void changeDisplay(Song currentSong){
         Log.v(TAG, "toggling favorite/dislike button");
-        currentSong = songsService.getCurrentSong();
+        Button plus = findViewById(R.id.button_favdisneu);
         int[] appearance = new int [3];
-        appearance[0] = R.drawable.flashback_plus_inactive;
-        appearance[1] = R.drawable.flashback_checkmark_inactive;
-        appearance[2] = R.drawable.flashback_minus_inactive;
-        button.setBackgroundResource(appearance[currentSong.getPreference()]);
+        appearance[1] = R.drawable.flashback_plus_inactive;
+        appearance[2] = R.drawable.flashback_checkmark_inactive;
+        appearance[0] = R.drawable.flashback_minus_inactive;
+        plus.setBackgroundResource(appearance[currentSong.getPreference()]);
     }
 
     /**
      * Change the icon of play/pause button
      */
-    public void playPause(){
+    public void playPause(boolean isPlaying){
         Log.v(TAG, "play/pause button pressed");
-        Button play = (Button) findViewById(R.id.button_play);
-        int playButton = (!songsService.isPlaying())? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
+        Button play = findViewById(R.id.button_play);
+        int playButton = (!isPlaying)? R.drawable.flashback_play_inactive : R.drawable.flashback_pause_inactive;
         play.setBackgroundResource(playButton);
      }
 
@@ -185,21 +231,24 @@ public class IndividualSong extends AppCompatActivity {
      * Change the text of last time, last location, song title, artist and album
      */
     @SuppressLint("StaticFieldLeak")
-    public void changeText(){
+    public void changeText(final Song song){
         Log.v(TAG, "changing text info of current song");
-        currentSong = songsService.getCurrentSong();
 
         //curr_song_title
-        TextView title = (TextView)findViewById(R.id.curr_song_title);
-        title.setText(currentSong.getTitle());
+        TextView title = findViewById(R.id.curr_song_title);
+        title.setText(song.getTitle());
 
         //curr_song_artist
-        TextView artist = (TextView)findViewById(R.id.curr_song_artist);
-        artist.setText("by " + currentSong.getArtist());
+        TextView artist = findViewById(R.id.curr_song_artist);
+        artist.setText("by " + song.getArtist());
 
         //curr_song_album
-        TextView album = (TextView)findViewById(R.id.curr_song_album);
-        album.setText("Album: " + currentSong.getAlbum());
+        TextView album = findViewById(R.id.curr_song_album);
+        album.setText("Album: " + song.getAlbum());
+
+        //curr_song_user
+        TextView user = findViewById(R.id.curr_song_user);
+        user.setText(song.getUserDisplayName());
 
         //get the name of the location, running on another thread
         new AsyncTask<Void, Void, Void>() {
@@ -209,14 +258,17 @@ public class IndividualSong extends AppCompatActivity {
             protected Void doInBackground(Void... params) {
                 Geocoder geocoder = new Geocoder(IndividualSong.this);
                 try {
-                    List<Address> addressList = geocoder.getFromLocation(currentSong.getLastLocation().getLatitude(), currentSong.getLastLocation().getLongitude(), 1);
+                    List<Address> addressList = geocoder.getFromLocation(song.getLastLocation().getLatitude(), song.getLastLocation().getLongitude(), 1);
                     if (addressList != null && addressList.size() > 0) {
                         // Help here to get only the street name
                         Address address = addressList.get(0);
-                        addressName = address.getAddressLine(0);
-                        if (addressName == null) { // In case can't get specific address
-                            addressName = address.getThoroughfare();
+                        //addressName = address.getAddressLine(0);
+                        //if (addressName == null) { // In case can't get specific address //TODO this will give specific address
+                        addressName = address.getThoroughfare();
+                        if (addressName == null) {
+                            addressName = "Location Unavailable";
                         }
+                       // }
                     } else {
                         addressName = "Location Unavailable";
                     }
@@ -230,21 +282,23 @@ public class IndividualSong extends AppCompatActivity {
             @Override
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
-                TextView loc = (TextView)findViewById(R.id.curr_song_location);
+                TextView loc = findViewById(R.id.curr_song_location);
                 loc.setText(addressName);
             }
         }.execute();
 
         //curr_song_datetime
-        TextView time = (TextView)findViewById(R.id.curr_song_datetime);
-        if (currentSong.getLastTime() == null) {
+        TextView time = findViewById(R.id.curr_song_datetime);
+        if (song.getLastTime() == null) {
             time.setText("Time Unavailable");
         } else {
-            time.setText(DAYSINWEEK[currentSong.getLastTime().getDay()] + " "
-                    + TIMERANGE[currentSong.timeRange(currentSong.getLastTime().getHours())]
-                    + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(currentSong.getLastTime()));
+            time.setText(DAYSINWEEK[song.getLastTime().getDay()] + " "
+                    + TIMERANGE[song.timeRange(song.getLastTime().getHours())]
+                    + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(song.getLastTime()));
         }
+
     }
+//endregion;
 
 
     /**
@@ -253,19 +307,15 @@ public class IndividualSong extends AppCompatActivity {
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            SongsService.MusicBinder binder = (SongsService.MusicBinder)service;
+            SongService.MusicBinder binder = (SongService.MusicBinder)service;
             songsService = binder.getService();
+            songsService.addSongServiceEventListener(IndividualSong.this);
             Bundle bundle = getIntent().getExtras();
             int index = bundle.getInt(Intent.EXTRA_INDEX);
             songsService.loadMedia(index);
-            songsService.playPause();
-            playPause();
-            songsService.setCurrentIndividualSong(IndividualSong.this);
-            // Change the look according to current song
-            changeText();
-            changeDisplay((Button)findViewById(R.id.button_favdisneu));
+            songsService.playPause(); //start playing TODO this is bad, create startplaying()
 
-            Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
+            Switch mySwitch = findViewById(R.id.flashback_switch);
             if (songsService.getFlashBackMode()) {
                 mySwitch.setChecked(true);
             }
@@ -275,4 +325,77 @@ public class IndividualSong extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName name) {
         }
     };
+
+
+
+
+
+//region SongServiceEventListener Handlers
+    @Override
+    public void onSongLoaded(Song loadedSong) {
+        changeText(loadedSong);
+        changeDisplay(loadedSong);
+        prepareListData();
+
+        Button rotate = findViewById(R.id.button_favdisneu);
+        if (songsService.getFlashBackMode() && loadedSong.getUserDisplayName().equals("You")) {
+            rotate.setVisibility(View.VISIBLE);
+        } else if (!songsService.getFlashBackMode()) {
+            rotate.setVisibility(View.VISIBLE);
+        } else if (songsService.getFlashBackMode() && !loadedSong.getUserDisplayName().equals("You") ) {
+            rotate.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onSongCompleted(Song completedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongPaused(Song currentSong) {
+        playPause(false);
+    }
+
+    @Override
+    public void onSongSkipped(Song skippedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongResumed(Song currentSong) {
+        playPause(true);
+    }
+
+    @Override
+    public void onVibeModeToggled(boolean vibeModeOn) {
+        final ConstraintLayout indivSongActivity = findViewById(R.id.individualsongactivity);
+        if (vibeModeOn) {
+            indivSongActivity.setBackgroundColor(Color.parseColor("#D6CEF2"));
+
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.VISIBLE);
+            userName.setVisibility(View.VISIBLE);
+
+        } else {
+            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            TextView userLabel = (TextView) findViewById(R.id.user_label);
+            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            userLabel.setVisibility(View.GONE);
+            userName.setVisibility(View.GONE);
+        }
+    }
+//endregion;
+
+
+
+
+
+//region VibeDatabaseEventListener Handlers
+    @Override
+    public void onConnectionChanged(boolean connected) {
+
+    }
+//endregion;
 }

@@ -37,7 +37,7 @@ public final class Algorithm {
             throw new IllegalArgumentException();
         }
         Field[] filesName = R.raw.class.getFields();
-        SongDao songDao = App.getSongDao();
+
 
         for (int i = 0; i < filesName.length; i++) {
             int resourceId = App.getContext().getResources().getIdentifier(filesName[i].getName(), "raw", App.getContext().getPackageName());
@@ -60,11 +60,10 @@ public final class Algorithm {
                     album = "";
                 }
 
-                Song song = new Song(title, artist, album, songDao);
-                if (songDao.isIntheDB(title, artist, album) == null) {
-                    songDao.insertSong(song);
-                }
-                song.uri = musicUri;
+                Song song = new SongBuilder(musicUri, "Donal Trump 2020", "Invalid email")
+                                .setArtist(artist).setAlbum(album).setTitle(title).build();
+
+
                 songsList.add(song);
 
             } catch (Exception e) {
@@ -123,6 +122,7 @@ public final class Algorithm {
      * @precondition updateTimeDiffernce() and updateDistance has been called on the song
      * @postcondition the algorithmValue field of song will be set to its weight
      */
+
     static public void calculateSongWeight(Song song) {
         if (song == null) {
             System.err.println("Argument passed into calculateSongWeight() is null");
@@ -136,8 +136,10 @@ public final class Algorithm {
         boolean sameTime, sameDay;
 
         distance = song.getDistance();
-        sameTime = song.isSameTimeOfDay();
-        sameDay = song.isSameDay();
+
+        sameTime = false;
+        sameDay = false;
+
         timeDiff = song.getTimeDifference();
         distFactor = 1.0;
         timeFactor = 1.0;

@@ -5,50 +5,58 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.android.flashbackmusic.SongsService.MusicBinder;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import com.android.flashbackmusic.SongService.MusicBinder;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.SignInButton;
+
 
 /**
  * Landing page with all the songs and albums
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VibeDatabaseEventListener, SongServiceEventListener {
 
-    private ArrayList<Song> listOfAllSongs = new ArrayList<Song>();
-    private ArrayList<Song> currentPlayList = new ArrayList<Song>();
-    private ArrayList<Album> albumsList;
 
-    private boolean didChooseAlbum = true; //set to true because on start current playlist is empty and needs to be populated
-    private boolean isMusicBound = false;
-
+    private SongService songsService;
     private Intent playIntent;
+
     private ListView songsView;
     private SongListAdapter songAdapt;
     private AlbumListAdapter albumAdapt;
 
-    private SongsService songsService;
+    private Spinner sortOptions;
+    private ArrayAdapter<CharSequence> sortSpinnerAdapter;
+
+    private ImportGoogleFriends importGoogleFriends;
+
 
     private static final String TAG = "MainActivity";
+
+    private final int RC_SIGN_IN = 420;
+
 
     /**
      * Override back button to not kill this activity
@@ -71,47 +79,71 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        // Load all the songs
-        listOfAllSongs = new ArrayList<Song>();
-        currentPlayList = new ArrayList<Song>();
-        albumsList = new ArrayList<Album>();
-        Algorithm.importSongsFromResource(listOfAllSongs);
-        albumsList = Algorithm.getAlbumList(listOfAllSongs);
+
 
         //Binds with music player
         if (playIntent == null) {
-            playIntent = new Intent(this, SongsService.class);
+            playIntent = new Intent(this, SongService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         }
 
-        // Ask for location permission
+        // Ask for all the permissions
         getPermissions();
 
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        // Check if user is signed in
+        importGoogleFriends = new ImportGoogleFriends(this);
+
+
+        Switch mySwitch = findViewById(R.id.flashback_switch);
+
+
+        // Google sign-in button
+        final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, importGoogleFriends.getGso());
+        SignInButton signInButton = findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                Log.v(TAG, "Flashback mode toggled");
-                if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode();
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
-                } else if (checked && songsService.getFlashBackMode()) {
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
+            public void onClick(View view) {
+                GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+                if (acct != null) {
+                    String personEmail = acct.getEmail();
+                    Toast.makeText(App.getContext(), "You have already signed in as: " + personEmail, Toast.LENGTH_LONG).show();
+                    return;
                 }
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+                Log.i(TAG, "clicked to sign in");
             }
         });
 
-        // Display the songs
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.topTabs);
-        songAdapt = new SongListAdapter(this, listOfAllSongs);
-        albumAdapt = new AlbumListAdapter(this, albumsList);
-        songsView = (ListView) findViewById(R.id.song_list);
+        Button setDateTime = (Button) findViewById(R.id.set_temporal_button);
+        setDateTime.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                goToTimeActivity();
+            }
+
+        });
+
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
+
+        songAdapt = new SongListAdapter(this, SongManager.getSongManager().getDisplaySongList());
+        albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
+        songsView = findViewById(R.id.song_list);
         songsView.setAdapter(songAdapt);
 
+
+        // set the sorting options available for the sort options
+        sortOptions = (Spinner) findViewById(R.id.sortingOptions);
+        sortSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.sortOptions, android.R.layout.simple_spinner_item);
+        sortSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortOptions.setAdapter(sortSpinnerAdapter);
+        sortOptions.setOnItemSelectedListener(new SortSongsOptionListener(songAdapt));
+
+
+        // Display the songs
+        TabLayout tabLayout = findViewById(R.id.topTabs);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -137,12 +169,56 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+  
+    public void goToTimeActivity(){
+        Intent intent = new Intent(this, SetAppTimeActivity.class);
+        startActivity(intent);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+
+            System.out.println("Status Code: " + result.getStatus());
+            if (result.isSuccess()) {
+                GoogleSignInAccount acct = result.getSignInAccount();
+                Log.d(TAG, "onActivityResult:GET_TOKEN:success:" + result.getStatus().isSuccess());
+                // This is what we need to exchange with the server.
+                System.out.println(acct.getServerAuthCode());
+                importGoogleFriends.authorizationCodeReceived(acct.getServerAuthCode());
+            } else {
+                Log.d(TAG, "Login failed. Error code: " + result.getStatus().toString());
+            }
+        }
+    }
+
+
     @Override
     public void onRestart() {
         super.onRestart();
         flashbackSwitchOff();
+        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
     }
+//endregion;
 
+
+
+
+
+//region Other methods of MainActivity
     /**
      * Gets Location permission from user if did not get it yet
      */
@@ -158,18 +234,26 @@ public class MainActivity extends AppCompatActivity {
      * reset flashback switch UI display
      */
     public void flashbackSwitchOff() {
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(null);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(null); //TODO this method wan't called on app start
         mySwitch.setChecked(false);
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 Log.v(TAG, "Flashback mode toggled");
                 if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode();
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
+                    songsService.switchMode(checked);
+
+                    if (songsService.getFlashBackMode() ) {
+                        Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                        intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                        startActivity(intent);
+                    }
+
+                    else {
+                        mySwitch.setChecked(false);
+                    }
+
                 } else if (checked && songsService.getFlashBackMode()) {
                     Intent intent = new Intent(MainActivity.this, IndividualSong.class);
                     intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
@@ -185,16 +269,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void chosenSong(View view) {
         Log.v(TAG, "selected a song to play");
+        SongManager.getSongManager().singleSongChosen();
         Intent intent = new Intent(this, IndividualSong.class);
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
-        if (didChooseAlbum) {
-            Log.v(TAG, "selected album");
-            currentPlayList.clear();
-            for (Song i : listOfAllSongs) {
-                currentPlayList.add(i);
-            }
-            didChooseAlbum = false;
-        }
         startActivity(intent);
     }
 
@@ -204,14 +281,8 @@ public class MainActivity extends AppCompatActivity {
      */
     public void chosenAlbum(View view) {
         Log.v(TAG, "selected an album to play");
+        SongManager.getSongManager().albumChosen((int)view.getTag());
         Intent intent = new Intent(this, IndividualSong.class);
-        Album currAlbum = albumsList.get((int)view.getTag());
-        didChooseAlbum = true;
-        currentPlayList.clear();
-
-        for (Song i : currAlbum.getSongsInAlbum()) {
-            currentPlayList.add(i);
-        }
         Log.v(TAG, "added songs in album to queue");
         intent.putExtra(Intent.EXTRA_INDEX, 0); //0 means to play the first song
         startActivity(intent);
@@ -222,23 +293,11 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             songsService = binder.getService();
-            songsService.setList(currentPlayList);
-            songsService.setListOfAllSongs(listOfAllSongs);
-            songsService.setMainActivity(MainActivity.this);
-            isMusicBound = true;
-
-            SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
-            if (flashback_state.getBoolean("State",false)) {
-                songsService.switchMode();
-                Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                startActivity(intent);
-            }
+            songsService.addSongServiceEventListener(MainActivity.this);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            isMusicBound = false;
         }
     };
 
@@ -268,8 +327,54 @@ public class MainActivity extends AppCompatActivity {
             indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
         }
     }
+//endregion;
 
 
+
+
+
+//region SongServiceEventListener handlers
+    @Override
+    public void onSongLoaded(Song loadedSong) {
+
+    }
+
+    @Override
+    public void onSongCompleted(Song completedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongPaused(Song currentSong) {
+
+    }
+
+    @Override
+    public void onSongSkipped(Song skippedSong, Song nextSong) {
+
+    }
+
+    @Override
+    public void onSongResumed(Song currentSong) {
+
+    }
+
+    @Override
+    public void onVibeModeToggled(boolean vibeModeOn) {
+
+    }
+//endregion;
+
+
+
+
+
+//region VibeDatabaseEventListener Handler
+    @Override
+    public void onConnectionChanged(boolean connected) {
+
+    }
+//endregion;
 
 
 }
