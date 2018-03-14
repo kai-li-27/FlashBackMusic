@@ -192,7 +192,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             } catch (SecurityException e) {}
         }
 
-        if (flashBackMode) {
+        if (flashBackMode) { //for entering flashback on app start
             loadMedia();
             return;
         }
