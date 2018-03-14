@@ -9,8 +9,10 @@ import java.util.ArrayList;
 public class AnonymousNameGenerator {
 
     //Make sure these two arrays have different length, otherwise it would be same combination everytime
-    private final static String[] prefix = {"Retarded", "Small", "Smelly"};
-    private final static String[] postfix = {"Redditor", "Nugget", "Cat"};
+    private final static String[] prefix = {"Agreeable","Buffalo","Befuddled","Clumsy","Delicious","Exuberant","Fluffy","Good",
+            "Handsome","Immense","Jittery","Kind","Large","Magnificent","Slow", "Small", "Smelly"};
+    private final static String[] postfix = {"Aardvark","Buffalo","Cat","Dog","Elephant","Flamingo","Giant Clam","Hamster" +
+            "Gerenuk", "Snake","Penguin","Lion","Dolphin","Tardigrade","Caterpillar"};
 
     public static String GenerateAnonymousName(String email) {
         int prefixSize = prefix.length;
