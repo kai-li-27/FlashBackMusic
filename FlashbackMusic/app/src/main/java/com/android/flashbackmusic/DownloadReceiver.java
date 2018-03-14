@@ -52,7 +52,8 @@ public class DownloadReceiver extends BroadcastReceiver {
         //check if the broadcast message is for our Enqueued download
 
         long referenceId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-        System.out.println("FUCKING ASSHOLE ASSHOLE ASSHOLE ASSHOLE");
+
+
 
 
         /* This will return if able to fetch song info from the file. It DOES NOT check for anything else
@@ -61,7 +62,12 @@ public class DownloadReceiver extends BroadcastReceiver {
         if(referenceId == download_id) {
 
             Uri fileUri = Uri.fromFile(new File(filePath));
-            
+
+            if (filePath.toLowerCase().contains(".zip") || filePath.toLowerCase().contains(".rar") || filePath.toLowerCase().contains(".tgz")) {
+                fetchFileFromZip(fileUri);
+                return;
+            }
+
             try {
                 MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
                 metaRetriever.setDataSource(App.getContext(), fileUri);
@@ -99,89 +105,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 Log.d(TAG, "Downloaded file was not audio file");
             }
 
-            String folderPath = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" ;
-            if (isDownloadedByuser) {
-                filePath += "UserSongs/";
-            } else {
-                filePath += "VibeSongs/";
-            }
 
-            try {
-                ZipFile file = new ZipFile(new File(filePath)); //check if valid
-
-
-                FileInputStream is = new FileInputStream(filePath);
-                ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
-                ZipEntry ze;
-
-
-                while((ze = zis.getNextEntry()) != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[1024];
-                    int count;
-
-                    String filename = ze.getName();
-                    FileOutputStream fout = new FileOutputStream(folderPath + filename);
-
-                    // reading and writing
-                    while ((count = zis.read(buffer)) != -1) {
-                        baos.write(buffer, 0, count);
-                        byte[] bytes = baos.toByteArray();
-                        fout.write(bytes);
-                        baos.reset();
-                    }
-
-
-
-                    fout.close();
-                    zis.closeEntry();
-
-                    File songFile = new File(folderPath + filename);
-                    System.out.println(folderPath + filename);
-                    Uri musicUri = Uri.fromFile(songFile);
-
-                    try {
-                        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-                        metaRetriever.setDataSource(App.getContext(), musicUri);
-                        String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                        String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                        String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
-
-                        if (artist == null) {
-                            artist = "";
-                        }
-                        if (title == null) {
-                            title = "";
-                        }
-                        if (album == null) {
-                            album = "";
-                        }
-
-                        Song song;
-                        if (isDownloadedByuser) {
-                            IUser self = UserManager.getUserManager().getSelf();
-                            song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
-                                    .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
-                            VibeDatabase.getDatabase().insertSong(song);
-                        } else {
-                            song =  new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
-                                    .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
-                        }
-
-                        SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
-
-                    } catch (Exception e) {
-                        Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(App.getContext(), "Zip downloaded and unzipped", Toast.LENGTH_SHORT).show();
-
-                }
-                zis.close();
-
-            } catch (Exception e) {
-                System.out.println("Downloaded file was not zip file");
-            }
 
 
         }
@@ -192,6 +116,93 @@ public class DownloadReceiver extends BroadcastReceiver {
             //TODO third everything else, toast not valid audio
 
     }
+
+    private void fetchFileFromZip(Uri fileUri) {
+        String folderPath = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" ;
+        if (isDownloadedByuser) {
+            filePath += "UserSongs/";
+        } else {
+            filePath += "VibeSongs/";
+        }
+
+        try {
+            ZipFile file = new ZipFile(new File(filePath)); //check if valid
+
+
+            FileInputStream is = new FileInputStream(filePath);
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
+            ZipEntry ze;
+
+
+            while((ze = zis.getNextEntry()) != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int count;
+
+                String filename = ze.getName();
+                FileOutputStream fout = new FileOutputStream(folderPath + filename);
+
+                // reading and writing
+                while ((count = zis.read(buffer)) != -1) {
+                    baos.write(buffer, 0, count);
+                    byte[] bytes = baos.toByteArray();
+                    fout.write(bytes);
+                    baos.reset();
+                }
+
+
+
+                fout.close();
+                zis.closeEntry();
+
+                File songFile = new File(folderPath + filename);
+                System.out.println(folderPath + filename);
+                Uri musicUri = Uri.fromFile(songFile);
+
+                try {
+                    MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                    metaRetriever.setDataSource(App.getContext(), musicUri);
+                    String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+                    if (artist == null) {
+                        artist = "";
+                    }
+                    if (title == null) {
+                        title = "";
+                    }
+                    if (album == null) {
+                        album = "";
+                    }
+
+                    Song song;
+                    if (isDownloadedByuser) {
+                        IUser self = UserManager.getUserManager().getSelf();
+                        song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
+                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
+                        VibeDatabase.getDatabase().insertSong(song);
+                    } else {
+                        song =  new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
+                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
+                    }
+
+                    SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
+
+                } catch (Exception e) {
+                    Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
+                    e.printStackTrace();
+                }
+                Toast.makeText(App.getContext(), "Zip downloaded and unzipped", Toast.LENGTH_SHORT).show();
+
+            }
+            zis.close();
+
+        } catch (Exception e) {
+            System.out.println("Downloaded file was not zip file");
+        }
+    }
+
 
     public static String parseFileNameFromURL(String url) {
         String fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
