@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
 
         Switch mySwitch = findViewById(R.id.flashback_switch);
+        flashbackSwitchOff();
 
 
         // Google sign-in button

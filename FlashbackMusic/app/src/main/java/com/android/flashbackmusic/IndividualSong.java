@@ -110,6 +110,10 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override // TODO Get switching working
             public void onClick(View view) {
+                if (UserManager.getUserManager().getSelf() == null) {
+                    Toast.makeText(App.getContext(), "Downloaded feature is not supported unless you log in", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 Intent intent1 = new Intent(getApplicationContext(), DownloadSong.class);
                 startActivity(intent1);
             }

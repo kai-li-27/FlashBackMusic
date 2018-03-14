@@ -67,11 +67,14 @@ public final class Algorithm {
                 songsList.add(song);
 
             } catch (Exception e) {
-                Log.e(TAG, "failed to get songs from folder");
+                Log.d(TAG, "failed to get songs from folder");
             }
         }
         java.util.Collections.sort(songsList, new SongComparator());
     }
+
+
+
     static class SongComparator implements Comparator<Song> {
         @Override
         public int compare(Song a, Song b) {

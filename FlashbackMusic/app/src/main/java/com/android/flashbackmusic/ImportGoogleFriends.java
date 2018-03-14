@@ -98,6 +98,8 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
     private void handleSignInResult(GoogleSignInResult result) {
         try {
             GoogleSignInAccount account = result.getSignInAccount();
+            String personEmail = account.getEmail();
+            userManager.addOneUserToList(account.getDisplayName(), personEmail, "self", null, account.getId());
 
             new PeoplesAsync().execute(account.getServerAuthCode());
 

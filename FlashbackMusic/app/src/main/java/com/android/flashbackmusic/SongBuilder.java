@@ -64,6 +64,16 @@ public class SongBuilder {
         return this;
     }
 
+    public SongBuilder setDownLoadURL(String url) {
+        song.setDownloadURL(url);
+        return this;
+    }
+
+    public SongBuilder setPartOfAlbum(boolean is) {
+        song.setIsPartOfAlbum(is);
+        return  this;
+    }
+
 
 
 }

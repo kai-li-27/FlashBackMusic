@@ -88,10 +88,13 @@ public class VibeDatabase {
                if (song != null) {
                    if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
 
-                       for (Song i : SongManager.getSongManager().getDisplaySongList()) {
-                           if (i.getTitle().equals(song.getTitle()) && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) { //See if the song is alreayd downloaded
-                               song.setUri(i.getUri());
-                           }
+                       if (SongManager.getSongManager().isSongDownloaded(song) != null) {
+                           Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
+                           song.setUri(downloaded.getUri());
+                           System.out.println("Fuck you");
+                       } else {
+                           DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
+                           downloader.downloadSongForVibe(song);
                        }
 
                        if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
@@ -169,7 +172,7 @@ public class VibeDatabase {
 
 
     public void upateInfoOfSongsOfUser(final ArrayList<Song> importedSongs) {
-        Query query = myRef.orderByChild("userIdString").equalTo(importedSongs.get(0).getUserIdString());
+        Query query = myRef.orderByChild("userIdString").equalTo(UserManager.getUserManager().getSelf().getUserId());
 
         query.addChildEventListener(new ChildEventListener() {
             @Override

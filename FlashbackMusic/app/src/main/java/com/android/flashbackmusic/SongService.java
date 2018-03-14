@@ -122,8 +122,9 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         currentPlayList = songManager.getCurrentPlayList();
 
 
-
-        currentSong = currentPlayList.get(0);
+        if (currentPlayList.size() > 0) { //IN case no songs have been downloaded
+            currentSong = currentPlayList.get(0);
+        }
         player = new MediaPlayer();
         initializeMusicPlayer();
 
@@ -167,6 +168,8 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             player.reset();
             player.setDataSource(getApplicationContext(), currentSong.getUri());
             player.prepare();
+            notify(Event.SONG_LOADED);
+
         } catch (Exception e) {
             System.out.println("************************");
             System.out.println("Failed to load song!!!!!");
@@ -174,7 +177,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             Log.e(TAG, "Failed to load song!!");
             Toast.makeText(App.getContext(), "This song wasn't downloaded", Toast.LENGTH_LONG).show();
         }
-        notify(Event.SONG_LOADED);
 
     }
 
@@ -290,14 +292,8 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             flashBackMode = false;
         }  else if (!flashBackMode && mode) {
             flashBackMode = true;
-            notify(Event.VIBE_MODE_TOGGLED);
-            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
-            currentSong = currentPlayList.get(0);
-            loadMedia();
-            player.start();
-        }  else if (!flashBackMode && mode) {
-            flashBackMode = true;
             currentPlayList = songManager.getVibeSongList();
+            System.out.println(currentPlayList.size());
             if (currentPlayList.size() == 0) {
                 try {
                     Thread.sleep(2000); //give the app some time to load data
@@ -314,6 +310,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
                 }
             }
             currentSong = currentPlayList.get(0);
+            System.out.println(currentSong.getUri());
             loadMedia();
             player.start();
         }
