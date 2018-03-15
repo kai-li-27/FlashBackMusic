@@ -106,6 +106,15 @@ public class UserManager {
         return allUsers.get(email);
     }
 
+    public boolean checkIfFriend(String email) {
+        if (friends.get(email) == null) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     // iterate through the users and set their anonymous names for the session
     public void createAnonymousNames() {
         for (String key: strangers.keySet()) {

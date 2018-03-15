@@ -64,6 +64,7 @@ public class VibeDatabaseUnitTests {
         VibeDatabase database = VibeDatabase.getDatabase();
         Song song = new SongBuilder(testUri, "QueryNorthPoleLocationTestID", "QueryLocation@test.com")
                                     .setLastLongitude(0).setLastLatitude(90).build();
+        ArrayList<Song> dummyList = database.querySongsByUserId("InsertTestID");
 
         database.insertSong(song);
         Location location = new Location("");
@@ -76,6 +77,7 @@ public class VibeDatabaseUnitTests {
         Location location2 = new Location("");
         location2.setLongitude(0);
         location2.setLatitude(-89.5);
+
 //
 //        ArrayList<Song> list = database.queryByLocationOfAllSongs(location, 2);
 //        ArrayList<Song> list2 = database.queryByLocationOfAllSongs(location2, 200000);
@@ -87,6 +89,7 @@ public class VibeDatabaseUnitTests {
 //        assertEquals(1, list2.size());
 //        assertEquals(1, list2A.size());
 //        assertEquals(0, list2B.size());
+
     }
 
     @Test

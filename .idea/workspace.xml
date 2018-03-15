@@ -16,6 +16,7 @@
       <file leaf-file-name="IndividualSong.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
           <provider selected="true" editor-type-id="text-editor">
+
             <state relative-caret-position="210">
               <caret line="65" column="0" lean-forward="false" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
               <folding>
@@ -31,6 +32,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="323">
               <caret line="31" column="54" lean-forward="false" selection-start-line="31" selection-start-column="54" selection-end-line="31" selection-end-column="54" />
+
               <folding />
             </state>
           </provider>
@@ -69,8 +71,10 @@
       <file leaf-file-name="Song.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2890">
-              <caret line="177" column="0" lean-forward="false" selection-start-line="177" selection-start-column="0" selection-end-line="177" selection-end-column="0" />
+
+            <state relative-caret-position="4320">
+              <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+
               <folding />
             </state>
           </provider>
@@ -81,9 +85,11 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
               <folding>
                 <element signature="imports" expanded="false" />
               </folding>
+
             </state>
           </provider>
         </entry>
@@ -136,6 +142,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -337,9 +345,11 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
+
       <pane id="AndroidView" />
       <pane id="PackagesPane" />
       <pane id="Scope" />
+
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -427,8 +437,10 @@
       <option name="DEEP_LINK" value="" />
       <option name="ACTIVITY_CLASS" value="" />
       <method>
+
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
         <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520733619704" />
+
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -475,8 +487,10 @@
         <option name="ADVANCED_PROFILING_ENABLED" value="false" />
       </Profilers>
       <method>
+
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
         <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520733619704" />
+
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -712,6 +726,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
+
         <state relative-caret-position="187">
           <caret line="11" column="42" lean-forward="false" selection-start-line="11" selection-start-column="42" selection-end-line="11" selection-end-column="42" />
         </state>
@@ -749,9 +764,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
+
         </state>
       </provider>
     </entry>
@@ -795,12 +812,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="63" column="0" lean-forward="true" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1520733486697" expanded="true" signature="10914:10915" ph="VibeDatabaseEventListener Handlers" />
-          </folding>
+
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+
         </state>
       </provider>
     </entry>
@@ -879,9 +895,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
+
         </state>
       </provider>
     </entry>
@@ -944,9 +962,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
+
         </state>
       </provider>
     </entry>
@@ -996,9 +1016,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
+
         </state>
       </provider>
     </entry>
@@ -1026,8 +1048,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/Song.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2890">
-          <caret line="177" column="0" lean-forward="false" selection-start-line="177" selection-start-column="0" selection-end-line="177" selection-end-column="0" />
+
+        <state relative-caret-position="4320">
+          <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+
           <folding />
         </state>
       </provider>
@@ -1042,12 +1066,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/FlashbackMusic/app/src/main/java/com/android/flashbackmusic/IndividualSong.java">
       <provider selected="true" editor-type-id="text-editor">
+
         <state relative-caret-position="210">
           <caret line="65" column="0" lean-forward="false" selection-start-line="65" selection-start-column="0" selection-end-line="65" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <marker date="1520733486697" expanded="true" signature="10914:10915" ph="VibeDatabaseEventListener Handlers" />
           </folding>
+
         </state>
       </provider>
     </entry>

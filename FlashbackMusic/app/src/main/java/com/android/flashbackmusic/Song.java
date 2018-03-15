@@ -204,8 +204,16 @@ public class Song {
         lastTimeLong = lastTime.getTime();
     }
 
+    public void setTimeDifference(double timeDifference) {
+        this.timeDifference = timeDifference;
+    }
+
     public void setPreference(int preference) {
         this.preference = preference;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
     public void rotatePreference() {
