@@ -34,6 +34,24 @@ public class JUnitTestsForTimeAndDate {
     }
 
     @Test
+    public void setTimeToCurrentAfterCustomTest() {
+        int year = 2018;
+        int month = 2;
+        int dayOfMonth = 2;
+        int hour = 8;
+        int minute = 40;    // 2018-3-2 8:40
+
+        timeAndDate.setTimeToCustom(year, month, dayOfMonth, hour, minute);
+        // note, this uses logging, so used mock logging in src/test/java/android.util
+        long timeMillis = timeAndDate.getDateSelected();
+        assertEquals(1520008800000L, timeMillis);
+        assertEquals(false, timeAndDate.isTimeCurrentTime());
+
+        timeAndDate.setTimeToCurrent();
+        assertEquals(true, timeAndDate.isTimeCurrentTime());
+    }
+
+    @Test
     public void toStringTest() {
         int year = 2018;
         int month = 2;

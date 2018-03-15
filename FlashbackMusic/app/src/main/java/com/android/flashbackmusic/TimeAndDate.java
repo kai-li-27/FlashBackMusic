@@ -24,16 +24,6 @@ public class TimeAndDate {
         setTimeToCurrent();
     }
 
-    /*
-    // called when we want the time to be different from current time
-    public TimeAndDate getTimeAndDate(CalendarView calendar, TimePicker timePicker){
-        if (instance == null) {
-            instance = new TimeAndDate(calendar, timePicker);
-        }
-        return instance;
-    }
-    */
-
     // called when we want the time to be current time
     public static TimeAndDate getTimeAndDate() {
         if (instance == null) {
