@@ -194,7 +194,7 @@ public class SongManager {
 
         Log.d(TAG, "Yoooooooooo! Location has changed.");
         vibeSongList.clear();
-        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000000000, vibeSongList);
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000, vibeSongList);
     }
 
     public void contactsHaveLoad() {
