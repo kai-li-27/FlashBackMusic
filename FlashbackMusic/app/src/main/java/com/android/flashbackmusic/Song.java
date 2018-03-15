@@ -28,6 +28,9 @@ public class Song {
     private String email;
     private Uri uri;
 
+    private String DownloadURL;
+    private boolean IsPartOfAlbum = false;
+
     private String title = "No title";
     private String artist = "No artist";
     private String album = "No album";
@@ -78,6 +81,14 @@ public class Song {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getDownloadURL() {
+        return  DownloadURL;
+    }
+
+    public boolean isPartOfAlbum() {
+        return IsPartOfAlbum;
     }
 
     @Exclude
@@ -161,6 +172,14 @@ public class Song {
 
     public void setUri(Uri uri) {
         this.uri = uri;
+    }
+
+    public void setDownloadURL(String downloadURL) {
+        this.DownloadURL = downloadURL;
+    }
+
+    public void setIsPartOfAlbum(Boolean isPartOfAlbum) {
+        this.IsPartOfAlbum = isPartOfAlbum;
     }
 
     public void setTitle(String title) { this.title = title;}

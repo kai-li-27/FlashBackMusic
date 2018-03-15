@@ -29,6 +29,7 @@ public class VibeDatabase {
     private boolean connected;
 
     private static VibeDatabase database;
+    private ArrayList<Song> songsWaitedToBeDownLoaded = new ArrayList<>();
 
     private ArrayList<VibeDatabaseEventListener> connectionChangedListeners = new ArrayList<>();
     public void addConnectionChangedListener(VibeDatabaseEventListener listener) {
@@ -77,6 +78,8 @@ public class VibeDatabase {
     public ArrayList<Song> queryByLocationOfAllSongs(final Location location, final double radiusInFeet, final ArrayList<Song> songsList){
         final double radiusInCordinate = radiusInFeet / 364605; //length of 1 latitude at 45 degrees
 
+        final ArrayList<String> downloadedAlbum = new ArrayList<>();
+
         Query query = myRef.orderByChild("lastLatitude").startAt(location.getLatitude() - radiusInCordinate)
                 .endAt(location.getLatitude() + radiusInCordinate);
 
@@ -84,14 +87,24 @@ public class VibeDatabase {
         query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) { //TODO this doesn't filter out same song, add it
-               Song song =dataSnapshot.getValue(Song.class);
+                Song song = dataSnapshot.getValue(Song.class);
                if (song != null) {
                    if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
+                       System.out.println(song.getTitle() + " Found");
 
-                       for (Song i : SongManager.getSongManager().getDisplaySongList()) {
-                           if (i.getTitle().equals(song.getTitle()) && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) { //See if the song is alreayd downloaded
-                               song.setUri(i.getUri());
+                       if (SongManager.getSongManager().isSongDownloaded(song) != null) {
+                           Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
+                           song.setUri(downloaded.getUri());
+                       } else {
+                           DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
+                           if (downloadedAlbum.contains(song.getAlbum())) {
+                               songsWaitedToBeDownLoaded.add(song);
+                           } else {
+                               downloadedAlbum.add(song.getAlbum());
+                               songsWaitedToBeDownLoaded.add(song);
                            }
+                           downloader.downloadSongForVibe(song);
+                           return;
                        }
 
                        song.setUserDisplayName(AnonymousNameGenerator.GenerateAnonymousName(song.getEmail()));
@@ -171,7 +184,7 @@ public class VibeDatabase {
 
 
     public void upateInfoOfSongsOfUser(final ArrayList<Song> importedSongs) {
-        Query query = myRef.orderByChild("userIdString").equalTo(importedSongs.get(0).getUserIdString());
+        Query query = myRef.orderByChild("userIdString").equalTo(UserManager.getUserManager().getSelf().getUserId());
 
         query.addChildEventListener(new ChildEventListener() {
             @Override
@@ -220,6 +233,18 @@ public class VibeDatabase {
 
     public boolean isConnected() {
         return connected;
+    }
+
+
+    public Song wasThisSongWaitedToBeDownloaded(Song song) {
+        for (Song i : songsWaitedToBeDownLoaded) {
+            if (i.getAlbum().equals(song.getAlbum()) && i.getTitle().equals(song.getTitle()) && i.getArtist().equals(song.getArtist())) {
+                i.setUri(song.getUri());
+                songsWaitedToBeDownLoaded.remove(i);
+                return i;
+            }
+        }
+        return null;
     }
 
 }

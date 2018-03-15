@@ -1,7 +1,5 @@
 package com.android.flashbackmusic;
 
-import android.app.Application;
-import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
@@ -67,11 +65,14 @@ public final class Algorithm {
                 songsList.add(song);
 
             } catch (Exception e) {
-                Log.e(TAG, "failed to get songs from folder");
+                Log.d(TAG, "failed to get songs from folder");
             }
         }
         java.util.Collections.sort(songsList, new SongComparator());
     }
+
+
+
     static class SongComparator implements Comparator<Song> {
         @Override
         public int compare(Song a, Song b) {
@@ -167,5 +168,6 @@ public final class Algorithm {
 
         song.setAlgorithmValue(result);
     }
+
 
 }

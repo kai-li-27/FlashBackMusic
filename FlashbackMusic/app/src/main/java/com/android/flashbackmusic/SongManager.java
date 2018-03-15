@@ -2,24 +2,38 @@ package com.android.flashbackmusic;
 
 import android.app.ProgressDialog;
 import android.location.Location;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by K on 3/8/2018.
  */
 
 public class SongManager {
-    private ArrayList<Song> listOfAllImportedSongs = new ArrayList<>();
+    private ArrayList<Song> listOfAllUserSongs = new ArrayList<>();
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
     private ArrayList<Song> vibeSongList = new ArrayList<>();
+    private ArrayList<Song> vibeDownloadList = new ArrayList<>();
+    private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+
+    private String userFoler;
+    private String vibeFoler;
 
     private Location currentlocation = null;
     private static final String TAG = "SongManager"; //for adding a new song
@@ -32,21 +46,27 @@ public class SongManager {
 
     private SongManager() {
 
-        Algorithm.importSongsFromResource(listOfAllImportedSongs);
-        listOfAlbums = Algorithm.getAlbumList(listOfAllImportedSongs);
-        currentPlayList = new ArrayList<>(listOfAllImportedSongs);
+        userFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/UserSongs";
+        vibeFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/VibeSongs";
+
+
+
+        importSongsFromFolder(listOfAllUserSongs, userFoler);
+        importSongsFromFolder(vibeDownloadList, vibeFoler);
+        getAlbumsFromImportedSongs();
+        currentPlayList = new ArrayList<>(listOfAllUserSongs);
 
         if (UserManager.getUserManager().getSelf() == null) { //NOTE: because the checking of google sign-in is executed before this, so this will always work
             Toast.makeText(App.getContext(), "You are not signed in, your play history won't be stored", Toast.LENGTH_LONG).show(); //This will make unit test fails. comment this out before unit test
         } else {
             String userId = UserManager.getUserManager().getSelf().getUserId();
             String userEmail = UserManager.getUserManager().getSelf().getEmail();
-            for (Song song : listOfAllImportedSongs) {
+            for (Song song : listOfAllUserSongs) {
                 song.setUserIdString(userId);
                 song.setEmail(userEmail);
             }
 
-            VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllImportedSongs); //This will go to server and get the preference, location and time for each song
+            VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllUserSongs); //This will go to server and get the preference, location and time for each song
         }
 
     }
@@ -67,43 +87,58 @@ public class SongManager {
     }
 
     public ArrayList<Song> getDisplaySongList() {
-        return listOfAllImportedSongs;
+        return listOfAllUserSongs;
     }
 
     public ArrayList<Song> getVibeSongList() { return vibeSongList;}
 
+    public Song isSongDownloaded(Song song) {
+        for (Song i : vibeDownloadList) {
+            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
+                return i;
+            }
+        }
+
+        for (Song i : listOfAllUserSongs) {
+            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
+                return i;
+            }
+        }
+
+        return null;
+    }
 
 //region Sorting Methods
     public void sortByTitle(){
-        for (int i = 0; i < listOfAllImportedSongs.size(); i++) { //go through whole list, finds largest each time
-            Song temp = listOfAllImportedSongs.get(i);
-            for (int j = i + 1; j < listOfAllImportedSongs.size(); j++) {
-                if (temp.getTitle().compareTo(listOfAllImportedSongs.get(j).getTitle()) < 0) {
-                    temp = listOfAllImportedSongs.get(j);
+        for (int i = 0; i < listOfAllUserSongs.size(); i++) { //go through whole list, finds largest each time
+            Song temp = listOfAllUserSongs.get(i);
+            for (int j = i + 1; j < listOfAllUserSongs.size(); j++) {
+                if (temp.getTitle().compareTo(listOfAllUserSongs.get(j).getTitle()) < 0) {
+                    temp = listOfAllUserSongs.get(j);
                 }
             }
-            listOfAllImportedSongs.remove(temp);
-            listOfAllImportedSongs.add(0, temp);//insert the largest to the front
+            listOfAllUserSongs.remove(temp);
+            listOfAllUserSongs.add(0, temp);//insert the largest to the front
         }
     }
 
 
     void sortByAlbum() {
-        listOfAllImportedSongs.clear(); //TODO make sure that songs in each album is sorted
+        listOfAllUserSongs.clear(); //TODO make sure that songs in each album is sorted
         for (Album i : listOfAlbums) {
-            listOfAllImportedSongs.addAll(i.getSongsInAlbum());
+            listOfAllUserSongs.addAll(i.getSongsInAlbum());
         }
     }
 
 
     void sortByArtist() {
         sortByTitle();
-        for (int i = 0; i < listOfAllImportedSongs.size() - 1; i++) { // bubble sort
-            for (int j = 0; j < listOfAllImportedSongs.size() - 1; j++) {
-                if (listOfAllImportedSongs.get(j).getArtist().compareTo(listOfAllImportedSongs.get(j+1).getArtist()) > 0) {
-                    Song temp = listOfAllImportedSongs.get(j);
-                    listOfAllImportedSongs.remove(temp);
-                    listOfAllImportedSongs.add(j+1, temp);
+        for (int i = 0; i < listOfAllUserSongs.size() - 1; i++) { // bubble sort
+            for (int j = 0; j < listOfAllUserSongs.size() - 1; j++) {
+                if (listOfAllUserSongs.get(j).getArtist().compareTo(listOfAllUserSongs.get(j+1).getArtist()) > 0) {
+                    Song temp = listOfAllUserSongs.get(j);
+                    listOfAllUserSongs.remove(temp);
+                    listOfAllUserSongs.add(j+1, temp);
                 }
             }
         }
@@ -112,27 +147,27 @@ public class SongManager {
 
     void sortByDefault() {
         sortByTitle();
-        for (int i = 0; i < listOfAllImportedSongs.size(); i++) { //go through whole list, finds least recent each time
-            Song temp = listOfAllImportedSongs.get(i);
-            for (int j = i + 1; j < listOfAllImportedSongs.size(); j++) {
-                if (temp.getLastTime().compareTo(listOfAllImportedSongs.get(j).getLastTime()) >= 0) {
-                    temp = listOfAllImportedSongs.get(j);
+        for (int i = 0; i < listOfAllUserSongs.size(); i++) { //go through whole list, finds least recent each time
+            Song temp = listOfAllUserSongs.get(i);
+            for (int j = i + 1; j < listOfAllUserSongs.size(); j++) {
+                if (temp.getLastTime().compareTo(listOfAllUserSongs.get(j).getLastTime()) >= 0) {
+                    temp = listOfAllUserSongs.get(j);
                 }
             }
-            listOfAllImportedSongs.remove(temp);
-            listOfAllImportedSongs.add(0, temp);//insert the least recent to the front
+            listOfAllUserSongs.remove(temp);
+            listOfAllUserSongs.add(0, temp);//insert the least recent to the front
         }
     }
 
 
     void sortByFavorites() {
         sortByTitle();
-        for (int i = 0; i < listOfAllImportedSongs.size() - 1; i++) { //bubble sort
-            for (int j = 0; j < listOfAllImportedSongs.size() - 1; j++) {
-                if (listOfAllImportedSongs.get(j).getPreference() < listOfAllImportedSongs.get(j + 1).getPreference()) {
-                    Song temp = listOfAllImportedSongs.get(j);
-                    listOfAllImportedSongs.remove(temp);
-                    listOfAllImportedSongs.add(j+1, temp);
+        for (int i = 0; i < listOfAllUserSongs.size() - 1; i++) { //bubble sort
+            for (int j = 0; j < listOfAllUserSongs.size() - 1; j++) {
+                if (listOfAllUserSongs.get(j).getPreference() < listOfAllUserSongs.get(j + 1).getPreference()) {
+                    Song temp = listOfAllUserSongs.get(j);
+                    listOfAllUserSongs.remove(temp);
+                    listOfAllUserSongs.add(j+1, temp);
                 }
             }
         }
@@ -146,7 +181,7 @@ public class SongManager {
 //region Handle playlist change
     public void singleSongChosen() {
         currentPlayList.clear();
-        currentPlayList.addAll(listOfAllImportedSongs);
+        currentPlayList.addAll(listOfAllUserSongs);
     }
 
     public void updateVibePlaylist(Location location) {
@@ -159,7 +194,7 @@ public class SongManager {
 
         Log.d(TAG, "Yoooooooooo! Location has changed.");
         vibeSongList.clear();
-        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000000000, vibeSongList);
+        VibeDatabase.getDatabase().queryByLocationOfAllSongs(location, 1000, vibeSongList);
     }
 
     public void contactsHaveLoad() {
@@ -173,4 +208,117 @@ public class SongManager {
         currentPlayList.addAll(listOfAlbums.get(indexOfAlbum).getSongsInAlbum());
     }
 //endregion;
+
+
+
+
+
+//region Import songs from folder
+    private void importSongsFromFolder(ArrayList<Song> songsList, String folderPath) {
+        if (songsList == null) {
+            System.err.println("Argument passed into importSongsFromResource() is null.");
+            throw new IllegalArgumentException();
+        }
+
+        File folder = new File(folderPath);
+        if (folder.exists()) {
+            File[] files = folder.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                File songFile = files[i];
+                Uri musicUri = Uri.fromFile(songFile);
+
+                try {
+                    MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                    metaRetriever.setDataSource(App.getContext(), musicUri);
+                    String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+
+                    if (artist == null) {
+                        artist = "";
+                    }
+                    if (title == null) {
+                        title = "";
+                    }
+                    if (album == null) {
+                        album = "";
+                    }
+
+                    Song song = new SongBuilder(musicUri, "Donal Trump 2020", "Invalid email")
+                            .setArtist(artist).setAlbum(album).setTitle(title).build();
+
+                    songsList.add(song);
+
+                } catch (Exception e) {
+                    Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
+                }
+            }
+        }
+
+    }
+
+    private void getAlbumsFromImportedSongs() {
+        HashMap<String, Album> albumsMap = new HashMap<String, Album>();
+
+        for ( Song song : listOfAllUserSongs) {
+            if (!albumsMap.containsKey(song.getAlbum() + song.getArtist())) {
+                Album album = new Album(song.getAlbum(), song.getArtist());
+                album.getSongsInAlbum().add(song);
+                albumsMap.put(song.getAlbum() + song.getArtist(), album);
+            } else {
+                Album album = albumsMap.get(song.getAlbum() + song.getArtist());
+                album.getSongsInAlbum().add(song);
+            }
+        }
+
+        listOfAlbums = new ArrayList<Album>(albumsMap.values());
+        java.util.Collections.sort(listOfAlbums, new AlbumComparator());
+    }
+
+    class AlbumComparator implements Comparator<Album> {
+        @Override
+        public int compare(Album a, Album b) {
+            return a.getName().compareToIgnoreCase(b.getName());
+        }
+    }
+
+    public void newSongDownloaded(Song song, boolean wasDownloadedByUser) {
+        if (wasDownloadedByUser) {
+            listOfAllUserSongs.add(song);
+            //TODO for kate, sort the song in user's selected sort mode. SORT it using the listener you created so that
+            // ToDO the changed is reflected on the ui.
+
+            if (albumsMap.containsKey(song.getAlbum())) {
+                Album album = albumsMap.get(song.getAlbum());
+                for (int i = 0; i < album.getSongsInAlbum().size(); i++) { //sort it
+                    if (song.getTitle().compareTo(album.getSongsInAlbum().get(i).getTitle()) < 0) {
+                        album.getSongsInAlbum().add(i, song);
+                        break;
+                    }
+                }
+            } else {
+                Album album = new Album(song.getAlbum(), song.getArtist());
+                albumsMap.put(song.getAlbum(), album);
+                if (listOfAlbums.size() == 0) {
+                    listOfAlbums.add(album);
+                }
+                for (int i = 0; i < listOfAlbums.size(); i++) {
+                    if (album.getName().compareTo(listOfAlbums.get(i).getName()) < 0) {
+                        listOfAlbums.add(i, album);
+                        break;
+                    }
+                }
+                album.getSongsInAlbum().add(song);
+            }
+
+        } else {
+            vibeDownloadList.add(song);
+            Song temp = VibeDatabase.getDatabase().wasThisSongWaitedToBeDownloaded(song);
+            if (temp != null) {
+                vibeSongList.add(temp);
+            }
+        }
+    }
+//endregion;
+
 }

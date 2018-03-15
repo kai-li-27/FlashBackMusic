@@ -32,10 +32,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".IndividualSong" />
+        <activity
+            android:name=".DownloadSong"
+            android:label="@string/title_activity_dowload_song"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <service android:name=".SongService" />
 
-        <activity android:name=".IndividualSong" />
         <activity android:name=".SetAppTimeActivity"></activity>
+
     </application>
 
 </manifest>

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.Switch;
@@ -25,9 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,41 +36,15 @@ import java.util.List;
  */
 public class IndividualSong extends AppCompatActivity implements SongServiceEventListener, VibeDatabaseEventListener {
 
+
     private SongService songsService;
-    private final String[] DAYSINWEEK = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-    private final String[] TIMERANGE = {"Morning", "Afternoon", "Night"};
     private static final String TAG = "IndividualSong";
-
-    /*
-    ExpandableSongListAdapter listAdapter;
-    ExpandableListView expListView;
-    List<String> listDataHeader;
-    HashMap<String, List<Song>> listDataChild;
-    */
-
     ArrayList<Song> upcomingList = new ArrayList<>();
 
 
+
+
 //region Handlers of IndividualActivity
-    /**
-     * Override back button behavior to not allow user to go back to mainActivity while in flashback mode
-     */
-    @Override
-    public void onBackPressed() {
-        Log.v(TAG, "back button pressed");
-        if (!songsService.getFlashBackMode()) {
-            finish();
-        } else {
-            Toast.makeText(this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    protected  void onDestroy() {
-        unbindService(musicConnection);
-        super.onDestroy(); //TODO remove listener
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +56,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         bindService(intent, musicConnection, Context.BIND_AUTO_CREATE);
 
 
+        // Display upcoming songs
         ArrayList listDataHeader = new ArrayList<String>();
         listDataHeader.add("Upcoming Songs");
         HashMap listDataChild = new HashMap<String,List<Song>>();
@@ -90,30 +65,51 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         ExpandableListAdapter listAdapter = new ExpandableSongListAdapter(this, upcomingList, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
 
+
         Button goBack = findViewById(R.id.button_back);
         goBack.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!songsService.getFlashBackMode()) {
-                    finish(); //TODO remove listener
+                    finish();
+                    songsService.removeSongServiceEventListener(IndividualSong.this);
                 } else {
                     Toast.makeText(IndividualSong.this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+
+        /*
+        // Downloading song from URL
+        Button downloadButton = findViewById(R.id.download_button);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override // TODO Get switching working
+            public void onClick(View view) {
+                if (UserManager.getUserManager().getSelf() == null) {
+                    Toast.makeText(App.getContext(), "Downloaded feature is not supported unless you log in", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent intent1 = new Intent(getApplicationContext(), DownloadSong.class);
+                startActivity(intent1);
+            }
+        });
+        */
+
+
         final Button plus = findViewById(R.id.button_favdisneu);
         plus.setOnClickListener(
                 new View.OnClickListener(){
                     @Override
                     public void onClick(View view){
-                        Song currentSong = songsService.getCurrentSong(); //TODO this is bad. Refactor to songsservice if have time
+                        Song currentSong = songsService.getCurrentSong();
                         currentSong.rotatePreference();
                         VibeDatabase.getDatabase().updateSong(currentSong);
                         //changes look of button
                         changeDisplay(currentSong);
                     }
                 });
+
 
         Button reset = findViewById(R.id.button_reset);
         reset.setOnClickListener(
@@ -124,6 +120,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     }
                 });
 
+
         Button play = findViewById(R.id.button_play);
         play.setOnClickListener(
                 new View.OnClickListener(){
@@ -133,6 +130,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     }
                 });
 
+
         Button skip = findViewById(R.id.button_skip);
         skip.setOnClickListener(
                 new View.OnClickListener(){
@@ -141,6 +139,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                         songsService.playNext();
                     }
                 });
+
 
         final Switch mySwitch = findViewById(R.id.flashback_switch);
         mySwitch.setOnCheckedChangeListener(
@@ -155,10 +154,33 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
                     }
                 });
 
-        TextView userLabel = (TextView) findViewById(R.id.user_label);
-        TextView userName = (TextView) findViewById(R.id.curr_song_user);
+
+        TextView userLabel = findViewById(R.id.user_label);
+        TextView userName = findViewById(R.id.curr_song_user);
         userLabel.setVisibility(View.GONE);
         userName.setVisibility(View.GONE);
+    }
+
+
+    /**
+     * Override back button behavior to not allow user to go back to mainActivity while in flashback mode
+     */
+    @Override
+    public void onBackPressed() {
+        Log.v(TAG, "back button pressed");
+        if (!songsService.getFlashBackMode()) {
+            finish();
+        } else {
+            Toast.makeText(this, "If you want to choose songs to play, exit Flashback mode first", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    protected  void onDestroy() {
+        unbindService(musicConnection);
+        songsService.removeSongServiceEventListener(this);
+        super.onDestroy();
     }
 //endregion;
 
@@ -275,15 +297,15 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         //curr_song_datetime
         TextView time = findViewById(R.id.curr_song_datetime);
         if (song.getLastTime() == null) {
-            time.setText("Time Unavailable");
-        } else {
-            time.setText(DAYSINWEEK[song.getLastTime().getDay()] + " "
-                    + TIMERANGE[song.timeRange(song.getLastTime().getHours())]
-                    + ", " + DateFormat.getTimeInstance(DateFormat.SHORT).format(song.getLastTime()));
+            time.setText("Never played");
+        } else if (song.getLastTime().compareTo(new Date(System.currentTimeMillis() - 1000*60*60*24*7)) < 0){
+            time.setText("Played more than a week ago");
         }
 
     }
 //endregion;
+
+
 
 
     /**

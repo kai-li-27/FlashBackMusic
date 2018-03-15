@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.PriorityQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * service that allows the songs to actually play with mediaplayer
@@ -115,6 +117,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+            currlocation = locationManager.getLastKnownLocation("");
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
 
@@ -122,15 +125,18 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         currentPlayList = songManager.getCurrentPlayList();
 
 
-
-        currentSong = currentPlayList.get(0);
+        if (currentPlayList.size() > 0) { //IN case no songs have been downloaded
+            currentSong = currentPlayList.get(0);
+        }
         player = new MediaPlayer();
         initializeMusicPlayer();
 
+        /*
         SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
         if (flashback_state.getBoolean("State",false)) {
             switchMode(true);
         }
+        */
     }
 
 
@@ -167,6 +173,8 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             player.reset();
             player.setDataSource(getApplicationContext(), currentSong.getUri());
             player.prepare();
+            notify(Event.SONG_LOADED);
+
         } catch (Exception e) {
             System.out.println("************************");
             System.out.println("Failed to load song!!!!!");
@@ -174,7 +182,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             Log.e(TAG, "Failed to load song!!");
             Toast.makeText(App.getContext(), "This song wasn't downloaded", Toast.LENGTH_LONG).show();
         }
-        notify(Event.SONG_LOADED);
 
     }
 
@@ -190,7 +197,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             } catch (SecurityException e) {}
         }
 
-        if (flashBackMode) {
+        if (flashBackMode) { //for entering flashback on app start
             loadMedia();
             return;
         }
@@ -267,7 +274,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
     /**
      * Switch flashback mode
-     * TODO make sure user is logged in to google acc, connected to internet,
      */
     public void switchMode(boolean mode) {
 
@@ -288,32 +294,33 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;
-        }  else if (!flashBackMode && mode) {
-            flashBackMode = true;
-            notify(Event.VIBE_MODE_TOGGLED);
-            currentPlayList = SongManager.getSongManager().getCurrentPlayList();
-            currentSong = currentPlayList.get(0);
-            loadMedia();
-            player.start();
-        }  else if (!flashBackMode && mode) {
-            flashBackMode = true;
+            currentPlayList = songManager.getCurrentPlayList();
+            if (currentPlayList.size() > 0) {
+                currentSong = currentPlayList.get(0);
+                loadMedia();
+                player.start();
+            }
+        }
+
+        else if (!flashBackMode && mode) {
             currentPlayList = songManager.getVibeSongList();
             if (currentPlayList.size() == 0) {
-                try {
-                    Thread.sleep(2000); //give the app some time to load data
-                } catch (Exception e){} //TODO change this to progress bar so that the app is not freezed
-                if (currentPlayList.size() == 0) {
-                    if (currlocation == null) {
-                        Toast.makeText(App.getContext(), "Sorry! Unable to locate you", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(App.getContext(), "No songs are found in this region! Be the one to write the history!!", Toast.LENGTH_LONG).show();
-                    }
-                    flashBackMode = false;
+                if (currlocation == null) {
+                    Toast.makeText(App.getContext(), "Sorry! Unable to locate you", Toast.LENGTH_LONG).show();
                     currentPlayList = songManager.getCurrentPlayList();//Go back to normal mode
                     return;
+                } else {
+                    if (currentPlayList.size() == 0) {
+                        Toast.makeText(App.getContext(), "No songs are found in this region! Be the one to write the history!!", Toast.LENGTH_LONG).show();
+                        currentPlayList = songManager.getCurrentPlayList();//Go back to normal mode
+                        return;
+                    }
                 }
             }
+
+            flashBackMode = true;
             currentSong = currentPlayList.get(0);
+            System.out.println(currentSong.getUri());
             loadMedia();
             player.start();
         }
@@ -325,31 +332,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         editor.apply();
     }
 
-
-
-
-
-
-    private class SongCompare implements Comparator<Song> {
-        public int compare(Song s1, Song s2) {
-            if ( (s1.getAlgorithmValue() - s2.getAlgorithmValue()) == 0 ) {
-                if ( s1.getPreference() == s2.getPreference()) {
-                    return 0;
-                }
-                else if ( s1.getPreference() == Song.FAVORITE) {
-                    return 1;
-                } else {
-                    return  -1;
-                }
-            }
-            else if ((s1.getAlgorithmValue() - s2.getAlgorithmValue()) > 0) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
-        }
-    }
 
     private final LocationListener mLocationListener = new LocationListener(){
         @Override
