@@ -49,6 +49,7 @@ public class SongBuilder {
         return this;
     }
 
+
     public SongBuilder setDownLoadURL(String url) {
         song.setDownloadURL(url);
         return this;
@@ -59,6 +60,10 @@ public class SongBuilder {
         return  this;
     }
 
+
+    public Song getSong(){
+        return song;
+    }
 
 
 }
