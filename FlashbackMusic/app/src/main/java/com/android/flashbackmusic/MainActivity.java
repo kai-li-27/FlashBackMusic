@@ -79,7 +79,18 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         setContentView(R.layout.activity_main);
 
 
-
+        Button downloadButton = (Button)findViewById(R.id.download_button);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override // TODO Get switching working
+            public void onClick(View view) {
+                if (UserManager.getUserManager().getSelf() == null) {
+                    Toast.makeText(App.getContext(), "Downloaded feature is not supported unless you log in", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent intent1 = new Intent(getApplicationContext(), DownloadSong.class);
+                startActivity(intent1);
+            }
+        });
 
         //Binds with music player
         if (playIntent == null) {
