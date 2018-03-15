@@ -168,11 +168,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             public void onTabSelected(TabLayout.Tab tab) {
                 Log.v(TAG, "tab was selected");
                 String theTab = tab.getText().toString();
+                TextView sortSongsText = (TextView) findViewById(R.id.sortOptionsText);
+                Spinner sortOptions = (Spinner) findViewById(R.id.sortingOptions);
                 if (theTab.equalsIgnoreCase("songs")) {
                     songsView.setAdapter(songAdapt);
+                    sortSongsText.setVisibility(View.VISIBLE);
+                    sortOptions.setVisibility(View.VISIBLE);
                 }
                 if (theTab.equalsIgnoreCase("albums")) {
                     songsView.setAdapter(albumAdapt);
+                    sortSongsText.setVisibility(View.GONE);
+                    sortOptions.setVisibility(View.GONE);
                 }
             }
 
