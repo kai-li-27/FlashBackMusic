@@ -122,14 +122,12 @@ public class DownloadReceiver extends BroadcastReceiver {
         }
 
         try {
-            ZipFile file = new ZipFile(new File(filePath)); //check if valid
-
 
             FileInputStream is = new FileInputStream(filePath);
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry ze;
 
-
+            Toast.makeText(App.getContext(), "Unzipping the album", Toast.LENGTH_LONG).show();
 
             while((ze = zis.getNextEntry()) != null) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -154,7 +152,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 System.out.println(folderPath + filename);
                 Uri musicUri = Uri.fromFile(songFile);
 
-                if (isDownloadedByuser) {
+
                     try {
                         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
                         metaRetriever.setDataSource(App.getContext(), musicUri);
@@ -175,11 +173,11 @@ public class DownloadReceiver extends BroadcastReceiver {
                         Song song;
                         if (isDownloadedByuser) {
                             IUser self = UserManager.getUserManager().getSelf();
-                            song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
+                            song = new SongBuilder(musicUri, self.getUserId(), self.getEmail())
                                     .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
                             VibeDatabase.getDatabase().insertSong(song);
                         } else {
-                            song = new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
+                            song = new SongBuilder(musicUri, "", email) //TODO figure out what userIDstring should be
                                     .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
                         }
 
@@ -190,9 +188,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                         Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
                         e.printStackTrace();
                     }
-                } else {
 
-                }
 
 
             }

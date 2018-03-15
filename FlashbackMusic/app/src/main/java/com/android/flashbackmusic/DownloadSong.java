@@ -33,17 +33,15 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dowload_song);
 
-
-        //Download Music from URL
-        Button DownloadMusic = (Button) findViewById(R.id.start_download_button);
+        Button DownloadMusic = findViewById(R.id.start_download_button);
         DownloadMusic.setOnClickListener(this);
 
-        songUrl = (EditText) findViewById(R.id.download_url_text);
-
+        songUrl = findViewById(R.id.download_url_text);
 
         //set filter to only when download is complete and register broadcast receiver
         filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,6 +49,7 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
         //getMenuInflater().inflate(R., menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -67,127 +66,18 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onClick(View v) {
-
         switch (v.getId()) {
-
             //Download Music
             case R.id.start_download_button:
                 Uri music_uri = Uri.parse(songUrl.getText().toString());
                 DownloadData(music_uri, v);
                 break;
-
-
         }
     }
 
-
-    private void Check_Music_Status(long Music_DownloadId) {
-
-        DownloadManager.Query MusicDownloadQuery = new DownloadManager.Query();
-        //set the query filter to our previously Enqueued download
-        MusicDownloadQuery.setFilterById(Music_DownloadId);
-
-        //Query the download manager about downloads that have been requested.
-        Cursor cursor = downloadManager.query(MusicDownloadQuery);
-        if (cursor.moveToFirst()) {
-            DownloadStatus(cursor, Music_DownloadId);
-        }
-
-    }
-
-    private void DownloadStatus(Cursor cursor, long DownloadId) {
-
-        //column for download  status
-        int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-        int status = cursor.getInt(columnIndex);
-        //column for reason code if the download failed or paused
-        int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-        int reason = cursor.getInt(columnReason);
-        //get the download filename
-        int filenameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-        String filename = cursor.getString(filenameIndex);
-
-        String statusText = "";
-        String reasonText = "";
-
-        switch (status) {
-            case DownloadManager.STATUS_FAILED:
-                statusText = "STATUS_FAILED";
-                switch (reason) {
-                    case DownloadManager.ERROR_CANNOT_RESUME:
-                        reasonText = "ERROR_CANNOT_RESUME";
-                        break;
-                    case DownloadManager.ERROR_DEVICE_NOT_FOUND:
-                        reasonText = "ERROR_DEVICE_NOT_FOUND";
-                        break;
-                    case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
-                        reasonText = "ERROR_FILE_ALREADY_EXISTS";
-                        break;
-                    case DownloadManager.ERROR_FILE_ERROR:
-                        reasonText = "ERROR_FILE_ERROR";
-                        break;
-                    case DownloadManager.ERROR_HTTP_DATA_ERROR:
-                        reasonText = "ERROR_HTTP_DATA_ERROR";
-                        break;
-                    case DownloadManager.ERROR_INSUFFICIENT_SPACE:
-                        reasonText = "ERROR_INSUFFICIENT_SPACE";
-                        break;
-                    case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
-                        reasonText = "ERROR_TOO_MANY_REDIRECTS";
-                        break;
-                    case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
-                        reasonText = "ERROR_UNHANDLED_HTTP_CODE";
-                        break;
-                    case DownloadManager.ERROR_UNKNOWN:
-                        reasonText = "ERROR_UNKNOWN";
-                        break;
-                }
-                break;
-            case DownloadManager.STATUS_PAUSED:
-                statusText = "STATUS_PAUSED";
-                switch (reason) {
-                    case DownloadManager.PAUSED_QUEUED_FOR_WIFI:
-                        reasonText = "PAUSED_QUEUED_FOR_WIFI";
-                        break;
-                    case DownloadManager.PAUSED_UNKNOWN:
-                        reasonText = "PAUSED_UNKNOWN";
-                        break;
-                    case DownloadManager.PAUSED_WAITING_FOR_NETWORK:
-                        reasonText = "PAUSED_WAITING_FOR_NETWORK";
-                        break;
-                    case DownloadManager.PAUSED_WAITING_TO_RETRY:
-                        reasonText = "PAUSED_WAITING_TO_RETRY";
-                        break;
-                }
-                break;
-            case DownloadManager.STATUS_PENDING:
-                statusText = "STATUS_PENDING";
-                break;
-            case DownloadManager.STATUS_RUNNING:
-                statusText = "STATUS_RUNNING";
-                break;
-            case DownloadManager.STATUS_SUCCESSFUL:
-                statusText = "STATUS_SUCCESSFUL";
-                reasonText = "Filename:\n" + filename;
-                break;
-        }
-
-        /*
-        if(DownloadId == Music_DownloadId) {
-
-            Toast toast = Toast.makeText(DownloadSong.this,
-                    "Music Download Status:" + "\n" + statusText + "\n" +
-                            reasonText,
-                    Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.TOP, 25, 400);
-            toast.show();
-
-        }
-        */
-
-    }
 
     private void DownloadData(Uri uri, View v) {
 
@@ -202,19 +92,15 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        Toast.makeText(this, "Download has started", Toast.LENGTH_LONG).show();
         String fileName = DownloadReceiver.parseFileNameFromURL(songUrl.getText().toString());
         String fileSubPath = "UserSongs/" + fileName;
         String filePath = getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" + fileSubPath;
 
-        //Setting title of request
         request.setTitle(fileName);
-
-        //Setting description of request
         request.setDescription(fileName);
 
-        //Set the local destination for the downloaded file to a path within the application's external files directory
-        if (v.getId() == R.id.start_download_button)
-            request.setDestinationInExternalFilesDir(DownloadSong.this, Environment.DIRECTORY_MUSIC, fileSubPath);
+        request.setDestinationInExternalFilesDir(DownloadSong.this, Environment.DIRECTORY_MUSIC, fileSubPath);
 
         //Enqueue download and save the referenceId
         downloadReference = downloadManager.enqueue(request);
@@ -232,13 +118,17 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
             Uri uri;
             try {
                 uri = Uri.parse(song.getDownloadURL());
-            } catch (Exception o) {return;}
+            } catch (Exception o) {
+                o.printStackTrace();
+                return;
+            }
+
             DownloadManager downloadManager = (DownloadManager) App.getContext().getSystemService(App.getContext().DOWNLOAD_SERVICE);
             DownloadManager.Request request;
             try {
                 request = new DownloadManager.Request(uri);
             } catch (Exception e) {
-                //Log.d(TAG, "Fuck, can not download this song in vibe mode");
+                e.printStackTrace();
                 return;
             }
 
@@ -246,21 +136,14 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
             String fileSubPath = "VibeSongs/" + fileName;
             String filePath = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" + fileSubPath;
 
-            //Setting title of request
             request.setTitle(fileName);
-
-            //Setting description of request
             request.setDescription(fileName);
-
-            //Set the local destination for the downloaded file to a path within the application's external files directory
             request.setDestinationInExternalFilesDir(App.getContext(), Environment.DIRECTORY_MUSIC, fileSubPath);
 
             //Enqueue download and save the referenceId
             downloadReference = downloadManager.enqueue(request);
 
-
             IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-
 
             DownloadReceiver downloadReceiver = new DownloadReceiver(false, filePath, song.getDownloadURL(), song.getEmail());
             downloadReceiver.setDownload_id(downloadReference);

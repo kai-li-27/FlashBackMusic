@@ -30,7 +30,6 @@ import com.google.api.services.people.v1.model.EmailAddress;
 import com.google.api.services.people.v1.model.ListConnectionsResponse;
 import com.google.api.services.people.v1.model.Name;
 import com.google.api.services.people.v1.model.Person;
-import com.google.api.services.people.v1.model.PhoneNumber;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,6 +47,10 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
     private GoogleSignInOptions gso;
     private UserManager userManager;
 
+
+    /*
+     * Tries to sign in with previously signed in account
+     */
     public ImportGoogleFriends(MainActivity mainActivity) {
         userManager = UserManager.getUserManager();
 
@@ -86,6 +89,10 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
         return gso;
     }
 
+
+    /*
+     * Detect if a user has already signed in. If so, get its id.
+     */
     private void getUserInfo() {
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct != null) {
@@ -95,6 +102,10 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
 
     }
 
+
+    /*
+     * Callback to get authorization code from a successful sign-in attempt
+     */
     private void handleSignInResult(GoogleSignInResult result) {
         try {
             GoogleSignInAccount account = result.getSignInAccount();
@@ -104,12 +115,14 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
             new PeoplesAsync().execute(account.getServerAuthCode());
 
         } catch (Exception e) {
+            e.printStackTrace();
             Log.w(TAG, "handleSignInResult:error", e);
         }
     }
 
+
     // based on https://developers.google.com/people/v1/getting-started
-    public static PeopleService setUp(Context context, String serverAuthCode) throws IOException {
+    public static PeopleService getConnections(Context context, String serverAuthCode) throws IOException {
         HttpTransport httpTransport = new NetHttpTransport();
         JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
         // Redirect URL for web based applications.
@@ -141,8 +154,6 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
     }
 
 
-
-
     public void authorizationCodeReceived(String authorizationCode) {
         new PeoplesAsync().execute(authorizationCode);
     }
@@ -163,6 +174,9 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
     }
 
 
+    /*
+     * Fetch specific contacts and store to user manager
+     */
     class PeoplesAsync extends AsyncTask<String, Void, List<String>> {
 
         @Override
@@ -179,7 +193,7 @@ public class ImportGoogleFriends implements GoogleApiClient.OnConnectionFailedLi
             List<String> nameList = new ArrayList<>();
 
             try {
-                PeopleService peopleService = ImportGoogleFriends.setUp(App.getContext(), params[0]);
+                PeopleService peopleService = ImportGoogleFriends.getConnections(App.getContext(), params[0]);
 
                 ListConnectionsResponse response = peopleService.people().connections()
                         .list("people/me")

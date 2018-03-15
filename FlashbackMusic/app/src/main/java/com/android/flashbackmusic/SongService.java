@@ -28,6 +28,8 @@ import java.util.Comparator;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.PriorityQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * service that allows the songs to actually play with mediaplayer
@@ -115,6 +117,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+            currlocation = locationManager.getLastKnownLocation("");
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
 
@@ -128,10 +131,12 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         player = new MediaPlayer();
         initializeMusicPlayer();
 
+        /*
         SharedPreferences flashback_state = getSharedPreferences("FlashBackMode_State", MODE_PRIVATE);
         if (flashback_state.getBoolean("State",false)) {
             switchMode(true);
         }
+        */
     }
 
 
@@ -269,7 +274,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
     /**
      * Switch flashback mode
-     * TODO make sure user is logged in to google acc, connected to internet,
      */
     public void switchMode(boolean mode) {
 
@@ -290,25 +294,31 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
             flashBackMode = false;
-        }  else if (!flashBackMode && mode) {
-            flashBackMode = true;
+            currentPlayList = songManager.getCurrentPlayList();
+            if (currentPlayList.size() > 0) {
+                currentSong = currentPlayList.get(0);
+                loadMedia();
+                player.start();
+            }
+        }
+
+        else if (!flashBackMode && mode) {
             currentPlayList = songManager.getVibeSongList();
-            System.out.println(currentPlayList.size());
             if (currentPlayList.size() == 0) {
-                try {
-                    Thread.sleep(2000); //give the app some time to load data
-                } catch (Exception e){} //TODO change this to progress bar so that the app is not freezed
-                if (currentPlayList.size() == 0) {
-                    if (currlocation == null) {
-                        Toast.makeText(App.getContext(), "Sorry! Unable to locate you", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(App.getContext(), "No songs are found in this region! Be the one to write the history!!", Toast.LENGTH_LONG).show();
-                    }
-                    flashBackMode = false;
+                if (currlocation == null) {
+                    Toast.makeText(App.getContext(), "Sorry! Unable to locate you", Toast.LENGTH_LONG).show();
                     currentPlayList = songManager.getCurrentPlayList();//Go back to normal mode
                     return;
+                } else {
+                    if (currentPlayList.size() == 0) {
+                        Toast.makeText(App.getContext(), "No songs are found in this region! Be the one to write the history!!", Toast.LENGTH_LONG).show();
+                        currentPlayList = songManager.getCurrentPlayList();//Go back to normal mode
+                        return;
+                    }
                 }
             }
+
+            flashBackMode = true;
             currentSong = currentPlayList.get(0);
             System.out.println(currentSong.getUri());
             loadMedia();
@@ -322,31 +332,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         editor.apply();
     }
 
-
-
-
-
-
-    private class SongCompare implements Comparator<Song> {
-        public int compare(Song s1, Song s2) {
-            if ( (s1.getAlgorithmValue() - s2.getAlgorithmValue()) == 0 ) {
-                if ( s1.getPreference() == s2.getPreference()) {
-                    return 0;
-                }
-                else if ( s1.getPreference() == Song.FAVORITE) {
-                    return 1;
-                } else {
-                    return  -1;
-                }
-            }
-            else if ((s1.getAlgorithmValue() - s2.getAlgorithmValue()) > 0) {
-                return 1;
-            }
-            else {
-                return -1;
-            }
-        }
-    }
 
     private final LocationListener mLocationListener = new LocationListener(){
         @Override

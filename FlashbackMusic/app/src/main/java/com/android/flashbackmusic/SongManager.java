@@ -299,6 +299,9 @@ public class SongManager {
             } else {
                 Album album = new Album(song.getAlbum(), song.getArtist());
                 albumsMap.put(song.getAlbum(), album);
+                if (listOfAlbums.size() == 0) {
+                    listOfAlbums.add(album);
+                }
                 for (int i = 0; i < listOfAlbums.size(); i++) {
                     if (album.getName().compareTo(listOfAlbums.get(i).getName()) < 0) {
                         listOfAlbums.add(i, album);

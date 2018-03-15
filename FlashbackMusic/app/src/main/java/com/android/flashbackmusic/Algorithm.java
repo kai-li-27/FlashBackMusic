@@ -1,7 +1,5 @@
 package com.android.flashbackmusic;
 
-import android.app.Application;
-import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;

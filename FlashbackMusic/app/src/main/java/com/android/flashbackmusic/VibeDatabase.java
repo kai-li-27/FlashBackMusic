@@ -87,9 +87,10 @@ public class VibeDatabase {
         query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) { //TODO this doesn't filter out same song, add it
-               Song song = dataSnapshot.getValue(Song.class);
+                Song song = dataSnapshot.getValue(Song.class);
                if (song != null) {
                    if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
+                       System.out.println(song.getTitle() + " Found");
 
                        if (SongManager.getSongManager().isSongDownloaded(song) != null) {
                            Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
@@ -98,12 +99,11 @@ public class VibeDatabase {
                            DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
                            if (downloadedAlbum.contains(song.getAlbum())) {
                                songsWaitedToBeDownLoaded.add(song);
-                               return;
                            } else {
                                downloadedAlbum.add(song.getAlbum());
-                               downloader.downloadSongForVibe(song);
                                songsWaitedToBeDownLoaded.add(song);
                            }
+                           downloader.downloadSongForVibe(song);
                            return;
                        }
 
