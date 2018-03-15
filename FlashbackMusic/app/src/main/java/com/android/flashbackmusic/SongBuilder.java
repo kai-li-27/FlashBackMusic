@@ -64,6 +64,8 @@ public class SongBuilder {
         return this;
     }
 
-
+    public Song getSong(){
+        return song;
+    }
 
 }

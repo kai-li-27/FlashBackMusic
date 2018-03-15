@@ -58,4 +58,6 @@ public class FriendUser implements IUser {
     public String getEmail() {
         return email;
     }
+
+    public String getAnonymousName(){return anonymousName;}
 }
