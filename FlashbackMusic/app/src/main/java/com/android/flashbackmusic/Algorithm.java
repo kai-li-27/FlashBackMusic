@@ -122,12 +122,12 @@ public final class Algorithm {
      * @precondition updateTimeDiffernce() and updateDistance has been called on the song
      * @postcondition the algorithmValue field of song will be set to its weight
      */
-
     static public void calculateSongWeight(Song song) {
         if (song == null) {
             System.err.println("Argument passed into calculateSongWeight() is null");
             throw new IllegalArgumentException();
         }
+
         double distFactor = 1.0;
         double timeFactor = 1.0;
         double dayFactor = 1.0;
@@ -135,6 +135,7 @@ public final class Algorithm {
         double distance, timeDiff;
         boolean sameTime, sameDay;
 
+        // songs played closer will be in the playlist first
         distance = song.getDistance();
 
         sameTime = false;
@@ -167,5 +168,66 @@ public final class Algorithm {
 
         song.setAlgorithmValue(result);
     }
+
+    static public double calculateSongWeightVibe(Song song) {
+        if (song == null) {
+            System.err.println("Argument passed into calculateSongWeight() is null");
+            throw new IllegalArgumentException();
+        }
+
+        UserManager manager;
+        manager = UserManager.getUserManager();
+        // priority in queue is based on (a)distance,(b)played in the last week,(c)played by amigo
+
+        double distFactor = 1.0;
+        double distPenalty = 0.0;
+        double weekFactor = 0.0;
+        double friendFactor = 0.0;
+        double distanceDiff,timeDiff,result;
+        String userEmail;
+
+        distanceDiff = song.getDistance();
+        timeDiff = song.getTimeDifference();
+        userEmail = song.getEmail();
+
+
+        // subtract .01 by every 100 feet after 1000
+        if (distanceDiff > 1000) {
+            distPenalty = (distanceDiff - 1000)/1000;
+
+            // do not allow penalty greater than 1
+            if (distPenalty > 1.0) {
+                distPenalty = 1.0;
+            }
+
+            distFactor -= distPenalty;
+
+        }
+
+
+
+        // check if the song was played within the last week
+        if (timeDiff < 604800000) {
+            weekFactor = 1.0;
+        }
+
+        // check if the song was played by your friend
+        if (manager.checkIfFriend(userEmail)){
+            friendFactor = 1.0;
+        }
+
+        // tie breakers
+        if (distFactor == weekFactor) weekFactor = .99;
+        if (weekFactor == friendFactor) friendFactor = .99;
+        if (friendFactor == distFactor) friendFactor = .99;
+
+        result = distFactor + weekFactor + friendFactor;
+        song.setAlgorithmValue(result);
+
+        return result;
+
+    }
+
+
 
 }
