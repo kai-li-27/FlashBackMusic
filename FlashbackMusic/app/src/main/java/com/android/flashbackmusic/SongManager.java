@@ -307,10 +307,12 @@ public class SongManager {
                 }
                 album.getSongsInAlbum().add(song);
             }
+
         } else {
             vibeDownloadList.add(song);
-            if (song.getLastLocation().distanceTo(currentlocation) / 3.28 < 100000000) {//TODO change to radius {
-                vibeSongList.add(song);
+            Song temp = VibeDatabase.getDatabase().wasThisSongWaitedToBeDownloaded(song);
+            if (temp != null) {
+                vibeSongList.add(temp);
             }
         }
     }

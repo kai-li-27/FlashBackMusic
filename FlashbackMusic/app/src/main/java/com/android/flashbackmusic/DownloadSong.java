@@ -267,6 +267,7 @@ public class DownloadSong extends AppCompatActivity implements View.OnClickListe
             App.getContext().registerReceiver(downloadReceiver, filter);
         }
     }
+
 }
 
 

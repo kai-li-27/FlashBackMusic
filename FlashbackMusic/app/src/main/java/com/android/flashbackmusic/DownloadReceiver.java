@@ -8,9 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Gravity;
-import android.webkit.MimeTypeMap;
-import android.widget.Toast;
+    import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,9 +50,6 @@ public class DownloadReceiver extends BroadcastReceiver {
         //check if the broadcast message is for our Enqueued download
 
         long referenceId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-
-
-
 
         /* This will return if able to fetch song info from the file. It DOES NOT check for anything else
            So if it is not a valid song but somehow we can fetch the info, it still returns.
@@ -117,6 +112,7 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     }
 
+
     private void fetchFileFromZip(Uri fileUri) {
         String folderPath = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" ;
         if (isDownloadedByuser) {
@@ -158,46 +154,50 @@ public class DownloadReceiver extends BroadcastReceiver {
                 System.out.println(folderPath + filename);
                 Uri musicUri = Uri.fromFile(songFile);
 
-                try {
-                    MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-                    metaRetriever.setDataSource(App.getContext(), musicUri);
-                    String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-                    String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-                    String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                if (isDownloadedByuser) {
+                    try {
+                        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+                        metaRetriever.setDataSource(App.getContext(), musicUri);
+                        String artist = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                        String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                        String album = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
 
-                    if (artist == null) {
-                        artist = "";
+                        if (artist == null) {
+                            artist = "";
+                        }
+                        if (title == null) {
+                            title = "";
+                        }
+                        if (album == null) {
+                            album = "";
+                        }
+
+                        Song song;
+                        if (isDownloadedByuser) {
+                            IUser self = UserManager.getUserManager().getSelf();
+                            song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
+                                    .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
+                            VibeDatabase.getDatabase().insertSong(song);
+                        } else {
+                            song = new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
+                                    .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
+                        }
+
+                        SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
+
+
+                    } catch (Exception e) {
+                        Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
+                        e.printStackTrace();
                     }
-                    if (title == null) {
-                        title = "";
-                    }
-                    if (album == null) {
-                        album = "";
-                    }
+                } else {
 
-                    Song song;
-                    if (isDownloadedByuser) {
-                        IUser self = UserManager.getUserManager().getSelf();
-                        song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
-                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
-                        VibeDatabase.getDatabase().insertSong(song);
-                    } else {
-                        song =  new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
-                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
-                    }
-
-                    SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
-
-
-                } catch (Exception e) {
-                    Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
-                    e.printStackTrace();
                 }
 
-                Toast.makeText(App.getContext(), "Zip downloaded and unzipped", Toast.LENGTH_SHORT).show();
 
             }
             zis.close();
+            Toast.makeText(App.getContext(), "Zip downloaded and unzipped", Toast.LENGTH_SHORT).show();
             new File(filePath).delete();
 
         } catch (Exception e) {
