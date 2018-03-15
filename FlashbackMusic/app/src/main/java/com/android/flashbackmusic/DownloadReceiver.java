@@ -120,9 +120,9 @@ public class DownloadReceiver extends BroadcastReceiver {
     private void fetchFileFromZip(Uri fileUri) {
         String folderPath = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/" ;
         if (isDownloadedByuser) {
-            filePath += "UserSongs/";
+            folderPath += "UserSongs/";
         } else {
-            filePath += "VibeSongs/";
+            folderPath += "VibeSongs/";
         }
 
         try {
@@ -132,6 +132,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             FileInputStream is = new FileInputStream(filePath);
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry ze;
+
 
 
             while((ze = zis.getNextEntry()) != null) {
@@ -149,8 +150,6 @@ public class DownloadReceiver extends BroadcastReceiver {
                     fout.write(bytes);
                     baos.reset();
                 }
-
-
 
                 fout.close();
                 zis.closeEntry();
@@ -180,26 +179,31 @@ public class DownloadReceiver extends BroadcastReceiver {
                     if (isDownloadedByuser) {
                         IUser self = UserManager.getUserManager().getSelf();
                         song = new SongBuilder(fileUri, self.getUserId(), self.getEmail())
-                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
+                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
                         VibeDatabase.getDatabase().insertSong(song);
                     } else {
                         song =  new SongBuilder(fileUri, "", email) //TODO figure out what userIDstring should be
-                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
+                                .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(true).setDownLoadURL(URL).build();
                     }
 
                     SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
+
 
                 } catch (Exception e) {
                     Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
                     e.printStackTrace();
                 }
+
                 Toast.makeText(App.getContext(), "Zip downloaded and unzipped", Toast.LENGTH_SHORT).show();
 
             }
             zis.close();
+            new File(filePath).delete();
 
         } catch (Exception e) {
-            System.out.println("Downloaded file was not zip file");
+            Toast.makeText(App.getContext(), "Downloaded file was not zip file", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+
         }
     }
 

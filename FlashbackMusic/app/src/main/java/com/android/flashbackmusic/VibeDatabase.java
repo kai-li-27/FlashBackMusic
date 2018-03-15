@@ -91,7 +91,6 @@ public class VibeDatabase {
                        if (SongManager.getSongManager().isSongDownloaded(song) != null) {
                            Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
                            song.setUri(downloaded.getUri());
-                           System.out.println("Fuck you");
                        } else {
                            DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
                            downloader.downloadSongForVibe(song);
