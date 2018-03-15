@@ -24,6 +24,7 @@ public class JUnitTestsForPeople {
         assertEquals(person.getName(), "Kate");
         assertEquals(person.getUserId(), "10");
         assertEquals(person.getEmail(), "kww006@ucsd.edu");
+
     }
 
     @Test
