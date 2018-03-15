@@ -20,11 +20,7 @@ public class TimeAndDate {
     private static TimeAndDate instance;
 
 
-    public TimeAndDate(CalendarView calendarView, TimePicker timePicker){
-        setTimeToCustom(calendarView, timePicker);
-    }
-
-    public TimeAndDate() {
+    private TimeAndDate() {
         setTimeToCurrent();
     }
 
@@ -53,11 +49,6 @@ public class TimeAndDate {
         Log.i("TimeAndDate", date.toString());
     }
 
-    public void setTimeToCustom(CalendarView calendarView, TimePicker timePicker) {
-        this.dateSelected = calendarView.getDate() + TimeUnit.HOURS.toMillis(timePicker.getHour())
-                + TimeUnit.MINUTES.toMillis(timePicker.getMinute()); //
-        isTimeCurrentTime = false;
-    }
 
     public void setTimeToCustom(int year, int month, int dayOfMonth, int hour, int minute) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
