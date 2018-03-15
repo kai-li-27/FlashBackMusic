@@ -6,13 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -33,25 +28,9 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.model.EmailAddress;
-import com.google.api.services.people.v1.model.ListConnectionsResponse;
-import com.google.api.services.people.v1.model.Name;
-import com.google.api.services.people.v1.model.Person;
-import com.google.api.services.people.v1.model.PhoneNumber;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Landing page with all the songs and albums
@@ -77,27 +56,13 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     private final int RC_SIGN_IN = 420;
 
 
-    /**
-     * Override back button to not kill this activity
-     */
-    @Override
-    public void onBackPressed() {
-        moveTaskToBack(true);
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unbindService(musicConnection);
-        stopService(playIntent);
-    }
 
+//region Methods extended from activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
 
         //Binds with music player
@@ -105,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             playIntent = new Intent(this, SongService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
         }
+
 
         // Ask for all the permissions
         getPermissions();
@@ -114,7 +80,32 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         importGoogleFriends = new ImportGoogleFriends(this);
 
 
-        Switch mySwitch = findViewById(R.id.flashback_switch);
+        final Switch mySwitch = findViewById(R.id.flashback_switch);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                Log.v(TAG, "Flashback mode toggled");
+                if (checked && !songsService.getFlashBackMode()) {
+                    songsService.switchMode(checked);
+                    mySwitch.setChecked(false);
+
+                    if (songsService.getFlashBackMode() ) {
+                        Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                        intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                        startActivity(intent);
+                    }
+
+                    else {
+                        mySwitch.setChecked(false);
+                    }
+
+                } else if (checked && songsService.getFlashBackMode()) {
+                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
+                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
+                    startActivity(intent);
+                }
+            }
+        });
 
 
         // Google sign-in button
@@ -135,17 +126,35 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             }
         });
 
-        Button setDateTime = (Button) findViewById(R.id.set_temporal_button);
+
+        Button downloadButton = findViewById(R.id.download_button);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override // TODO Get switching working
+            public void onClick(View view) {
+                if (UserManager.getUserManager().getSelf() == null) {
+                    Toast.makeText(App.getContext(), "Downloaded feature is not supported unless you log in", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Intent intent1 = new Intent(App.getContext(), DownloadSong.class);
+                startActivity(intent1);
+            }
+        });
+
+
+        Button setDateTime = findViewById(R.id.set_temporal_button);
         setDateTime.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                goToTimeActivity();
+                Intent intent = new Intent(App.getContext(), SetAppTimeActivity.class);
+                startActivity(intent);
             }
 
         });
 
-        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+
+        TextView appTimeText = findViewById(R.id.flashback_time_text);
         appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
+
 
         songAdapt = new SongListAdapter(this, SongManager.getSongManager().getDisplaySongList());
         albumAdapt = new AlbumListAdapter(this, SongManager.getSongManager().getAlbumList());
@@ -168,11 +177,17 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             public void onTabSelected(TabLayout.Tab tab) {
                 Log.v(TAG, "tab was selected");
                 String theTab = tab.getText().toString();
+                TextView sortSongsText = (TextView) findViewById(R.id.sortOptionsText);
+                Spinner sortOptions = (Spinner) findViewById(R.id.sortingOptions);
                 if (theTab.equalsIgnoreCase("songs")) {
                     songsView.setAdapter(songAdapt);
+                    sortSongsText.setVisibility(View.VISIBLE);
+                    sortOptions.setVisibility(View.VISIBLE);
                 }
                 if (theTab.equalsIgnoreCase("albums")) {
                     songsView.setAdapter(albumAdapt);
+                    sortSongsText.setVisibility(View.GONE);
+                    sortOptions.setVisibility(View.GONE);
                 }
             }
 
@@ -188,18 +203,22 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         });
     }
 
-  
-    public void goToTimeActivity(){
-        Intent intent = new Intent(this, SetAppTimeActivity.class);
-        startActivity(intent);
+
+    /**
+     * Override back button to not kill this activity
+     */
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(musicConnection);
+        stopService(playIntent);
     }
-
 
 
     @Override
@@ -213,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
             System.out.println("Status Code: " + result.getStatus());
             if (result.isSuccess()) {
                 GoogleSignInAccount acct = result.getSignInAccount();
+                String personEmail = acct.getEmail();
+                UserManager.getUserManager().addOneUserToList(acct.getDisplayName(), personEmail, "self", null, acct.getId());
                 Log.d(TAG, "onActivityResult:GET_TOKEN:success:" + result.getStatus().isSuccess());
                 // This is what we need to exchange with the server.
                 System.out.println(acct.getServerAuthCode());
@@ -227,8 +248,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
     @Override
     public void onRestart() {
         super.onRestart();
-        flashbackSwitchOff();
-        TextView appTimeText = (TextView) findViewById(R.id.flashback_time_text);
+        TextView appTimeText = findViewById(R.id.flashback_time_text);
         appTimeText.setText("Flashback Time: " + TimeAndDate.getTimeAndDate().toString());
     }
 //endregion;
@@ -249,38 +269,6 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         }
     }
 
-    /**
-     * reset flashback switch UI display
-     */
-    public void flashbackSwitchOff() {
-        final Switch mySwitch = findViewById(R.id.flashback_switch);
-        mySwitch.setOnCheckedChangeListener(null); //TODO this method wan't called on app start
-        mySwitch.setChecked(false);
-        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                Log.v(TAG, "Flashback mode toggled");
-                if (checked && !songsService.getFlashBackMode()) {
-                    songsService.switchMode(checked);
-
-                    if (songsService.getFlashBackMode() ) {
-                        Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                        intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                        startActivity(intent);
-                    }
-
-                    else {
-                        mySwitch.setChecked(false);
-                    }
-
-                } else if (checked && songsService.getFlashBackMode()) {
-                    Intent intent = new Intent(MainActivity.this, IndividualSong.class);
-                    intent.putExtra(Intent.EXTRA_INDEX,0); // This does nothing, just it keeps it from crashing
-                    startActivity(intent);
-                }
-            }
-        });
-    }
 
     /**
      * When a song is clicked, play the song
@@ -293,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         intent.putExtra(Intent.EXTRA_INDEX,(int)view.getTag()); //view.getTage() returns the index of the song in the displayed list
         startActivity(intent);
     }
+
 
     /**
      * When an album is clicked, set the playlist to that album and play the first song in the album
@@ -307,45 +296,26 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
         startActivity(intent);
     }
 
+
+    /**
+     * Bind with the music service
+     */
     private ServiceConnection musicConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicBinder binder = (MusicBinder)service;
             songsService = binder.getService();
             songsService.addSongServiceEventListener(MainActivity.this);
+            if (songsService.getFlashBackMode()) {
+                Switch mySwitch = findViewById(R.id.flashback_switch);
+                mySwitch.setChecked(true);
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
         }
     };
-
-
-    /**
-     * Change the color of background based on on/off of flashback mode
-     */
-    public void changeBackgroundForFlashback() {
-        Log.v(TAG, "changing background to indicate flashback mode");
-        if (songsService == null) {
-            Log.e("changeBackground", "songsServices is null");
-            return;
-        }
-
-        Switch mySwitch = (Switch) findViewById(R.id.flashback_switch);
-        final ConstraintLayout indivSongActivity = (ConstraintLayout) findViewById(R.id.MainActivity);
-
-        if (songsService.getFlashBackMode() && mySwitch.isChecked()) {
-            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-        } else if (!songsService.getFlashBackMode() && mySwitch.isChecked()) {
-            mySwitch.setChecked(false);
-            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        } else if (!songsService.getFlashBackMode() && !mySwitch.isChecked()) {
-            indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        } else {
-            mySwitch.setChecked(true);
-            indivSongActivity.setBackgroundColor(Color.parseColor("#f2d5b8"));
-        }
-    }
 //endregion;
 
 
@@ -394,6 +364,4 @@ public class MainActivity extends AppCompatActivity implements VibeDatabaseEvent
 
     }
 //endregion;
-
-
 }

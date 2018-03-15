@@ -10,21 +10,6 @@ import java.util.Date;
 
 public class SongBuilder {
 
-//    private String userIdString;
-//    private String email;
-//    private Uri uri;
-//    private String title = "No Title";
-//    private String artist = "No Artist" ;
-//    private String album = "no Album";
-//    private long lastTimeLong = 0;
-//    private double lastLongitude = 0;
-//    private double lastLatitude = 0;
-//
-//    private Date lastTime= null;
-//    private double distance = 0;
-//    private double timeDifference = 0;
-//    private double algorithmValue = 0;
-//    private static final String TAG = "Song";
     private Song song;
 
     public SongBuilder(Uri uri, String userIdString, String email){
@@ -64,6 +49,21 @@ public class SongBuilder {
         return this;
     }
 
+
+    public SongBuilder setDownLoadURL(String url) {
+        song.setDownloadURL(url);
+        return this;
+    }
+
+    public SongBuilder setPartOfAlbum(boolean is) {
+        song.setIsPartOfAlbum(is);
+        return  this;
+    }
+
+
+    public Song getSong(){
+        return song;
+    }
 
 
 }
