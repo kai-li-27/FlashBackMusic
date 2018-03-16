@@ -1,16 +1,23 @@
 package com.android.flashbackmusic;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.intent.Intents;
+import android.widget.Switch;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -41,11 +48,13 @@ import static org.hamcrest.CoreMatchers.startsWith;
 public class UserStory3AutomatedTest {
 
     ArrayList<Song> songList;
+    SongService songsService;
     @Rule
     public ActivityTestRule<IndividualSong> individualActivity = new ActivityTestRule<IndividualSong>(IndividualSong.class);
 
     @Before
     public void initializeEverything() {
+
         songList = SongManager.getSongManager().getCurrentPlayList();
         if (songList.size() == 0) {
             System.out.println("No songs in the list, adding fake songs");
@@ -76,8 +85,18 @@ public class UserStory3AutomatedTest {
         assertTrue(songList.size() > 0);
         IndividualSong activity = individualActivity.getActivity();
         ArrayList<Song> upcomingList = activity.getUpcomingList();
+        songsService = activity.getSongsService();
 
         assertTrue(upcomingList.get(0).equals(songList.get(1)));
+        assertTrue(upcomingList.get(1).equals(songList.get(2)));
 
+        Song songToPlay = upcomingList.get(0);
+        Button skip = activity.findViewById(R.id.button_skip);
+        skip.callOnClick();
+
+        assertTrue(songToPlay.equals(songsService.getCurrentSong()));
+        assertTrue(upcomingList.get(0).equals(songList.get(2)));
+        assertTrue(upcomingList.get(1).equals(songList.get(3)));
     }
+
 }

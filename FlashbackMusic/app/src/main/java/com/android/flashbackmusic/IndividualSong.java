@@ -188,6 +188,20 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
 
 
+//region Getters
+    public ArrayList<Song> getUpcomingList() {
+        return upcomingList;
+    }
+
+    public SongService getSongsService() {
+        return  songsService;
+    }
+//endregion;
+
+
+
+
+
 //region UI change methods
 
     /**
@@ -207,10 +221,6 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         for (int i = currentIndex + 1; i < currentPlayList.size(); i++) {
             upcomingList.add(currentPlayList.get(i));
         }
-    }
-
-    public ArrayList<Song> getUpcomingList() {
-        return upcomingList;
     }
 
 
