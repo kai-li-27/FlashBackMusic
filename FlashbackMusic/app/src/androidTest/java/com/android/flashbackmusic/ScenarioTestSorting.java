@@ -1,10 +1,6 @@
 package com.android.flashbackmusic;
 
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.espresso.ViewAction;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -20,14 +16,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mortbay.jetty.Main;
-
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
-import javax.net.ssl.ExtendedSSLSession;
-
-import static org.junit.Assert.assertTrue;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by kwmag on 3/15/2018.

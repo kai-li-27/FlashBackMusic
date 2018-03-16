@@ -209,6 +209,11 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
         }
     }
 
+    public ArrayList<Song> getUpcomingList() {
+        return upcomingList;
+    }
+
+
 
     /**
      * Change the icon of +/-/check button
@@ -318,7 +323,10 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
             songsService = binder.getService();
             songsService.addSongServiceEventListener(IndividualSong.this);
             Bundle bundle = getIntent().getExtras();
-            int index = bundle.getInt(Intent.EXTRA_INDEX);
+            int index = 0;
+            if (bundle != null) {
+                 index = bundle.getInt(Intent.EXTRA_INDEX);
+            }
             songsService.loadMedia(index);
             songsService.playPause(); //start playing TODO this is bad, create startplaying()
 

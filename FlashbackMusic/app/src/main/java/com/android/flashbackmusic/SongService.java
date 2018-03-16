@@ -204,10 +204,13 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
         try {
             player.reset();
-            currentSong = currentPlayList.get(index);
-
-            player.setDataSource(getApplicationContext(), currentSong.getUri());
-            player.prepare();
+            if (currentPlayList.size() > index) {
+                currentSong = currentPlayList.get(index);
+                player.setDataSource(getApplicationContext(), currentSong.getUri());
+                player.prepare();
+            } else {
+                currentSong = new Song();
+            }
             notify(Event.SONG_LOADED);
         } catch (IOException e) {
             System.out.println("************************");
