@@ -355,18 +355,18 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     @Override
     public void onVibeModeToggled(boolean vibeModeOn) {
         final ConstraintLayout indivSongActivity = findViewById(R.id.individualsongactivity);
+        TextView userLabel = (TextView) findViewById(R.id.user_label);
+        TextView userName = (TextView) findViewById(R.id.curr_song_user);
+        Button downloadButton = (Button) findViewById(R.id.download_button);
         if (vibeModeOn) {
             indivSongActivity.setBackgroundColor(Color.parseColor("#D6CEF2"));
-
-            TextView userLabel = (TextView) findViewById(R.id.user_label);
-            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            downloadButton.setVisibility(View.GONE);
             userLabel.setVisibility(View.VISIBLE);
             userName.setVisibility(View.VISIBLE);
 
         } else {
             indivSongActivity.setBackgroundColor(Color.parseColor("#FFFFFF"));
-            TextView userLabel = (TextView) findViewById(R.id.user_label);
-            TextView userName = (TextView) findViewById(R.id.curr_song_user);
+            downloadButton.setVisibility(View.VISIBLE);
             userLabel.setVisibility(View.GONE);
             userName.setVisibility(View.GONE);
         }
