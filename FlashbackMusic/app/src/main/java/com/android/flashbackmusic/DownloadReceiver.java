@@ -182,7 +182,6 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     public static String parseFileNameFromURL(String url) {
         String fileName = url.substring( url.lastIndexOf('/')+1, url.lastIndexOf('.') + 4);
-        System.out.println("               ssssssssssssssssssss: " + fileName);
         return  fileName;
     }
 

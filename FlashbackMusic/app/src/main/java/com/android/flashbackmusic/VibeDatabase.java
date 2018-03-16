@@ -68,12 +68,16 @@ public class VibeDatabase {
     }
 
     public void insertSong(Song song) {
-        myRef.child(song.getDataBaseReferenceString()).setValue(song);
+        try {
+            myRef.child(song.getDataBaseReferenceString()).setValue(song);
+        } catch (Exception o) {o.printStackTrace();}
     }
 
     public void updateSong(Song song){
-        DatabaseReference dataEntry = myRef.child(song.getDataBaseReferenceString());
-        dataEntry.setValue(song);
+        try {
+            DatabaseReference dataEntry = myRef.child(song.getDataBaseReferenceString());
+            dataEntry.setValue(song);
+        } catch(Exception e) {e.printStackTrace();}
     }
 
 
@@ -93,42 +97,68 @@ public class VibeDatabase {
                 if (song != null) {
                     if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
 
-                       if (SongManager.getSongManager().isSongDownloaded(song) != null) {
-                           Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
-                           song.setUri(downloaded.getUri());
-                       } else {
-                           DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
-                           if (!downloadedAlbum.contains(song.getAlbum())) {
-                               downloadedAlbum.add(song.getAlbum());
-                               downloader.downloadSongForVibe(song);
-                           }
-                       }
+                        if (SongManager.getSongManager().isSongDownloaded(song) != null) {
+                            Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
+                            song.setUri(downloaded.getUri());
+                        } else {
+                            DownloadSong.DownLoader downloader = new DownloadSong.DownLoader();
+                            if (!downloadedAlbum.contains(song.getAlbum())) {
+                                downloadedAlbum.add(song.getAlbum());
+                                downloader.downloadSongForVibe(song);
+                            }
+                        }
 
-                       System.out.println(song.getTitle() + " found in Firebase");
+                        System.out.println(song.getTitle() + " found in Firebase");
 
-                       song.setUserDisplayName(AnonymousNameGenerator.GenerateAnonymousName(song.getEmail()));
+                        song.setUserDisplayName(AnonymousNameGenerator.GenerateAnonymousName(song.getEmail()));
 
-                       if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
-                           song.setUserDisplayName("You");
-                           song.setUserIdString(UserManager.getUserManager().getSelf().getUserId()); //This is for updating preference in vibe mode
-                       } else {
-                           if (UserManager.getUserManager().getFriends().containsKey(song.getEmail())) {
-                               song.setUserDisplayName(UserManager.getUserManager().getFriends().get(song.getEmail()).getName());
-                           }
-                       }
+                        //prevent testing fail
+                        if (UserManager.getUserManager().getSelf() == null) {
+                            songsList.add(song);
+                            return;
+                        }
 
-                       song.updateDistance(location);
-                       song.updateTimeDifference(new Date(System.currentTimeMillis()));
-                       Algorithm.calculateSongWeightVibe(song);
-                       for (int i = 0; i < songsList.size(); i++) {
-                           while (songsList.get(i).getUri() != null && song.getUri() == null) { // If the song is not downloaded, skip to the end of the list
-                               i++;
-                           }
-                           if (songsList.get(i).getAlgorithmValue() < song.getAlgorithmValue()) { //sorting by calculated weight
-                                songsList.add(i, song);
+                        if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
+                            song.setUserDisplayName("You");
+                            song.setUserIdString(UserManager.getUserManager().getSelf().getUserId()); //This is for updating preference in vibe mode
+                        } else {
+                            if (UserManager.getUserManager().getFriends().containsKey(song.getEmail())) {
+                                song.setUserDisplayName(UserManager.getUserManager().getFriends().get(song.getEmail()).getName());
+                            }
+                        }
+
+
+                        song.updateDistance(location);
+                        song.updateTimeDifference(new Date(System.currentTimeMillis()));
+                        Algorithm.calculateSongWeightVibe(song);
+
+                        if (songsList.contains(song)) {
+                            int index = songsList.indexOf(song);
+                            Song temp = songsList.get(index);
+                            if (temp.getAlgorithmValue() < song.getAlgorithmValue()) {
+                                songsList.remove(temp);
+                            } else {
                                 return;
-                           }
-                       }
+                            }
+                        }
+
+                        int i = 0;
+                        if (!songsList.isEmpty()) {
+                            while (songsList.get(i).getUri() != null && song.getUri() == null) { // If the song is not downloaded, skip to the end of the list
+                                i++;
+                                if (i == songsList.size() - 1) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        for (; i < songsList.size(); i++) {
+
+                            if (songsList.get(i).getAlgorithmValue() < song.getAlgorithmValue()) { //sorting by calculated weight
+                                 songsList.add(i, song);
+                                 return;
+                            }
+                        }
                        songsList.add(song);
                     }
                 }
