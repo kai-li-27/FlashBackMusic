@@ -1,6 +1,5 @@
 package com.android.flashbackmusic;
 
-import android.app.ProgressDialog;
 import android.location.Location;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -12,13 +11,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by K on 3/8/2018.
@@ -32,6 +27,8 @@ public class SongManager {
     private ArrayList<Song> vibeDownloadList = new ArrayList<>();
     private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
 
+    private static SongManager instance;
+
     private String userFoler;
     private String vibeFoler;
 
@@ -42,13 +39,11 @@ public class SongManager {
         TITLE, ALBUM, ARTIST, MOST_RECENT, PREFERENCE
     }
 
-    private static SongManager instance;
 
     private SongManager() {
 
         userFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/UserSongs";
         vibeFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/VibeSongs";
-
 
 
         importSongsFromFolder(listOfAllUserSongs, userFoler);
@@ -71,6 +66,28 @@ public class SongManager {
 
     }
 
+
+    public Song isSongDownloaded(Song song) {
+        for (Song i : vibeDownloadList) {
+            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
+                return i;
+            }
+        }
+
+        for (Song i : listOfAllUserSongs) {
+            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
+                return i;
+            }
+        }
+
+        return null;
+    }
+
+
+
+
+
+//region getters
     public static SongManager getSongManager() {
         if (instance == null) {
             instance = new SongManager();
@@ -91,22 +108,11 @@ public class SongManager {
     }
 
     public ArrayList<Song> getVibeSongList() { return vibeSongList;}
+//endregion;
 
-    public Song isSongDownloaded(Song song) {
-        for (Song i : vibeDownloadList) {
-            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
-                return i;
-            }
-        }
 
-        for (Song i : listOfAllUserSongs) {
-            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
-                return i;
-            }
-        }
 
-        return null;
-    }
+
 
 //region Sorting Methods
     public void sortByTitle(){
@@ -244,18 +250,20 @@ public class SongManager {
                         album = "";
                     }
 
-                    Song song = new SongBuilder(musicUri, "Donal Trump 2020", "Invalid email")
+                    Song song = new SongBuilder(musicUri, "default", "default")
                             .setArtist(artist).setAlbum(album).setTitle(title).build();
 
                     songsList.add(song);
 
                 } catch (Exception e) {
-                    Log.d(TAG, "Failed to import '" + songFile.toString() + "'");
+                    e.printStackTrace();
                 }
             }
         }
 
     }
+
+
 
     private void getAlbumsFromImportedSongs() {
         HashMap<String, Album> albumsMap = new HashMap<String, Album>();
@@ -274,7 +282,6 @@ public class SongManager {
         listOfAlbums = new ArrayList<Album>(albumsMap.values());
         java.util.Collections.sort(listOfAlbums, new AlbumComparator());
     }
-
     class AlbumComparator implements Comparator<Album> {
         @Override
         public int compare(Album a, Album b) {
@@ -282,11 +289,11 @@ public class SongManager {
         }
     }
 
+
+
     public void newSongDownloaded(Song song, boolean wasDownloadedByUser) {
         if (wasDownloadedByUser) {
             listOfAllUserSongs.add(song);
-            //TODO for kate, sort the song in user's selected sort mode. SORT it using the listener you created so that
-            // ToDO the changed is reflected on the ui.
 
             if (albumsMap.containsKey(song.getAlbum())) {
                 Album album = albumsMap.get(song.getAlbum());
@@ -311,11 +318,14 @@ public class SongManager {
                 album.getSongsInAlbum().add(song);
             }
 
-        } else {
+        }
+
+        else { //song downloaded for vibe mode
             vibeDownloadList.add(song);
-            Song temp = VibeDatabase.getDatabase().wasThisSongWaitedToBeDownloaded(song);
-            if (temp != null) {
-                vibeSongList.add(temp);
+            for (Song i : vibeSongList) {
+                if (i.getTitle().equals(song.getTitle()) && i.getArtist().equals(song.getArtist()) && i.getAlbum().equals(song.getAlbum())) {
+                    i.setUri(song.getUri());
+                }
             }
         }
     }

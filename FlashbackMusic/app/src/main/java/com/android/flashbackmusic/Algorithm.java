@@ -203,13 +203,12 @@ public final class Algorithm {
             }
 
             distFactor -= distPenalty;
-
         }
 
 
 
         // check if the song was played within the last week
-        if (timeDiff < 604800000) {
+        if (timeDiff < 60*24*7) {
             weekFactor = 1.0;
         }
 
@@ -219,15 +218,14 @@ public final class Algorithm {
         }
 
         // tie breakers
-        if (distFactor == weekFactor) weekFactor = .99;
-        if (weekFactor == friendFactor) friendFactor = .99;
-        if (friendFactor == distFactor) friendFactor = .99;
+        if (distFactor == weekFactor && weekFactor == 1) weekFactor = .99;
+        if (weekFactor == friendFactor && friendFactor == 1) friendFactor = .99;
+        if (friendFactor == distFactor && friendFactor == 1) friendFactor = .99;
 
         result = distFactor + weekFactor + friendFactor;
         song.setAlgorithmValue(result);
 
         return result;
-
     }
 
 

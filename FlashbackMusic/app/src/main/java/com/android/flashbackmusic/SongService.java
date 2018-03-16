@@ -10,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -44,6 +45,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
     private ArrayList<Song> currentPlayList;
 
+    private Song emptySong;
     private Song currentSong;
     private Location currlocation = null;
     private boolean flashBackMode = false;
@@ -124,9 +126,13 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         songManager = SongManager.getSongManager();
         currentPlayList = songManager.getCurrentPlayList();
 
+        emptySong = new SongBuilder(Uri.parse(""), "empty","empty").setTitle("You don't have any songs")
+                          .setAlbum("Try download some songs").setArtist("Playlist if empty").build();
 
         if (currentPlayList.size() > 0) { //IN case no songs have been downloaded
             currentSong = currentPlayList.get(0);
+        } else {
+            currentSong = emptySong;
         }
         player = new MediaPlayer();
         initializeMusicPlayer();
@@ -176,11 +182,11 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             notify(Event.SONG_LOADED);
 
         } catch (Exception e) {
-            System.out.println("************************");
-            System.out.println("Failed to load song!!!!!");
-            System.out.println("************************");
-            Log.e(TAG, "Failed to load song!!");
-            Toast.makeText(App.getContext(), "This song wasn't downloaded", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            notify(Event.SONG_LOADED);
+            if (currentSong != emptySong) {
+                Toast.makeText(App.getContext(), "This song is being downloaded", Toast.LENGTH_LONG).show();
+            }
         }
 
     }
@@ -210,10 +216,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             player.prepare();
             notify(Event.SONG_LOADED);
         } catch (IOException e) {
-            System.out.println("************************");
-            System.out.println("Failed to load song!!!!!");
-            System.out.println("************************");
-            Log.e(TAG, "Failed to load song!!");
+            e.printStackTrace();
         }
 
     }
@@ -259,6 +262,11 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
      */
     public void playNext() {
         Log.v(TAG, "Playing the next song");
+
+        if (currentPlayList.size() == 0) {
+            return;
+        }
+
         int currentIndex = currentPlayList.indexOf(currentSong);
         if (currentIndex == currentPlayList.size()-1) {
             currentIndex = 0;
@@ -299,6 +307,9 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
                 currentSong = currentPlayList.get(0);
                 loadMedia();
                 player.start();
+            } else {
+                currentSong = emptySong;
+                loadMedia();
             }
         }
 
@@ -320,7 +331,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
             flashBackMode = true;
             currentSong = currentPlayList.get(0);
-            System.out.println(currentSong.getUri());
             loadMedia();
             player.start();
         }
