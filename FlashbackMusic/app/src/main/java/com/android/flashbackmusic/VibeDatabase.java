@@ -104,6 +104,8 @@ public class VibeDatabase {
                            }
                        }
 
+                       System.out.println(song.getTitle() + " found in Firebase");
+
                        song.setUserDisplayName(AnonymousNameGenerator.GenerateAnonymousName(song.getEmail()));
 
                        if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {

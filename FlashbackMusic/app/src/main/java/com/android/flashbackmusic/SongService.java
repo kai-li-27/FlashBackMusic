@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -119,7 +120,22 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
-            currlocation = locationManager.getLastKnownLocation("");
+            List<String> providers = locationManager.getProviders(true);
+            Location bestLocation = null;
+            for (String provider : providers) {
+                Location l = locationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    // Found best last known location: %s", l);
+                    bestLocation = l;
+                }
+            }
+            currlocation = bestLocation;
+            if (currlocation != null) {
+                SongManager.getSongManager().updateVibePlaylist(currlocation);
+            }
             failedToGetLoactionPermission = false;
         } catch (SecurityException e){}
 
