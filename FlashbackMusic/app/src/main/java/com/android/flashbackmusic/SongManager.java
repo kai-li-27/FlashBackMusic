@@ -24,7 +24,6 @@ public class SongManager {
     private ArrayList<Song> currentPlayList = new ArrayList<>();
     private ArrayList<Album> listOfAlbums = new ArrayList<>();
     private ArrayList<Song> vibeSongList = new ArrayList<>();
-    private ArrayList<Song> vibeDownloadList = new ArrayList<>();
     private HashMap<String, Album> albumsMap = new HashMap<String, Album>();
 
     private static SongManager instance;
@@ -45,9 +44,10 @@ public class SongManager {
         userFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/UserSongs";
         vibeFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/VibeSongs";
 
-
+        Algorithm.importSongsFromResource(listOfAllUserSongs);
+        listOfAllUserSongs.get(0).setDownloadURL("https://www.dropbox.com/s/ilvs4t50l2rxxzz/spiraling-stars.mp3?dl=1");
         importSongsFromFolder(listOfAllUserSongs, userFoler);
-        importSongsFromFolder(vibeDownloadList, vibeFoler);
+        importSongsFromFolder(listOfAllUserSongs, vibeFoler);
         getAlbumsFromImportedSongs();
         currentPlayList = new ArrayList<>(listOfAllUserSongs);
 
@@ -68,12 +68,6 @@ public class SongManager {
 
 
     public Song isSongDownloaded(Song song) {
-        for (Song i : vibeDownloadList) {
-            if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
-                return i;
-            }
-        }
-
         for (Song i : listOfAllUserSongs) {
             if (i.getTitle().equals(song.getTitle())  && i.getAlbum().equals(song.getAlbum()) && i.getArtist().equals(song.getArtist())) {
                 return i;
@@ -321,7 +315,7 @@ public class SongManager {
         }
 
         else { //song downloaded for vibe mode
-            vibeDownloadList.add(song);
+            listOfAllUserSongs.add(song);
             for (Song i : vibeSongList) {
                 if (i.getTitle().equals(song.getTitle()) && i.getArtist().equals(song.getArtist()) && i.getAlbum().equals(song.getAlbum())) {
                     i.setUri(song.getUri());

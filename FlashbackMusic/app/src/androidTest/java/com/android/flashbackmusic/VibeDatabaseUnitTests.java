@@ -78,17 +78,21 @@ public class VibeDatabaseUnitTests {
         location2.setLongitude(0);
         location2.setLatitude(-89.5);
 
-//
-//        ArrayList<Song> list = database.queryByLocationOfAllSongs(location, 2);
-//        ArrayList<Song> list2 = database.queryByLocationOfAllSongs(location2, 200000);
-//        ArrayList<Song> list2A = database.queryByLocationOfAllSongs(location2, 184000);
-//        ArrayList<Song> list2B = database.queryByLocationOfAllSongs(location2, 150000);
-//        waitForServer();
-//
-//        assertEquals(1, list.size());
-//        assertEquals(1, list2.size());
-//        assertEquals(1, list2A.size());
-//        assertEquals(0, list2B.size());
+
+        ArrayList<Song> list = new ArrayList<>();
+        database.queryByLocationOfAllSongs(location, 2, list);
+        ArrayList<Song> list2 = new ArrayList<>();
+        database.queryByLocationOfAllSongs(location2, 200000, list2);
+        ArrayList<Song> list2A = new ArrayList<>();
+        database.queryByLocationOfAllSongs(location2, 184000, list2A);
+        ArrayList<Song> list2B = new ArrayList<>();
+        database.queryByLocationOfAllSongs(location2, 150000, list2B);
+        waitForServer();
+
+        assertEquals(1, list.size());
+        assertEquals(1, list2.size());
+        assertEquals(1, list2A.size());
+        assertEquals(0, list2B.size());
 
     }
 

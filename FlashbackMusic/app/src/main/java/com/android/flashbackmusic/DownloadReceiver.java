@@ -132,6 +132,7 @@ public class DownloadReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             if (isDownloadedByuser) {
                 Toast.makeText(App.getContext(), "Downloaded file was not zip file", Toast.LENGTH_LONG).show();
+                new File(filePath).delete();
             }
             e.printStackTrace();
         }
@@ -173,13 +174,14 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         } catch (Exception e) {
             e.printStackTrace();
+            new File(filePath).delete();
             return false;
         }
     }
 
 
     public static String parseFileNameFromURL(String url) {
-        String fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
+        String fileName = url.substring( url.lastIndexOf('/')+1, url.lastIndexOf('.') + 4);
         return  fileName;
     }
 
