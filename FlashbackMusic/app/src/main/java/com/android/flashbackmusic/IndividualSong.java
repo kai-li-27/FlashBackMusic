@@ -301,10 +301,12 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
         //curr_song_datetime
         TextView time = findViewById(R.id.curr_song_datetime);
-        if (song.getLastTime() == null) {
-            time.setText("Never played");
+        if (song.getLastTime().equals(new Date(0))) {
+            time.setText("Never Played");
         } else if (song.getLastTime().compareTo(new Date(System.currentTimeMillis() - 1000*60*60*24*7)) < 0){
             time.setText("Played more than a week ago");
+        } else {
+            time.setText("Played within last week");
         }
 
     }
@@ -350,6 +352,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
     public void onSongLoaded(Song loadedSong) {
         changeText(loadedSong);
         changeDisplay(loadedSong);
+        playPause(true);
         prepareListData();
 
         Button rotate = findViewById(R.id.button_favdisneu);

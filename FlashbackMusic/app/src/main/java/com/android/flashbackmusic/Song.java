@@ -41,15 +41,12 @@ public class Song {
 
     private double lastLongitude = 0;
     private double lastLatitude = 0;
-    private Date lastTime = null;
 
     private double distance = 0;
     private double timeDifference = 0;
     private double algorithmValue = 0;
-    private boolean played = false;
 
     private static final String TAG = "Song";
-
 
 //region Constructors
     public Song(Uri uri, String userIdString, String email) {
@@ -60,7 +57,6 @@ public class Song {
         this.uri = uri;
         this.userIdString = userIdString;
         this.email = email;
-        initializeLocationAndTime();
     }
 
 
@@ -152,9 +148,6 @@ public class Song {
     public double getAlgorithmValue() {
         return this.algorithmValue;
     }
-
-    @Exclude
-    public boolean isPlayed() {return played;}
 //endregion;
 
 
@@ -200,7 +193,6 @@ public class Song {
     public void setAlbum(String album) {this.album = album;}
 
     public void setLastTime(Date lastTime) {
-        this.lastTime = lastTime;
         lastTimeLong = lastTime.getTime();
     }
 
@@ -233,10 +225,6 @@ public class Song {
         this.lastLatitude = lastLatitude;
     }
 
-    public void setPlayed(boolean played) {
-        this.played = played;
-    }
-
     public void setAlgorithmValue(double value) {
         this.algorithmValue = value;
     }
@@ -259,44 +247,34 @@ public class Song {
         }
     }
 
+
     /**
      * Given a time, determine if it is in same time range as the last time this song was played,
      * if it is in the same day of week, and how many minutes are between them.
      * @param now
      */
     public void updateTimeDifference(Date now) {
-        if (lastTime == null) { // If the song was never played, then it would never appear on the list
-            played = true;
-        }
-
-        else {
-            // Get the time difference in minutes
-            long difMiliseconds = Math.abs(now.getTime() - lastTimeLong);
-            timeDifference = difMiliseconds / 1000 / 60 % (24 * 60);
-
-        }
+        // Get the time difference in minutes
+        timeDifference = Math.abs(now.getTime() - lastTimeLong) / 1000 / 60;
     }
 
 
     /**
-     * Given an hour, between 0-23, return its time range.
-     * @param hour
+     *
      * @return
      */
-    public int timeRange(int hour) {
-        if (hour >= 5 && hour < 11) { //Morning
-            return 0;
-        } else if (hour >= 11 && hour < 17) { //Noon
-            return 1;
-        } else {
-            return 2;
+    @Override
+    public boolean equals(Object object) {
+        if (object.getClass() == Song.class) {
+            Song song = (Song)object;
+            if (song.getTitle().equals(title) && song.getArtist().equals(artist) && song.getAlbum().equals(album)) {
+                return true;
+            } else {
+                return false;
+            }
         }
-    }
-    /**
-     * Fetch data from database and update the last time and last location it was played
-     */
-    private void initializeLocationAndTime() {
-        //TODO fix it
+
+        return super.equals(object);
     }
 
 
