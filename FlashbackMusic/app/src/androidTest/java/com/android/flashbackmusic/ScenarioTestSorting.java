@@ -53,11 +53,14 @@ public class ScenarioTestSorting{
             String[] artists = {"Alpha man", "Beta woman", "Chi someone", "Donkey man"};
             String[] titles = {"Billy Jeans", "Caravan", "Dinosaur Blues", "Alpaca Llama"};
             String[] albums = {"Clues", "Dare", "Altruism", "Berries"};
+            int[] favorites = {2,0,1,2};
+            long[] times = {1,2,3,4};
             for (int i = 0; i < 4; i++) {
                 current = new SongBuilder(Uri.EMPTY, names[i], emails[i])
                         .setArtist(artists[i])
                         .setAlbum(albums[i])
                         .setTitle(titles[i])
+                        .setLastTimeLong(times[i])
                         .build();
                 songList.add(current);
             }
@@ -81,4 +84,48 @@ public class ScenarioTestSorting{
         }
     }
 
+    @Test
+    public void testSortByAlbum() {
+        assertTrue(songList.size() > 0);
+
+        final Spinner sortOptions = mainActivity.getActivity().findViewById(R.id.sortingOptions);
+
+        Espresso.onView(ViewMatchers.withId(R.id.sortingOptions)).perform(ViewActions.click());
+        Espresso.onData(Matchers.allOf(Matchers.is(Matchers.instanceOf(String.class)), Matchers.is("Album"))).perform(ViewActions.click());
+
+
+        for (int i = 0; i < songList.size() - 1; i++) {
+            assertTrue(songList.get(i).getAlbum().compareTo(songList.get(i+1).getAlbum()) <= 0);
+        }
+    }
+
+    @Test
+    public void testSortByArtist() {
+        assertTrue(songList.size() > 0);
+
+        final Spinner sortOptions = mainActivity.getActivity().findViewById(R.id.sortingOptions);
+
+        Espresso.onView(ViewMatchers.withId(R.id.sortingOptions)).perform(ViewActions.click());
+        Espresso.onData(Matchers.allOf(Matchers.is(Matchers.instanceOf(String.class)), Matchers.is("Artist"))).perform(ViewActions.click());
+
+
+        for (int i = 0; i < songList.size() - 1; i++) {
+            assertTrue(songList.get(i).getArtist().compareTo(songList.get(i+1).getArtist()) <= 0);
+        }
+    }
+
+    @Test
+    public void testSortByTime() {
+        assertTrue(songList.size() > 0);
+
+        final Spinner sortOptions = mainActivity.getActivity().findViewById(R.id.sortingOptions);
+
+        Espresso.onView(ViewMatchers.withId(R.id.sortingOptions)).perform(ViewActions.click());
+        Espresso.onData(Matchers.allOf(Matchers.is(Matchers.instanceOf(String.class)), Matchers.is("Default"))).perform(ViewActions.click());
+
+
+        for (int i = 0; i < songList.size() - 1; i++) {
+            assertTrue(songList.get(i).getLastTime().compareTo(songList.get(i+1).getLastTime())<= 0);
+        }
+    }
 }
