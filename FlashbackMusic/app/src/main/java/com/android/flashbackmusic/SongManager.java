@@ -64,6 +64,8 @@ public class SongManager {
             VibeDatabase.getDatabase().upateInfoOfSongsOfUser(listOfAllUserSongs); //This will go to server and get the preference, location and time for each song
         }
 
+        sortByDefault();
+
     }
 
 
