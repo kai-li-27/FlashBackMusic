@@ -46,7 +46,7 @@ public class ScenarioTestSorting{
             String[] albums = {"Clues", "Dare", "Altruism", "Berries"};
             int[] favorites = {2,0,1,2};
             long[] times = {1,2,3,4};
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) { // careful about Uri
                 current = new SongBuilder(Uri.EMPTY, names[i], emails[i])
                         .setArtist(artists[i])
                         .setAlbum(albums[i])
