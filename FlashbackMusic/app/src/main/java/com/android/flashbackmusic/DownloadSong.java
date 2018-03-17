@@ -1,5 +1,9 @@
 package com.android.flashbackmusic;
 
+// Reference to https://stackoverflow.com/questions/3028306/download-a-file-with-android-
+// and-showing-the-progress-in-a-progressdialog for help downloading a file using a url which
+// modified for a song and album specifically
+
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
