@@ -1,13 +1,16 @@
 package com.android.flashbackmusic;
 import android.net.Uri;
+
 import android.support.test.rule.ActivityTestRule;
 import android.widget.Button;
+
 
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import java.util.ArrayList;
+
 
 import static junit.framework.Assert.assertTrue;
 
