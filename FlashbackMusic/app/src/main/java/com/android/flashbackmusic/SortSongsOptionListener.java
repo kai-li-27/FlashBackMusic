@@ -17,6 +17,7 @@ public class SortSongsOptionListener implements AdapterView.OnItemSelectedListen
     public SortSongsOptionListener(SongListAdapter adapter) {
         songManager = SongManager.getSongManager();
         this.adapter = adapter;
+        SongManager.getSongManager().setSortSongsOptionListener(this);
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -33,6 +34,10 @@ public class SortSongsOptionListener implements AdapterView.OnItemSelectedListen
         } else {
             Log.e(TAG, "accessing invalid sort option");
         }
+        adapter.notifyDataSetChanged();
+    }
+
+    public void notifyChange() {
         adapter.notifyDataSetChanged();
     }
 
