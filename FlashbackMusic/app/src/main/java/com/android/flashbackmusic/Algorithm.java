@@ -25,19 +25,15 @@ public final class Algorithm {
      * @postcondition each object in songList will be set the following fields: title, artist, album, musicUri
      * @param songsList
      */
-    public static void importSongsFromResource(ArrayList<Song> songsList) {
+    public static void importSongsFromResource(ArrayList<Song> songsList, int number) {
         if (songsList == null) {
             System.err.println("Argument passed into importSongsFromResource() is null.");
-            throw new IllegalArgumentException();
-        }
-        if (songsList.size() != 0) {
-            System.err.println("Argument passed into importSongsFromResource() is not empty.");
             throw new IllegalArgumentException();
         }
         Field[] filesName = R.raw.class.getFields();
 
 
-        for (int i = 0; i < filesName.length; i++) {
+        for (int i = 0; i < filesName.length && i < number; i++) {
             int resourceId = App.getContext().getResources().getIdentifier(filesName[i].getName(), "raw", App.getContext().getPackageName());
             Uri musicUri = Uri.parse("android.resource://" + App.getContext().getPackageName() + "/" + Integer.toString(resourceId)  );
 
@@ -68,7 +64,6 @@ public final class Algorithm {
                 Log.d(TAG, "failed to get songs from folder");
             }
         }
-        java.util.Collections.sort(songsList, new SongComparator());
     }
 
 

@@ -44,7 +44,7 @@ public class SongManager {
         userFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/UserSongs";
         vibeFoler = App.getContext().getExternalFilesDir(null) + "/" + Environment.DIRECTORY_MUSIC + "/VibeSongs";
 
-        Algorithm.importSongsFromResource(listOfAllUserSongs);
+        Algorithm.importSongsFromResource(listOfAllUserSongs, 1);
         listOfAllUserSongs.get(0).setDownloadURL("https://www.dropbox.com/s/ilvs4t50l2rxxzz/spiraling-stars.mp3?dl=1");
         importSongsFromFolder(listOfAllUserSongs, userFoler);
         importSongsFromFolder(listOfAllUserSongs, vibeFoler);
