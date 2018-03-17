@@ -97,6 +97,16 @@ public class VibeDatabase {
                 if (song != null) {
                     if (song.getLastLocation().distanceTo(location) < radiusInFeet / 3.28) { //within radius
 
+                        if (song.getDownloadURL() == null) {
+                            try {
+                                throw new IllegalArgumentException();
+                            } catch (Exception e) {
+                                System.err.println("The song didn't have valid download link");
+                                e.printStackTrace();
+                            }
+                            return;
+                        }
+
                         if (SongManager.getSongManager().isSongDownloaded(song) != null) {
                             Song downloaded = SongManager.getSongManager().isSongDownloaded(song);
                             song.setUri(downloaded.getUri());
@@ -118,6 +128,7 @@ public class VibeDatabase {
                             return;
                         }
 
+
                         if (song.getEmail().equals(UserManager.getUserManager().getSelf().getEmail())) {
                             song.setUserDisplayName("You");
                             song.setUserIdString(UserManager.getUserManager().getSelf().getUserId()); //This is for updating preference in vibe mode
@@ -132,13 +143,13 @@ public class VibeDatabase {
                         song.updateTimeDifference(new Date(System.currentTimeMillis()));
                         Algorithm.calculateSongWeightVibe(song);
 
-                        if (songsList.contains(song)) {
-                            int index = songsList.indexOf(song);
-                            Song temp = songsList.get(index);
-                            if (temp.getAlgorithmValue() < song.getAlgorithmValue()) {
-                                songsList.remove(temp);
-                            } else {
-                                return;
+                        for (Song i : songsList) {
+                            if (i.getArtist().equals(song.getArtist()) && i.getAlbum().equals(song.getAlbum()) && i.getTitle().equals(song.getTitle())) {
+                                if (i.getAlgorithmValue() < song.getAlgorithmValue()) {
+                                    songsList.remove(i);
+                                } else {
+                                    return;
+                                }
                             }
                         }
 

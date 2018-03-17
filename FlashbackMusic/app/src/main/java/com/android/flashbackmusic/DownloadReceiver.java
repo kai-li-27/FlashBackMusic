@@ -169,6 +169,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                         .setArtist(artist).setAlbum(album).setTitle(title).setPartOfAlbum(false).setDownLoadURL(URL).build();
             }
 
+
             SongManager.getSongManager().newSongDownloaded(song, isDownloadedByuser);
             return true;
 
