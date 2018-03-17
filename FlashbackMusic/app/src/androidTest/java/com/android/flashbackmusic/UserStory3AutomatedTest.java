@@ -1,35 +1,18 @@
 package com.android.flashbackmusic;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.support.test.espresso.assertion.ViewAssertions;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.support.test.espresso.Espresso;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
+import android.support.test.rule.ActivityTestRule;
+import android.widget.Button;
 
 
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import java.util.ArrayList;
 
 
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.startsWith;
 
 /**
  * Created by K on 3/16/2018.
