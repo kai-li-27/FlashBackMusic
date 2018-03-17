@@ -188,6 +188,20 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
 
 
+//region Getters
+    public ArrayList<Song> getUpcomingList() {
+        return upcomingList;
+    }
+
+    public SongService getSongsService() {
+        return  songsService;
+    }
+//endregion;
+
+
+
+
+
 //region UI change methods
 
     /**
@@ -208,6 +222,7 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
             upcomingList.add(currentPlayList.get(i));
         }
     }
+
 
 
     /**
@@ -296,8 +311,8 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
 
         //curr_song_datetime
         TextView time = findViewById(R.id.curr_song_datetime);
-        if (song.getLastTime() == null) {
-            time.setText("Never played");
+        if (song.getLastTime().equals(new Date(0))) {
+            time.setText("Never Played");
         } else if (song.getLastTime().compareTo(new Date(System.currentTimeMillis() - 1000*60*60*24*7)) < 0){
             time.setText("Played more than a week ago");
         } else {
@@ -320,7 +335,10 @@ public class IndividualSong extends AppCompatActivity implements SongServiceEven
             songsService = binder.getService();
             songsService.addSongServiceEventListener(IndividualSong.this);
             Bundle bundle = getIntent().getExtras();
-            int index = bundle.getInt(Intent.EXTRA_INDEX);
+            int index = 0;
+            if (bundle != null) {
+                 index = bundle.getInt(Intent.EXTRA_INDEX);
+            }
             songsService.loadMedia(index);
             songsService.playPause(); //start playing TODO this is bad, create startplaying()
 

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -89,6 +90,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
             currentSong.setLastLocation(currlocation);
             VibeDatabase.getDatabase().updateSong(currentSong);
         }
+        songManager.updateVibePlaylist(currlocation);
         notify(Event.SONG_COMPLETED);
         int currentIndex = currentPlayList.indexOf(currentSong);
         if (currentIndex == currentPlayList.size() - 1) {
@@ -117,11 +119,7 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
         // Initialize location tracker
         locationManager = (LocationManager)getSystemService(LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
-            currlocation = locationManager.getLastKnownLocation("");
-            failedToGetLoactionPermission = false;
-        } catch (SecurityException e){}
+        getLocation();
 
         songManager = SongManager.getSongManager();
         currentPlayList = songManager.getCurrentPlayList();
@@ -167,12 +165,6 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
      */
     private void loadMedia() {
         Log.v(TAG, "loading current song into player");
-        if (failedToGetLoactionPermission) { //Beucase the popup for asking for permision is asynchronous, we have to ckeck it again
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
-                failedToGetLoactionPermission = false;
-            } catch (SecurityException e) {}
-        }
 
 
         try {
@@ -210,10 +202,13 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
 
         try {
             player.reset();
-            currentSong = currentPlayList.get(index);
-
-            player.setDataSource(getApplicationContext(), currentSong.getUri());
-            player.prepare();
+            if (currentPlayList.size() > index) {
+                currentSong = currentPlayList.get(index);
+                player.setDataSource(getApplicationContext(), currentSong.getUri());
+                player.prepare();
+            } else {
+                currentSong = new Song();
+            }
             notify(Event.SONG_LOADED);
         } catch (IOException e) {
             e.printStackTrace();
@@ -285,19 +280,32 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
      */
     public void switchMode(boolean mode) {
 
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(App.getContext(), "You have to give me location permission to use me ^=^", Toast.LENGTH_LONG);
+            return;
+        }
 
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(App.getContext());
         if (acct == null) {
             Toast.makeText(App.getContext(), "You must sign in before using the Vibe Mode!" , Toast.LENGTH_LONG).show();
             return;
         }
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(App.getContext(), "You have to give me location permission to use me ^=^", Toast.LENGTH_LONG);
-            //TODO if have time, request permission here
+        if (currlocation == null) {
+            getLocation();
+            try {
+                Thread.sleep(500);
+            } catch (Exception e) {e.printStackTrace();}
+            if (currlocation != null) {
+                Toast.makeText(this, "Loading playlist. Come back later", Toast.LENGTH_LONG).show();
+            }
             return;
         }
+
+
+
+
 
         Log.i(TAG, "switchMode; toggling flashback mode");
         if (flashBackMode && !mode) {
@@ -340,6 +348,31 @@ public class SongService extends Service implements MediaPlayer.OnPreparedListen
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("State", flashBackMode);
         editor.apply();
+    }
+
+
+    private void getLocation() {
+
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, mLocationListener);
+            List<String> providers = locationManager.getProviders(true);
+            Location bestLocation = null;
+            for (String provider : providers) {
+                Location l = locationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    // Found best last known location: %s", l);
+                    bestLocation = l;
+                }
+            }
+            currlocation = bestLocation;
+            if (currlocation != null) {
+                SongManager.getSongManager().updateVibePlaylist(currlocation);
+            }
+            failedToGetLoactionPermission = false;
+        } catch (SecurityException e){}
     }
 
 
