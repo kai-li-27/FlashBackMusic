@@ -246,6 +246,16 @@ public class SongManager {
                         album = "";
                     }
 
+                    if (artist.equals("") && title.equals("") && album.equals("")) {
+                        try {
+                            songFile.delete();
+                            continue;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
                     Song song = new SongBuilder(musicUri, "default", "default")
                             .setArtist(artist).setAlbum(album).setTitle(title).build();
 

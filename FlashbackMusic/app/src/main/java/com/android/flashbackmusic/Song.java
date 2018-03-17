@@ -259,24 +259,6 @@ public class Song {
     }
 
 
-    /**
-     *
-     * @return
-     */
-    @Override
-    public boolean equals(Object object) {
-        if (object.getClass() == Song.class) {
-            Song song = (Song)object;
-            if (song.getTitle().equals(title) && song.getArtist().equals(artist) && song.getAlbum().equals(album)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        return super.equals(object);
-    }
-
 
     @Exclude
     public String getDataBaseReferenceString() {
