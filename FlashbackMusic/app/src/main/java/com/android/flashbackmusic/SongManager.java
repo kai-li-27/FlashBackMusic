@@ -30,6 +30,7 @@ public class SongManager {
 
     private String userFoler;
     private String vibeFoler;
+    private SortSongsOptionListener sortSongsOptionListener;
 
     private Location currentlocation = null;
     private static final String TAG = "SongManager"; //for adding a new song
@@ -49,7 +50,6 @@ public class SongManager {
         importSongsFromFolder(listOfAllUserSongs, userFoler);
         importSongsFromFolder(listOfAllUserSongs, vibeFoler);
         getAlbumsFromImportedSongs();
-        currentPlayList = new ArrayList<>(listOfAllUserSongs);
 
         if (UserManager.getUserManager().getSelf() == null) { //NOTE: because the checking of google sign-in is executed before this, so this will always work
             Toast.makeText(App.getContext(), "You are not signed in, your play history won't be stored", Toast.LENGTH_LONG).show(); //This will make unit test fails. comment this out before unit test
@@ -65,7 +65,7 @@ public class SongManager {
         }
 
         sortByDefault();
-
+        currentPlayList = new ArrayList<>(listOfAllUserSongs);
     }
 
 
@@ -104,6 +104,10 @@ public class SongManager {
     }
 
     public ArrayList<Song> getVibeSongList() { return vibeSongList;}
+
+    public void setSortSongsOptionListener(SortSongsOptionListener sortSongsOptionListener) {
+        this.sortSongsOptionListener = sortSongsOptionListener;
+    }
 //endregion;
 
 
@@ -158,6 +162,9 @@ public class SongManager {
             }
             listOfAllUserSongs.remove(temp);
             listOfAllUserSongs.add(0, temp);//insert the least recent to the front
+        }
+        if (sortSongsOptionListener != null) {
+            sortSongsOptionListener.notifyChange(); //This is for async sorting in the background
         }
     }
 
