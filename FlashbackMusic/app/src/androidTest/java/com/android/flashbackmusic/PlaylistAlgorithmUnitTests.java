@@ -40,7 +40,7 @@ public class PlaylistAlgorithmUnitTests {
         songBuilder2 = new SongBuilder(uri,username,email);
         testSong2 = songBuilder2.build();
         testSong2.setDistance(10000);
-        testSong2.setTimeDifference(604800005);
+        testSong2.setTimeDifference(60*24*7 -1);
         testSong2.setEmail("notfriend@gmail.ucsd");
 
         Log.i("myTag","Time Difference: " + testSong2.getTimeDifference());
@@ -49,7 +49,7 @@ public class PlaylistAlgorithmUnitTests {
         songBuilder3 = new SongBuilder(uri,username,email);
         testSong3 = songBuilder3.build();
         testSong3.setDistance(1000000000);
-        testSong3.setTimeDifference(999999999);
+        testSong3.setTimeDifference(10254982);
         testSong3.setEmail("kww006@ucsd.edu");
 
     }
@@ -68,7 +68,7 @@ public class PlaylistAlgorithmUnitTests {
         double result;
         result = Algorithm.calculateSongWeightVibe(testSong2);
         Log.i("myTag2","result 2: " + result);
-        assertEquals(1.9,result,.1);
+        assertEquals(1,result,.1);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class PlaylistAlgorithmUnitTests {
         double result;
         result = Algorithm.calculateSongWeightVibe(testSong3);
 
-        assertEquals(1.9,result,.1);
+        assertEquals(0,result,.1);
         Log.i("myTag3","result 3: " + result);
     }
 
